@@ -54,6 +54,12 @@ En `appsettings.json`:
 
 ---
 
+## 🗄️ Setup de base de datos (SQL inicial)
+
+- Se encuentra en el script en la raíz: ./db_inmobiliaria_lab_2.sql
+
+---
+
 ## ▶️ Ejecución del proyecto
 
 1. Restaurar dependencias:
@@ -91,10 +97,6 @@ En `appsettings.json`:
 2. Luego este archivo se usa para importar como colección en POSTMAN.
 
 ---
-
-## 🗄️ Setup de base de datos (SQL inicial)
-
-- Se encuentra en el script en la raíz: ./db_inmobiliaria_lab_2.sql
 
 ```
 
