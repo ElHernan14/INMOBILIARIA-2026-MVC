@@ -1,10 +1,7 @@
 namespace INMOBILIARIA.Models.Interfaces
 {
-    public interface IRepositorioPago
+    public interface IRepositorioPago : IRepositorio<Pago>
     {
-        Usuario Alta(Pago p);
-        Usuario Baja(int id);
-        Usuario Modificacion(Pago p);
-        
+        // desarrollar con lo que falte
     }
 }

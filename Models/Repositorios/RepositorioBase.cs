@@ -8,7 +8,8 @@ public abstract class RepositorioBase
     protected RepositorioBase(IConfiguration configuration)
     {
         this.configuration = configuration;
-        connectionString = configuration["ConnectionStrings:MySql"]!;
+        connectionString = configuration["ConnectionStrings:MySqlConnectionString"]!;
+        // connectionString = "Server=localhost;Port=3307;User=root;Password=1234;Database=mi_base;SslMode=none";
         
         if (string.IsNullOrEmpty(connectionString))
         {

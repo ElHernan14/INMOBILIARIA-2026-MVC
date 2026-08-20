@@ -1,10 +1,8 @@
 namespace INMOBILIARIA.Models.Interfaces
 {
-    public interface IRepositorioInquilino
+    public interface IRepositorioInquilino : IRepositorio<Inquilino>
     {
-        int Alta(Inquilino i);
-        int Baja(int id);
-        int Modificacion(Inquilino i);
+        // desarrollar con lo que falte
 
     }
 }

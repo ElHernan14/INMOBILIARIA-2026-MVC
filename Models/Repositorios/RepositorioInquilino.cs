@@ -5,19 +5,19 @@ using System.Data;
 
 namespace INMOBILIARIA.Models.Repositorios
 {
-    public class RepositorioPropietario : RepositorioBase, IRepositorioPropietario
+    public class RepositorioInquilino : RepositorioBase, IRepositorioInquilino
     {
-        public RepositorioPropietario(IConfiguration configuration) : base(configuration)
+        public RepositorioInquilino(IConfiguration configuration) : base(configuration)
         {
             
         }
 
-        public int Alta(Propietario p)
+        public int Alta(Inquilino p)
         {
             int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-				string sql = @"INSERT INTO propietarios (nombre, apellido, dni, email, activo)
+				string sql = @"INSERT INTO inquilinos (nombre, apellido, dni, email, activo)
                 VALUES (@nombre, @apellido, @dni, @email, @activo);
                 SELECT LAST_INSERT_ID();";
 
@@ -43,7 +43,7 @@ namespace INMOBILIARIA.Models.Repositorios
             int res = -1;
 			using (MySqlConnection connection = new MySqlConnection(connectionString))
 			{
-				string sql = "UPDATE propietarios SET activo=0 WHERE Id = @id";
+				string sql = "UPDATE inquilinos SET activo=0 WHERE Id = @id";
 				using (MySqlCommand command = new MySqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
@@ -56,12 +56,12 @@ namespace INMOBILIARIA.Models.Repositorios
 			return res;
         }
 
-        public int Modificacion(Propietario p)
+        public int Modificacion(Inquilino p)
         {
             int res = -1;
 			using (MySqlConnection connection = new MySqlConnection(connectionString))
 			{
-				string sql = @"UPDATE propietarios 
+				string sql = @"UPDATE inquilinos 
 					SET nombre=@nombre, apellido=@apellido, dni=@dni, email=@email, activo=@activo
 					WHERE id = @id";
 				using (MySqlCommand command = new MySqlCommand(sql, connection))
@@ -82,13 +82,13 @@ namespace INMOBILIARIA.Models.Repositorios
         }
 
 
-        public Propietario ObtenerPorId(int id)
+        public Inquilino ObtenerPorId(int id)
         {
-            Propietario p = null;
+            Inquilino p = null;
 			using (MySqlConnection connection = new MySqlConnection(connectionString))
 			{
 				string sql = @"SELECT id, nombre, apellido, dni, email, activo
-                FROM propietarios
+                FROM inquilinos
                 WHERE id=@id";
 				using (MySqlCommand command = new MySqlCommand(sql, connection))
 				{
@@ -98,9 +98,9 @@ namespace INMOBILIARIA.Models.Repositorios
 					var reader = command.ExecuteReader();
 					if (reader.Read())
 					{
-						p = new Propietario
+						p = new Inquilino
 						{
-							Id = reader.GetInt32(nameof(Propietario.Id)),
+							Id = reader.GetInt32(nameof(Inquilino.Id)),
 							Nombre = reader.GetString("Nombre"),
 							Apellido = reader.GetString("Apellido"),
 							Dni = reader.GetString("Dni"),
