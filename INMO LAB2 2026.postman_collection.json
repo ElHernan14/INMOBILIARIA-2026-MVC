@@ -1,0 +1,169 @@
+{
+  "info": {
+    "_postman_id": "1dc6ec22-9a8a-4220-864d-b0d031702b11",
+    "name": "INMO LAB2 2026",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54271180",
+    "_collection_link": "https://go.postman.co/collection/54271180-1dc6ec22-9a8a-4220-864d-b0d031702b11?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Propietarios",
+      "item": [
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"Nombre\": \"Kevin\",\r\n    \"Apellido\": \"Paredes\",\r\n    \"Dni\": \"39137259\",\r\n    \"Email\": \"kevimm@gmail.com\",\r\n    \"Activo\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_base}}propietario/Create",
+              "host": [
+                "{{url_base}}propietario"
+              ],
+              "path": [
+                "Create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"Id\": 9,\r\n    \"Nombre\": \"yoel\",\r\n    \"Apellido\": \"perez\",\r\n    \"Dni\": \"38111222\",\r\n    \"Email\": \"tomasperez@gmail.com\",\r\n    \"Activo\": false\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_base}}propietario/update",
+              "host": [
+                "{{url_base}}propietario"
+              ],
+              "path": [
+                "update"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"Id\": 9,\r\n    \"Nombre\": \"yoel\",\r\n    \"Apellido\": \"perez\",\r\n    \"Dni\": \"38111222\",\r\n    \"Email\": \"tomasperez@gmail.com\",\r\n    \"Activo\": false\r\n}"
+            },
+            "url": {
+              "raw": "{{url_base}}propietario/delete/9",
+              "host": [
+                "{{url_base}}propietario"
+              ],
+              "path": [
+                "delete",
+                "9"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Inquilino",
+      "item": [
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"Nombre\": \"Kevin\",\r\n    \"Apellido\": \"Paredes\",\r\n    \"Dni\": \"39137259\",\r\n    \"Email\": \"kevimm@gmail.com\",\r\n    \"Activo\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_base}}inquilino/Create",
+              "host": [
+                "{{url_base}}inquilino"
+              ],
+              "path": [
+                "Create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"Id\": 9,\r\n    \"Nombre\": \"yoel\",\r\n    \"Apellido\": \"perez\",\r\n    \"Dni\": \"38111222\",\r\n    \"Email\": \"tomasperez@gmail.com\",\r\n    \"Activo\": false\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_base}}inquilino/update",
+              "host": [
+                "{{url_base}}inquilino"
+              ],
+              "path": [
+                "update"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"Id\": 9,\r\n    \"Nombre\": \"yoel\",\r\n    \"Apellido\": \"perez\",\r\n    \"Dni\": \"38111222\",\r\n    \"Email\": \"tomasperez@gmail.com\",\r\n    \"Activo\": false\r\n}"
+            },
+            "url": {
+              "raw": "{{url_base}}inquilino/delete/9",
+              "host": [
+                "{{url_base}}inquilino"
+              ],
+              "path": [
+                "delete",
+                "9"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
