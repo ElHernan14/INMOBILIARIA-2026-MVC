@@ -97,7 +97,3 @@ En `appsettings.json`:
 2. Luego este archivo se usa para importar como colección en POSTMAN.
 
 ---
-
-```
-
-```
