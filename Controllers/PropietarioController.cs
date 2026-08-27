@@ -22,6 +22,11 @@ namespace INMOBILIARIA.Controllers
 		{
 			try
 			{
+				// throw new Exception("Ocurrió un error inesperado."); ESTO PARA FORZAR UN ERROR
+
+				if(propietario == null) return BadRequest("Los datos del propietario son nulos");
+
+				if (!ModelState.IsValid) return BadRequest(ModelState);
 
                 repositorioPropietario.Alta(propietario);
 
@@ -29,8 +34,8 @@ namespace INMOBILIARIA.Controllers
 			}
 			catch (Exception ex)
 			{
-				//agregar mensajes de error con logs...
-				throw;
+                Console.Error.WriteLine("Ocurrió un error, en PropietarioController - create", ex);
+				return StatusCode(500, "Ocurrió un error");
 			}
 		}
 
@@ -40,19 +45,25 @@ namespace INMOBILIARIA.Controllers
 		{
 			try
 			{
+
+				if(propietario == null) return BadRequest("Los datos del propietario son nulos");
+
+				if (!ModelState.IsValid) return BadRequest(ModelState);
+
 				Propietario p = repositorioPropietario.ObtenerPorId(propietario.Id);
 				if(p == null)
 				{
 					return NotFound("Propietario no encontrado");
 				}
+
 				repositorioPropietario.Modificacion(propietario);
 
 				return Ok("Propietario editado");
 			}
 			catch (Exception ex)
 			{
-				//agregar mensajes de error con logs...
-				throw;
+				Console.Error.WriteLine("Ocurrió un error, en PropietarioController - update", ex);
+				return StatusCode(500, "Ocurrió un error");
 			}
 		}
 
@@ -73,8 +84,8 @@ namespace INMOBILIARIA.Controllers
 			}
 			catch (Exception ex)
 			{
-				//agregar mensajes de error con logs...
-				throw;
+				Console.Error.WriteLine("Ocurrió un error, en PropietarioController - delete", ex);
+				return StatusCode(500, "Ocurrió un error");
 			}
 		}
     }

@@ -23,14 +23,18 @@ namespace INMOBILIARIA.Controllers
             try
             {
 
+                if(inquilino == null) return BadRequest("Los datos del inquilino son nulos");
+
+				if (!ModelState.IsValid) return BadRequest(ModelState);
+
                 repositorioInquilino.Alta(inquilino);
 
                 return Ok("inquilino creado");
             }
             catch (Exception ex)
             {
-                //agregar mensajes de error con logs...
-                throw;
+                Console.Error.WriteLine("Ocurrió un error, en InquilinoController - create", ex);
+				return StatusCode(500, "Ocurrió un error");
             }
         }
 
@@ -39,19 +43,24 @@ namespace INMOBILIARIA.Controllers
         {
             try
             {
+                if(inquilino == null) return BadRequest("Los datos del inquilino son nulos");
+
+				if (!ModelState.IsValid) return BadRequest(ModelState);
+
                 Inquilino i = repositorioInquilino.ObtenerPorId(inquilino.Id);
                 if(i == null)
                 {
                     return NotFound("Inquilino no encontrado");
                 }
+
                 repositorioInquilino.Modificacion(inquilino);
 
                 return Ok("Inquilino editado");
             }
             catch (Exception ex)
             {
-                //agregar mensajes de error con logs...
-                throw;
+                Console.Error.WriteLine("Ocurrió un error, en InquilinoController - update", ex);
+				return StatusCode(500, "Ocurrió un error");
             }
         }
 
@@ -65,14 +74,15 @@ namespace INMOBILIARIA.Controllers
                 {
                     return NotFound("Inquilino no encontrado");
                 }
+
                 repositorioInquilino.Baja(id);
 
                 return Ok("Inquilino eliminado");
             }
             catch (Exception ex)
             {
-                //agregar mensajes de error con logs...
-                throw;
+                Console.Error.WriteLine("Ocurrió un error, en InquilinoController - delete", ex);
+				return StatusCode(500, "Ocurrió un error");
             }
         }
     }
