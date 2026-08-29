@@ -27,6 +27,6 @@ namespace INMOBILIARIA.Models
         [Required]
 		public DateTime FechaCreacion { get; set; } = DateTime.Now;
 
-		public DateTime FechaCancelacion { get; set; } //mirar esto
+		public DateTime? FechaCancelacion { get; set; } //mirar esto
 	}
 }
