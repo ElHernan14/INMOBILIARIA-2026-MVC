@@ -137,18 +137,7 @@ namespace INMOBILIARIA.Models.Repositorios
 						var reader = command.ExecuteReader();
 						if (reader.Read())
 						{
-							p = new Reserva
-							{
-								Id = reader.GetInt32(nameof(Inquilino.Id)),
-								Inmueble = Inmuebles.ObtenerPorId(reader.GetInt32("inmueble_id")), //a chequear
-								Inquilino = Inquilinos.ObtenerPorId(reader.GetInt32("inquilino_id")), //a chequear
-								UsuarioCreador = Usuarios.ObtenerPorId(reader.GetInt32("usuario_creador_id")), //a chequear
-								FechaDesde = reader.GetDateOnly("fecha_desde"),
-								FechaHasta = reader.GetDateOnly("fecha_hasta"),
-								Activo = !reader.GetBoolean("cancelada"),
-								FechaCreacion = reader.GetDateTime("fecha_creacion"),
-								FechaCancelacion = reader.GetDateTime("fecha_cancelacion")
-							};
+							p = MapearReserva(reader);
 						}
 						connection.Close();
 					}
@@ -162,24 +151,88 @@ namespace INMOBILIARIA.Models.Repositorios
 			}
 		}
 
-		List<Reserva> IRepositorioReserva.ObtenerTodas()
+		public IEnumerable<Reserva> ObtenerTodas()
+		{
+			try
+			{
+				List<Reserva> reservas = new List<Reserva>();
+
+				using (MySqlConnection connection = new MySqlConnection(connectionString))
+				{
+					string sql = @"SELECT 
+							id,
+							inmueble_id,
+							inquilino_id,
+							usuario_creador_id,
+							usuario_cancelador_id,
+							fecha_desde,
+							fecha_hasta,
+							cancelada,
+							fecha_creacion,
+							fecha_cancelacion
+						FROM inmuebles
+						ORDER BY id";
+					using (MySqlCommand command = new MySqlCommand(sql, connection))
+					{
+						command.CommandType = CommandType.Text;
+						connection.Open();
+						var reader = command.ExecuteReader();
+						while (reader.Read())
+						{
+							reservas.Add(MapearReserva(reader));
+						}
+						connection.Close();
+					}
+				}
+				
+				return reservas;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error RepositorioBase - ObtenerTodas: {ex.Message}");
+				throw;
+			}
+		}
+
+		public IEnumerable<Reserva> ObtenerPorFecha(DateOnly fecha)
 		{
 			throw new NotImplementedException();
 		}
 
-		List<Reserva> IRepositorioReserva.ObtenerPorFecha(DateOnly fecha)
+		public IEnumerable<Reserva> ObtenerPorInmueble(int id)
 		{
 			throw new NotImplementedException();
 		}
 
-		List<Reserva> IRepositorioReserva.ObtenerPorInmueble(int id)
+		public IEnumerable<Reserva> ObtenerPorInquilino(int id)
 		{
 			throw new NotImplementedException();
 		}
 
-		List<Reserva> IRepositorioReserva.ObtenerPorInquilino(int id)
+		private Reserva MapearReserva(MySqlDataReader reader)
 		{
-			throw new NotImplementedException();
+			return new Reserva
+			{
+				/* Los marcados como "a checar" usan el codigo ya hecho en las clases pertinentes 
+				 * El problema es que en cada uno de ellos, se realiza otro query, por lo que
+				 * mapear una reserva generaria 4 queries. Por lo que es exponencial y quiza 
+				 * notable cuando se trata de "ObtenerTodas()" por ejemplo.
+
+				 * Considerar cambiarlo para que funcione similar a RepositorioInmueble.cs
+				 */
+				Id = reader.GetInt32("id"),
+				Inmueble = Inmuebles.ObtenerPorId(reader.GetInt32("inmueble_id")), 				//a chequear
+				Inquilino = Inquilinos.ObtenerPorId(reader.GetInt32("inquilino_id")), 			//a chequear
+				UsuarioCreador = Usuarios.ObtenerPorId(reader.GetInt32("usuario_creador_id")), 	//a chequear
+				UsuarioCancelador = reader.IsDBNull(reader.GetInt32("usuario_cancelador_id"))	//a chequear
+					? new Usuario {}
+					: Usuarios.ObtenerPorId(reader.GetInt32("usuario_cancelador_id")),
+				FechaDesde = reader.GetDateOnly("fecha_desde"),
+				FechaHasta = reader.GetDateOnly("fecha_hasta"),
+				Activo = !reader.GetBoolean("cancelada"),
+				FechaCreacion = reader.GetDateTime("fecha_creacion"),
+				FechaCancelacion = reader.GetDateTime("fecha_cancelacion")
+			};
 		}
 	}
 }
