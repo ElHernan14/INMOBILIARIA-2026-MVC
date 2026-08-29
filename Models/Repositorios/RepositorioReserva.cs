@@ -7,8 +7,15 @@ namespace INMOBILIARIA.Models.Repositorios
 {
 	public class RepositorioReserva : RepositorioBase, IRepositorioReserva
 	{
-		public RepositorioReserva(IConfiguration configuration) : base(configuration)
+		private readonly IRepositorioInmueble Inmuebles;
+		private readonly IRepositorioInquilino Inquilinos;
+		private readonly IRepositorioUsuario Usuarios;
+
+		public RepositorioReserva(IRepositorioInmueble repoInmueble, IRepositorioInquilino repoInquilino, IRepositorioUsuario repoUsuario, IConfiguration configuration) : base(configuration)
 		{
+			this.Inmuebles = repoInmueble;
+			this.Inquilinos = repoInquilino;
+			this.Usuarios = repoUsuario;
 		}	
 
 		public int Alta(Reserva p) 
@@ -117,9 +124,6 @@ namespace INMOBILIARIA.Models.Repositorios
 			try
 			{
 				Reserva? p = null;
-				RepositorioInmueble Inmuebles = new RepositorioInmueble(configuration);
-				RepositorioInquilino Inquilinos = new RepositorioInquilino(configuration);
-				RepositorioUsuario Usuarios = new RepositorioUsuario(configuration);
 				using (MySqlConnection connection = new MySqlConnection(connectionString))
 				{
 					string sql = @"SELECT id, inmueble_id, inquilino_id, usuario_creador_id, usuario_cancelador_id, fecha_desde, fecha_hasta, cancelada, fecha_creacion, fecha_cancelacion 
