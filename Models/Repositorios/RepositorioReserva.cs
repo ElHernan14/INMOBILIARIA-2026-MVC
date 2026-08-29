@@ -170,7 +170,7 @@ namespace INMOBILIARIA.Models.Repositorios
 							cancelada,
 							fecha_creacion,
 							fecha_cancelacion
-						FROM inmuebles
+						FROM reservas
 						ORDER BY id";
 					using (MySqlCommand command = new MySqlCommand(sql, connection))
 					{
