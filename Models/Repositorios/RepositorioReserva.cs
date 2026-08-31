@@ -7,15 +7,9 @@ namespace INMOBILIARIA.Models.Repositorios
 {
 	public class RepositorioReserva : RepositorioBase, IRepositorioReserva
 	{
-		private readonly IRepositorioInmueble Inmuebles;
-		private readonly IRepositorioInquilino Inquilinos;
-		private readonly IRepositorioUsuario Usuarios;
-
-		public RepositorioReserva(IRepositorioInmueble repoInmueble, IRepositorioInquilino repoInquilino, IRepositorioUsuario repoUsuario, IConfiguration configuration) : base(configuration)
+		public RepositorioReserva(IConfiguration configuration) : base(configuration)
 		{
-			this.Inmuebles = repoInmueble;
-			this.Inquilinos = repoInquilino;
-			this.Usuarios = repoUsuario;
+			
 		}	
 
 		public int Alta(Reserva p) 
@@ -330,6 +324,10 @@ namespace INMOBILIARIA.Models.Repositorios
 
 		private Reserva MapearReserva(MySqlDataReader reader)
 		{
+			RepositorioInmueble Inmuebles = new RepositorioInmueble(configuration);
+			RepositorioInquilino Inquilinos = new RepositorioInquilino(configuration);
+			RepositorioUsuario Usuarios = new RepositorioUsuario(configuration);
+
 			return new Reserva
 			{
 				/* Los marcados como "a checar" usan el codigo ya hecho en las clases pertinentes 
