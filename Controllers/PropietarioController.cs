@@ -88,5 +88,40 @@ namespace INMOBILIARIA.Controllers
 				return StatusCode(500, "Ocurrió un error");
 			}
 		}
+
+		[HttpGet]
+		public ActionResult Index()
+		{
+			try
+			{
+
+				List<Propietario> lista = [];
+
+				return View(lista);
+			}
+			catch (Exception ex)
+			{
+				Console.Error.WriteLine("Ocurrió un error, en PropietarioController - Index", ex);
+				return StatusCode(500, "Ocurrió un error");
+			}
+		}
+
+		[HttpGet]
+		// [ValidateAntiForgeryToken] // quitar cuando se requiera
+		public ActionResult Detalles(int id)
+		{
+			try
+			{
+
+				Propietario p = repositorioPropietario.ObtenerPorId(id);
+
+				return View(p);
+			}
+			catch (Exception ex)
+			{
+				Console.Error.WriteLine("Ocurrió un error, en PropietarioController - Detalles", ex);
+				return StatusCode(500, "Ocurrió un error");
+			}
+		}
     }
 }
