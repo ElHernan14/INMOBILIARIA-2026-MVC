@@ -1,7 +1,8 @@
 CREATE TABLE tipos_inmueble (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	nombre VARCHAR(100) NOT NULL,
-	descripcion VARCHAR(255)
+	descripcion VARCHAR(255),
+	activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE usuarios (

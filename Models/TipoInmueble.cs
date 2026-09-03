@@ -14,5 +14,8 @@ namespace INMOBILIARIA.Models
 		[Required]
 		[StringLength(255)]
 		public string Descripcion { get; set; } = string.Empty;
+
+		 [Required]
+		public bool Activo { get; set; } = true;
 	}
 }
