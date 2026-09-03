@@ -1,8 +1,510 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model List<INMOBILIARIA.Models.Propietario>
+
+@{
+    ViewData["Title"] = "Propietarios";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div id="propietarios-app">
+
+    <!-- Encabezado -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+
+        <div>
+            <h1 class="h3 fw-bold mb-1">
+                Propietarios
+            </h1>
+
+            <p class="text-muted mb-0">
+                Administración de propietarios de la inmobiliaria.
+            </p>
+        </div>
+
+        <a asp-controller="Propietario"
+           asp-action="Create"
+           class="btn btn-primary">
+
+            <span class="me-1">+</span>
+            Nuevo propietario
+
+        </a>
+
+    </div>
+
+
+    <!-- Filtros -->
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-body">
+
+            <div class="row g-3 align-items-end">
+
+                <!-- Búsqueda -->
+                <div class="col-12 col-md-6">
+
+                    <label for="busqueda"
+                           class="form-label fw-semibold">
+
+                        Buscar propietario
+
+                    </label>
+
+                    <input id="busqueda"
+                           v-model="filters.busqueda"
+                           type="text"
+                           class="form-control"
+                           placeholder="Nombre o apellido..." />
+
+                </div>
+
+
+                <!-- Estado -->
+                <div class="col-12 col-md-3">
+
+                    <label for="estado"
+                           class="form-label fw-semibold">
+
+                        Estado
+
+                    </label>
+
+                    <select id="estado"
+                            v-model="filters.estado"
+                            class="form-select">
+
+                        <option value="todos">
+                            Todos
+                        </option>
+
+                        <option value="activos">
+                            Activos
+                        </option>
+
+                        <option value="inactivos">
+                            Inactivos
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- Acciones filtros -->
+                <div class="col-12 col-md-3 d-flex gap-2">
+
+                    <button type="button"
+                            class="btn btn-dark flex-grow-1"
+                            @@click="aplicarFiltros">
+
+                        Buscar
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            @@click="limpiarFiltros">
+
+                        Limpiar
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Información del listado -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <span class="text-muted small">
+
+            Mostrando
+            <strong>{{ propietariosFiltrados.length }}</strong>
+            propietario(s)
+
+        </span>
+
+    </div>
+
+
+    <!-- Tabla -->
+    <div class="card shadow-sm border-0">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle mb-0">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th>Nombre</th>
+                        <th>DNI</th>
+                        <th>Email</th>
+                        <th>Estado</th>
+
+                        <th class="text-end">
+                            Acciones
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <!-- Sin resultados -->
+                    <tr v-if="propietariosFiltrados.length === 0">
+
+                        <td colspan="5"
+                            class="text-center py-5">
+
+                            <div class="text-muted">
+
+                                No se encontraron propietarios.
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+
+                    <!-- Propietarios -->
+                    <tr v-for="propietario in propietariosFiltrados"
+                        :key="propietario.id">
+
+                        <td>
+
+                            <div class="fw-semibold">
+
+                                {{ propietario.nombre }}
+                                {{ propietario.apellido }}
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+                            {{ propietario.dni }}
+                        </td>
+
+
+                        <td>
+                            {{ propietario.email }}
+                        </td>
+
+
+                        <td>
+
+                            <span v-if="propietario.activo"
+                                  class="badge text-bg-success">
+
+                                Activo
+
+                            </span>
+
+                            <span v-else
+                                  class="badge text-bg-secondary">
+
+                                Inactivo
+
+                            </span>
+
+                        </td>
+
+
+                        <td class="text-end">
+
+                            <div class="btn-group"
+                                 role="group">
+
+                                <!-- Detalles -->
+                                <a :href="`/Propietario/Details/${propietario.id}`"
+                                   class="btn btn-sm btn-outline-secondary">
+
+                                    Ver
+
+                                </a>
+
+
+                                <!-- Editar -->
+                                <a :href="`/Propietario/Edit/${propietario.id}`"
+                                   class="btn btn-sm btn-outline-primary">
+
+                                    Editar
+
+                                </a>
+
+
+                                <!-- Baja -->
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-danger"
+                                        :disabled="!propietario.activo"
+                                        @@click="abrirModalBaja(propietario)">
+
+                                    Baja
+
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- Modal de baja -->
+    <div class="modal fade"
+         id="modalBajaPropietario"
+         tabindex="-1"
+         aria-labelledby="modalBajaPropietarioLabel"
+         aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title"
+                        id="modalBajaPropietarioLabel">
+
+                        Dar de baja propietario
+
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Cerrar">
+                    </button>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <p class="mb-2">
+
+                        ¿Está seguro que desea dar de baja al propietario?
+
+                    </p>
+
+                    <div v-if="propietarioSeleccionado"
+                         class="alert alert-warning mb-0">
+
+                        <strong>
+                            {{ propietarioSeleccionado.nombre }}
+                            {{ propietarioSeleccionado.apellido }}
+                        </strong>
+
+                        <br />
+
+                        <small>
+                            DNI: {{ propietarioSeleccionado.dni }}
+                        </small>
+
+                    </div>
+
+                    <p class="text-muted small mt-3 mb-0">
+
+                        El propietario no será eliminado físicamente.
+                        Su estado pasará a inactivo.
+
+                    </p>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+
+                        Cancelar
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-danger"
+                            @@click="confirmarBaja">
+
+                        Confirmar baja
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
+
+
+@section Scripts {
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script>
+
+        const { createApp } = Vue;
+
+        createApp({
+
+            data() {
+
+                return {
+
+                    /*
+                     * Los propietarios vienen desde ASP.NET MVC.
+                     * Vue solamente recibe estos datos para trabajar
+                     * sobre la interfaz.
+                     */
+                    propietarios: @Html.Raw(
+                        System.Text.Json.JsonSerializer.Serialize(Model)
+                    ),
+
+                    filters: {
+                        busqueda: "",
+                        estado: "todos"
+                    },
+
+                    appliedFilters: {
+                        busqueda: "",
+                        estado: "todos"
+                    },
+
+                    propietarioSeleccionado: null,
+
+                    modalBaja: null
+
+                };
+
+            },
+
+
+            computed: {
+
+                propietariosFiltrados() {
+
+                    const busqueda =
+                        this.appliedFilters.busqueda
+                            .trim()
+                            .toLowerCase();
+
+                    const estado =
+                        this.appliedFilters.estado;
+
+                    return this.propietarios.filter(propietario => {
+
+                        const nombreCompleto =
+                            `${propietario.nombre} ${propietario.apellido}`
+                                .toLowerCase();
+
+                        const coincideBusqueda =
+                            !busqueda ||
+                            nombreCompleto.includes(busqueda);
+
+                        const coincideEstado =
+                            estado === "todos" ||
+                            (estado === "activos" && propietario.activo) ||
+                            (estado === "inactivos" && !propietario.activo);
+
+                        return coincideBusqueda && coincideEstado;
+
+                    });
+
+                }
+
+            },
+
+
+            methods: {
+
+                aplicarFiltros() {
+
+                    this.appliedFilters = {
+                        busqueda: this.filters.busqueda,
+                        estado: this.filters.estado
+                    };
+
+                },
+
+
+                limpiarFiltros() {
+
+                    this.filters = {
+                        busqueda: "",
+                        estado: "todos"
+                    };
+
+                    this.aplicarFiltros();
+
+                },
+
+
+                abrirModalBaja(propietario) {
+
+                    this.propietarioSeleccionado = propietario;
+
+                    this.modalBaja =
+                        new bootstrap.Modal(
+                            document.getElementById(
+                                "modalBajaPropietario"
+                            )
+                        );
+
+                    this.modalBaja.show();
+
+                },
+
+
+                confirmarBaja() {
+
+                    if (!this.propietarioSeleccionado) {
+                        return;
+                    }
+
+                    /*
+                     * Próximo paso:
+                     *
+                     * llamar al endpoint Razor:
+                     *
+                     * /Propietario/Delete?id=...
+                     *
+                     * y actualizar la vista cuando
+                     * el Controller confirme la baja.
+                     */
+
+                    console.log(
+                        "Solicitar baja:",
+                        this.propietarioSeleccionado.id
+                    );
+
+                }
+
+            }
+
+        }).mount("#propietarios-app");
+
+    </script>
+
+}
