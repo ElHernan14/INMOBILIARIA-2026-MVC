@@ -63,7 +63,7 @@ namespace INMOBILIARIA.Controllers
 
                 repositorioInmueble.Modificacion(inmueble);
 
-                return Ok("Inmueble editado");
+                return Ok(inmueble);
             }
             catch (Exception ex)
             {
