@@ -1,6 +1,273 @@
-<div>
-    <h1>HOLAA! esto es propietario</h1>
-    <h2>ACA VA UNA LISTA</h2>
+@model List<INMOBILIARIA.Models.Propietario>
 
-    <a class="btn btn-primary" asp-action="Detalles" asp-route-id="1">IR A DETALLES PROPIETARIO 1</a>
+@{
+    ViewData["Title"] = "Propietarios";
+}
+
+<div id="propietarios-app">
+
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1 class="fw-bold mb-1">
+                Propietarios
+            </h1>
+
+            <p class="text-muted mb-0">
+                Listado de propietarios registrados en la inmobiliaria.
+            </p>
+        </div>
+
+        <div class="text-end">
+
+            <span class="badge rounded-pill text-bg-light border px-3 py-2">
+                {{ propietarios.length }} registrados
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- Listado -->
+    <div class="card border-0 shadow-sm overflow-hidden">
+
+        <!-- Cabecera de tabla -->
+        <div class="card-header bg-white border-bottom py-3">
+
+            <div class="d-flex align-items-center">
+
+                <div class="bg-primary bg-opacity-10 rounded-3 p-2 me-3">
+                    <span class="text-primary fw-bold">
+                        P
+                    </span>
+                </div>
+
+                <div>
+                    <h2 class="h6 fw-bold mb-0">
+                        Propietarios registrados
+                    </h2>
+
+                    <small class="text-muted">
+                        Información general
+                    </small>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle mb-0">
+
+                <thead class="table-light">
+
+                    <tr>
+                        <th class="ps-4">
+                            Propietario
+                        </th>
+
+                        <th>
+                            DNI
+                        </th>
+
+                        <th>
+                            Email
+                        </th>
+
+                        <th>
+                            Estado
+                        </th>
+
+                        <th class="text-end pe-4">
+                            Acción
+                        </th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <!-- Estado vacío -->
+                    <tr v-if="propietarios.length === 0">
+
+                        <td colspan="5"
+                            class="text-center py-5">
+
+                            <div class="mb-2">
+                                <span class="fs-3 text-muted">
+                                    —
+                                </span>
+                            </div>
+
+                            <div class="fw-semibold">
+                                No hay propietarios registrados
+                            </div>
+
+                            <small class="text-muted">
+                                Cuando se registren propietarios aparecerán aquí.
+                            </small>
+
+                        </td>
+
+                    </tr>
+
+
+                    <!-- Propietarios -->
+                    <tr v-for="propietario in propietarios"
+                        :key="propietario.Id">
+
+                        <td class="ps-4">
+
+                            <div class="d-flex align-items-center">
+
+                                <!-- Avatar -->
+                                <div class="rounded-circle bg-primary bg-opacity-10
+                                            text-primary d-flex align-items-center
+                                            justify-content-center me-3"
+                                     style="width: 42px; height: 42px;">
+
+                                    <span class="fw-bold">
+                                        {{ iniciales(propietario) }}
+                                    </span>
+
+                                </div>
+
+
+                                <!-- Nombre -->
+                                <div>
+
+                                    <div class="fw-semibold">
+
+                                        {{ propietario.Nombre }}
+                                        {{ propietario.Apellido }}
+
+                                    </div>
+
+                                    <small class="text-muted">
+                                        Propietario #COD-00{{ propietario.Id }}
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+                            {{ propietario.Dni }}
+                        </td>
+
+
+                        <td>
+                            {{ propietario.Email }}
+                        </td>
+
+
+                        <td>
+
+                            <span v-if="propietario.Activo"
+                                  class="badge rounded-pill text-bg-success">
+
+                                Activo
+
+                            </span>
+
+                            <span v-else
+                                  class="badge rounded-pill text-bg-secondary">
+
+                                Inactivo
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- ÚNICA ACCIÓN -->
+                        <td class="text-end pe-4">
+
+                            <a :href="detailsUrl(propietario.Id)"
+                               class="btn btn-sm btn-outline-primary px-3">
+
+                                Ver detalles
+                                <span class="ms-1">
+                                    →
+                                </span>
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
 </div>
+
+
+@section Scripts {
+    <!-- Vue 3 -->
+    <script>
+
+        const { createApp } = Vue;
+
+        createApp({
+
+            data() {
+
+                return {
+
+                    /*
+                     * Los datos son enviados por Razor desde el Controller.
+                     * Vue no consulta ni genera datos.
+                     */
+                    propietarios: @Html.Raw(
+                        System.Text.Json.JsonSerializer.Serialize(Model)
+                    )
+
+                };
+
+            },
+
+
+            methods: {
+
+                iniciales(propietario) {
+
+                    const nombre =
+                        propietario.nombre?.charAt(0) ?? "";
+
+                    const apellido =
+                        propietario.apellido?.charAt(0) ?? "";
+
+                    return (
+                        nombre + apellido
+                    ).toUpperCase();
+
+                },
+
+
+                detailsUrl(id) {
+
+                    return `/Propietario/Detalles/${id}`;
+
+                }
+
+            }
+
+        }).mount("#propietarios-app");
+
+    </script>
+
+}

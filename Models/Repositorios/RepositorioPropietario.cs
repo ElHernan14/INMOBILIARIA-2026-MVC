@@ -146,5 +146,83 @@ namespace INMOBILIARIA.Models.Repositorios
 		   }
         }
 
+		public List<Propietario> ObtenerTodos(int activo, string nombreApellido, int limit, int page)
+        {
+           try
+		   {
+                List<Propietario> lista = [];
+				using (MySqlConnection connection = new MySqlConnection(connectionString))
+				{
+					string sql = @"SELECT * FROM propietarios WHERE activo = @activo 
+					AND (nombre LIKE @nombreApellido OR apellido LIKE @nombreApellido) 
+					LIMIT @limit OFFSET @offset";
+					using (MySqlCommand command = new MySqlCommand(sql, connection))
+					{
+						command.CommandType = CommandType.Text;
+						int offset = (page - 1) * limit;
+						command.Parameters.AddWithValue("@activo", activo);
+						command.Parameters.AddWithValue("@nombreApellido", "%" + nombreApellido + "%");
+						command.Parameters.AddWithValue("@limit", limit);
+						command.Parameters.AddWithValue("@offset", offset);
+						connection.Open();
+						var reader = command.ExecuteReader();
+						while (reader.Read())
+						{
+							Propietario p = new Propietario
+							{
+								Id = reader.GetInt32(nameof(Propietario.Id)),
+								Nombre = reader.GetString("Nombre"),
+								Apellido = reader.GetString("Apellido"),
+								Dni = reader.GetString("Dni"),
+								Email = reader.GetString("Email"),
+								Activo = reader.GetBoolean("Activo"),
+							};
+
+                            lista.Add(p);
+						}
+						connection.Close();
+					}
+				}
+				return lista;
+		   }
+		   catch (Exception ex)
+		   {
+				Console.WriteLine($"Error RepositorioPropietario - ObtenerTodos: {ex.Message}");
+				throw;
+		   }
+        }
+
+		public int ContarTodos(int activo, string nombreApellido)
+		{
+			try
+		   {
+                int total = 0;
+				using (MySqlConnection connection = new MySqlConnection(connectionString))
+				{
+					string sqlCount = @"SELECT COUNT(*) FROM propietarios WHERE activo = @activo 
+					AND (nombre LIKE @nombreApellido OR apellido LIKE @nombreApellido)";
+					using (MySqlCommand command = new MySqlCommand(sqlCount, connection))
+					{
+						command.CommandType = CommandType.Text;
+						command.Parameters.AddWithValue("@activo", activo);
+						command.Parameters.AddWithValue("@nombreApellido", "%" + nombreApellido + "%");
+						connection.Open();
+						var reader = command.ExecuteReader();
+						if (reader.Read())
+						{
+							total = reader.GetInt32(0);
+						}
+						connection.Close();
+					}
+				}
+				return total;
+		   }
+		   catch (Exception ex)
+		   {
+				Console.WriteLine($"Error RepositorioPropietario - ContarTodos: {ex.Message}");
+				throw;
+		   }
+		}
+
     }
 }

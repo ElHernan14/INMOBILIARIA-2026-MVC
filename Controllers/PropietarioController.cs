@@ -95,7 +95,7 @@ namespace INMOBILIARIA.Controllers
 			try
 			{
 
-				List<Propietario> lista = [];
+				List<Propietario> lista = repositorioPropietario.ObtenerTodos(1, "", 10, 1);
 
 				return View(lista);
 			}

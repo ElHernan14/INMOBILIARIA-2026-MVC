@@ -1,10 +1,291 @@
-<div>
-    <div class="mb-3">
-        <label for="exampleFormControlInput1" class="form-label">Email address</label>
-        <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
-        </div>
-        <div class="mb-3">
-        <label for="exampleFormControlTextarea1" class="form-label">Example textarea</label>
-        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+@model INMOBILIARIA.Models.Propietario
+
+@{
+    ViewData["Title"] = "Detalle del Propietario";
+}
+
+<div id="propietario-details-app">
+
+    <!-- Navegación -->
+    <div class="mb-4">
+
+        <a asp-controller="Propietario"
+           asp-action="Index"
+           class="text-decoration-none">
+
+            ← Volver a propietarios
+
+        </a>
+
     </div>
+
+
+    <!-- Encabezado -->
+    <div class="d-flex flex-column flex-md-row
+                justify-content-between
+                align-items-md-center
+                gap-3 mb-4">
+
+        <div>
+
+            <div class="d-flex align-items-center gap-3">
+
+                <!-- Avatar -->
+                <div class="rounded-circle
+                            bg-primary bg-opacity-10
+                            text-primary
+                            d-flex align-items-center
+                            justify-content-center"
+                     style="width: 64px; height: 64px;">
+
+                    <span class="fs-4 fw-bold">
+                        {{ iniciales }}
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <h1 class="h3 fw-bold mb-1">
+                        {{ propietario.Nombre }}
+                        {{ propietario.Apellido }}
+                    </h1>
+
+                    <p class="text-muted mb-0">
+                        Propietario #{{ propietario.Id }}
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Estado -->
+        <div>
+
+            <span v-if="propietario.Activo"
+                  class="badge rounded-pill text-bg-success px-3 py-2">
+
+                Activo
+
+            </span>
+
+            <span v-else
+                  class="badge rounded-pill text-bg-secondary px-3 py-2">
+
+                Inactivo
+
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- Información -->
+    <div class="row g-4">
+
+        <!-- Datos personales -->
+        <div class="col-12 col-lg-7">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body p-4">
+
+                    <h2 class="h5 fw-bold mb-4">
+                        Información personal
+                    </h2>
+
+
+                    <div class="row g-4">
+
+                        <div class="col-12 col-md-6">
+
+                            <small class="text-muted d-block mb-1">
+                                Nombre
+                            </small>
+
+                            <div class="fw-semibold">
+                                {{ propietario.Nombre }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-12 col-md-6">
+
+                            <small class="text-muted d-block mb-1">
+                                Apellido
+                            </small>
+
+                            <div class="fw-semibold">
+                                {{ propietario.Apellido }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-12 col-md-6">
+
+                            <small class="text-muted d-block mb-1">
+                                DNI
+                            </small>
+
+                            <div class="fw-semibold">
+                                {{ propietario.Dni }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-12 col-md-6">
+
+                            <small class="text-muted d-block mb-1">
+                                Estado
+                            </small>
+
+                            <div>
+
+                                <span v-if="propietario.Activo"
+                                      class="text-success fw-semibold">
+
+                                    Activo
+
+                                </span>
+
+                                <span v-else
+                                      class="text-secondary fw-semibold">
+
+                                    Inactivo
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Contacto -->
+        <div class="col-12 col-lg-5">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body p-4">
+
+                    <h2 class="h5 fw-bold mb-4">
+                        Información de contacto
+                    </h2>
+
+
+                    <div class="mb-4">
+
+                        <small class="text-muted d-block mb-1">
+                            Email
+                        </small>
+
+                        <a :href="`mailto:${propietario.email}`"
+                           class="text-decoration-none fw-semibold">
+
+                            {{ propietario.Email }}
+
+                        </a>
+
+                    </div>
+
+
+                    <div>
+
+                        <small class="text-muted d-block mb-1">
+                            Identificador
+                        </small>
+
+                        <span class="font-monospace">
+                            #COD-00{{ propietario.Id }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Footer de navegación -->
+    <div class="d-flex justify-content-end mt-4">
+
+        <a asp-controller="Propietario"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            Volver al listado
+
+        </a>
+
+    </div>
+
 </div>
+
+
+@section Scripts {
+    <script>
+
+        const { createApp } = Vue;
+
+        createApp({
+
+            data() {
+
+                return {
+
+                    /*
+                     * El propietario es enviado por Razor
+                     * desde PropietarioController.
+                     */
+                    propietario:
+                        @Html.Raw(
+                            System.Text.Json.JsonSerializer.Serialize(Model)
+                        )
+
+                };
+
+            },
+
+
+            computed: {
+
+                iniciales() {
+
+                    const nombre =
+                        this.propietario.nombre?.charAt(0) ?? "";
+
+                    const apellido =
+                        this.propietario.apellido?.charAt(0) ?? "";
+
+                    return (
+                        nombre + apellido
+                    ).toUpperCase();
+
+                }
+
+            }
+
+        }).mount("#propietario-details-app");
+
+    </script>
+
+}
