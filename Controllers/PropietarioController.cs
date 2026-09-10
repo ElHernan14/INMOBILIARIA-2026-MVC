@@ -1,6 +1,7 @@
 using INMOBILIARIA.Models.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using INMOBILIARIA.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace INMOBILIARIA.Controllers
 {
@@ -90,6 +91,7 @@ namespace INMOBILIARIA.Controllers
 		}
 
 		[HttpGet]
+		[Authorize(Policy = "Administrador")]
 		public ActionResult Index()
 		{
 			try
@@ -108,6 +110,7 @@ namespace INMOBILIARIA.Controllers
 
 		[HttpGet]
 		// [ValidateAntiForgeryToken] // quitar cuando se requiera
+		[Authorize(Policy = "Administrador")]
 		public ActionResult Detalles(int id)
 		{
 			try

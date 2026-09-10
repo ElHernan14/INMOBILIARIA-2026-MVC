@@ -1,5 +1,6 @@
 using INMOBILIARIA.Models.Interfaces;
 using INMOBILIARIA.Models.Repositorios;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,36 @@ builder.Services.AddScoped<IRepositorioInquilino, RepositorioInquilino>();
 builder.Services.AddScoped<IRepositorioInmueble, RepositorioInmueble>();
 builder.Services.AddScoped<IRepositorioReserva, RepositorioReserva>();
 builder.Services.AddScoped<IRepositorioTipoInmueble, RepositorioTipoInmueble>();
+builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
+//
+
+
+// builder.Services.AddTransient<IAuthService, AuthService>(); 
+
+// CookieAuthenticationDefaults
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath        = "/usuario/Login";
+        // options.LogoutPath       = "/usuario/Logout";
+        // options.AccessDeniedPath = "/usuario/AccessDenied";
+        // options.Cookie.Name      = "Inmobiliaria.Auth";
+        options.Cookie.HttpOnly  = true;
+        options.SlidingExpiration = true;
+        options.ExpireTimeSpan    = TimeSpan.FromHours(8);
+    });
+
+// Configurar políticas de autorización
+builder.Services.AddAuthorization(options =>
+{
+    // Política para administradores solamente
+    options.AddPolicy("Administrador", policy => policy.RequireRole("Administrador"));
+});
+
+
+
+//
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

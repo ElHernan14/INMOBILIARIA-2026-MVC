@@ -4,8 +4,8 @@ namespace INMOBILIARIA.Models
 {
     public enum RolUsuario
     {
-        ADMINISTRADOR = 1,
-        EMPLEADO = 2
+        ADMINISTRADOR,
+        EMPLEADO
     }
 
 	public class Usuario
@@ -35,11 +35,16 @@ namespace INMOBILIARIA.Models
 		[StringLength(255)]
 		public string Avatar { get; set; } = string.Empty;
 
+		[StringLength(255)]
+		public string Password { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "El rol es obligatorio.")]
-        public RolUsuario Rol { get; set; } = RolUsuario.EMPLEADO;
+        public RolUsuario Rol { get; set; }
 
         [Required]
 		public bool Activo { get; set; } = true;
+
+		public string RolNombre => Rol > 0 ? ((RolUsuario)Rol).ToString() : "";
 
 	}
 }
