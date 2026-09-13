@@ -1,3 +1,4 @@
+using System.Reflection.Metadata.Ecma335;
 using INMOBILIARIA.Models;
 using INMOBILIARIA.Models.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -167,5 +168,23 @@ namespace INMOBILIARIA.Controllers
 				return StatusCode(500, "Ocurrió un error");
 			}
 		}
+
+        [HttpGet]
+        public ActionResult Detalles(int id)
+        {
+            try
+            {
+                Reserva? reserva = repositorioReserva.ObtenerPorId(id);
+
+                return reserva is null
+                    ? NotFound("Reserva no encontrada")
+                    : Ok(reserva);
+            }
+            catch (Exception ex)
+			{
+				Console.Error.WriteLine($"Ocurrió un error en ReservaController - Detalles {ex.Message}");
+				return StatusCode(500, "Ocurrió un error");
+			}
+        }
     }
 }
