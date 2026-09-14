@@ -60,25 +60,42 @@ namespace INMOBILIARIA.Models.Repositorios
 
 		public Usuario? ObtenerPorId(int id)
 		{
-			throw new NotImplementedException();
+			Usuario? user = null;
+			using (MySqlConnection connection = new MySqlConnection(connectionString))
+			{
+				string sql = @"SELECT id, nombre, apellido, email, avatar, password, rol, activo 
+				FROM usuarios 
+				WHERE id=@id";
+				
+				using (MySqlCommand command = new MySqlCommand(sql, connection))
+				{
+					command.Parameters.Add("@id", MySqlDbType.Int32).Value = id;
+					command.CommandType = CommandType.Text;
+					connection.Open();
+					var reader = command.ExecuteReader();
+					if (reader.Read()) { user = Mapear(reader); }
+					connection.Close();
+				}
+			}
+			return user;
 		}
 
 		public Usuario? ObtenerPorEmail(String email)
 		{
 			Usuario? p = null;
-				using (MySqlConnection connection = new MySqlConnection(connectionString))
+			using (MySqlConnection connection = new MySqlConnection(connectionString))
+			{
+				string sql = @"SELECT id, nombre, apellido, email, avatar, password, rol, activo
+				FROM usuarios
+				WHERE email=@email";
+				using (MySqlCommand command = new MySqlCommand(sql, connection))
 				{
-					string sql = @"SELECT id, nombre, apellido, email, avatar, password, rol, activo
-					FROM usuarios
-					WHERE email=@email";
-					using (MySqlCommand command = new MySqlCommand(sql, connection))
+					command.Parameters.Add("@email", MySqlDbType.VarChar).Value = email;
+					command.CommandType = CommandType.Text;
+					connection.Open();
+					var reader = command.ExecuteReader();
+					if (reader.Read())
 					{
-						command.Parameters.Add("@email", MySqlDbType.VarChar).Value = email;
-						command.CommandType = CommandType.Text;
-						connection.Open();
-						var reader = command.ExecuteReader();
-						if (reader.Read())
-						{
 						p = Mapear(reader);
 					}
 					connection.Close();
@@ -90,16 +107,16 @@ namespace INMOBILIARIA.Models.Repositorios
 		private Usuario Mapear(MySqlDataReader reader)
 		{
 			Usuario user = new Usuario
-							{
-								Id = reader.GetInt32(nameof(Usuario.Id)),
-								Nombre = reader.GetString("Nombre"),
-								Apellido = reader.GetString("Apellido"),
-								Email = reader.GetString("Email"),
-								Avatar = reader.GetString("Avatar"),
-								Password = reader.GetString("Password"),
-								Rol = Enum.Parse<RolUsuario>(reader.GetString("Rol")),
+			{
+				Id = reader.GetInt32(nameof(Usuario.Id)),
+				Nombre = reader.GetString("Nombre"),
+				Apellido = reader.GetString("Apellido"),
+				Email = reader.GetString("Email"),
+				Avatar = reader.GetString("Avatar"),
+				Password = reader.GetString("Password"),
+				Rol = Enum.Parse<RolUsuario>(reader.GetString("Rol")),
 				Activo = reader.GetBoolean("Activo")
-							};
+			};
 			return user;
 		}
 	}
