@@ -65,7 +65,7 @@ namespace INMOBILIARIA.Models.Repositorios
 
 		public Usuario? ObtenerPorEmail(String email)
 		{
-			Usuario p = null;
+			Usuario? p = null;
 				using (MySqlConnection connection = new MySqlConnection(connectionString))
 				{
 					string sql = @"SELECT id, nombre, apellido, email, avatar, password, rol, activo
@@ -79,7 +79,17 @@ namespace INMOBILIARIA.Models.Repositorios
 						var reader = command.ExecuteReader();
 						if (reader.Read())
 						{
-							p = new Usuario
+						p = Mapear(reader);
+					}
+					connection.Close();
+				}
+			}
+			return p;
+		}
+
+		private Usuario Mapear(MySqlDataReader reader)
+		{
+			Usuario user = new Usuario
 							{
 								Id = reader.GetInt32(nameof(Usuario.Id)),
 								Nombre = reader.GetString("Nombre"),
@@ -88,13 +98,9 @@ namespace INMOBILIARIA.Models.Repositorios
 								Avatar = reader.GetString("Avatar"),
 								Password = reader.GetString("Password"),
 								Rol = Enum.Parse<RolUsuario>(reader.GetString("Rol")),
-								Activo = reader.GetBoolean("Activo"),
+				Activo = reader.GetBoolean("Activo")
 							};
-						}
-						connection.Close();
-					}
-				}
-				return p;
+			return user;
 		}
 	}
 }
