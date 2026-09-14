@@ -1,0 +1,47 @@
+@model INMOBILIARIA.Models.Reserva
+
+@{
+	ViewData["Title"] = "Reservas";
+}
+<div>
+	<div class="d-flex justify-content-between align-items-center mb-4">
+		<div>
+			<h1 class="fw-bold mb-1">Reservas</h1>
+			<p class="text-muted mb-0">Listado de reservas</p>
+		</div>
+	</div>
+	<div>
+		<!--Lista-->
+		<div class="table-responsive">
+			<table class="table table-hover align-middle mb-0">
+				<thead>
+					<tr>
+						<th>Inquilino</th>
+						<th>Inmueble</th>
+						<th>Desde</th>
+						<th>Hasta</th>
+						<th>Estado</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!--TODO:Vacio-->
+					<!--Populate List-->
+					<tr v-for="reserva in reservas" :key="reserva.Id">
+						<td>{{reserva.Inquilino.Nombre}}#{{reserva.Inquilino.Id}}</td>
+						<td>{{reserva.Inmueble.Direccion}}</td>
+						<td>{{reserva.FechaDesde}}</td>
+						<td>{{reserva.FechaHasta}}</td>
+						<td>
+							<span v-if="reserva.Activo" class="badge rounded-pill text-bg-success">
+								Activo
+							</span>
+							<span v-else class="badge rounded-pill text-bg-secondary">
+								Inactivo
+							</span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
