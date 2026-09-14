@@ -103,7 +103,7 @@ namespace INMOBILIARIA.Controllers
         }
 
         [HttpGet]
-        public ActionResult ObtenerTodos()
+        public ActionResult ObtenerTodas()
         {
             try
             {
@@ -178,7 +178,7 @@ namespace INMOBILIARIA.Controllers
 
                 return reserva is null
                     ? NotFound("Reserva no encontrada")
-                    : Ok(reserva);
+                    : View(reserva);
             }
             catch (Exception ex)
 			{
