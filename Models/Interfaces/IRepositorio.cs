@@ -2,11 +2,15 @@ namespace INMOBILIARIA.Models.Interfaces
 {
     public interface IRepositorio<T>
     {
-        int Alta(T p);
-		int Baja(int id);
-		int Modificacion(T p);
+        abstract int Alta(T p);
+		abstract int Baja(int id);
+		abstract int Modificacion(T p);
 
 		// IList<T> ObtenerTodos();
-		T ObtenerPorId(int id);
+
+		/* ObtenerPorId regresa null si no encuentra la fila
+		 * en la base de datos. No se si es la mejor solución. 
+		 */
+		abstract T? ObtenerPorId(int id);
     }
 }

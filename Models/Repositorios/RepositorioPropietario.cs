@@ -106,11 +106,11 @@ namespace INMOBILIARIA.Models.Repositorios
         }
 
 
-        public Propietario ObtenerPorId(int id)
+        public Propietario? ObtenerPorId(int id)
         {
            try
 		   {
-				Propietario p = null;
+				Propietario? p = null;
 				using (MySqlConnection connection = new MySqlConnection(connectionString))
 				{
 					string sql = @"SELECT id, nombre, apellido, dni, email, activo

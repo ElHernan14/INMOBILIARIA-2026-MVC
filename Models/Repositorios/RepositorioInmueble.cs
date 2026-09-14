@@ -141,11 +141,11 @@ namespace INMOBILIARIA.Models.Repositorios
             }
         }
 
-        public Inmueble ObtenerPorId(int id)
+        public Inmueble? ObtenerPorId(int id)
         {
             try
             {
-                Inmueble inmueble = null;
+                Inmueble? inmueble = null;
 
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {

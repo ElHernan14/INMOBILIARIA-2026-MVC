@@ -100,11 +100,11 @@ namespace INMOBILIARIA.Models.Repositorios
         }
 
 
-        public TipoInmueble ObtenerPorId(int id)
+        public TipoInmueble? ObtenerPorId(int id)
         {
            try
 		   {
-				TipoInmueble p = null;
+				TipoInmueble? p = null;
 				using (MySqlConnection connection = new MySqlConnection(connectionString))
 				{
 					string sql = @"SELECT id, nombre, descripcion, activo

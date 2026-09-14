@@ -50,7 +50,7 @@ namespace INMOBILIARIA.Controllers
 
 				if (!ModelState.IsValid) return BadRequest(ModelState);
 
-				TipoInmueble p = repositorioTipoInmueble.ObtenerPorId(tipoInmueble.Id);
+				TipoInmueble? p = repositorioTipoInmueble.ObtenerPorId(tipoInmueble.Id);
 				if(p == null)
 				{
 					return NotFound("Tipo inmueble no encontrado");
@@ -72,7 +72,7 @@ namespace INMOBILIARIA.Controllers
 		{
 			try
 			{
-				TipoInmueble p = repositorioTipoInmueble.ObtenerPorId(id);
+				TipoInmueble? p = repositorioTipoInmueble.ObtenerPorId(id);
 				if(p == null)
 				{
 					return NotFound("Tipo inmueble no encontrado");

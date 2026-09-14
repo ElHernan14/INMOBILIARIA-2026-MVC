@@ -2,15 +2,15 @@ using INMOBILIARIA.Models;
 
 namespace INMOBILIARIA.Models.Interfaces
 {
-    public interface IRepositorioInmueble
+    public interface IRepositorioInmueble : IRepositorio<Inmueble>
     {
-        int Alta(Inmueble inmueble);
+        //int Alta(Inmueble inmueble);
 
-        int Baja(int id);
+        //int Baja(int id);
 
-        int Modificacion(Inmueble inmueble);
+        //int Modificacion(Inmueble inmueble);
 
-        Inmueble ObtenerPorId(int id);
+        //Inmueble ObtenerPorId(int id);
 
         IEnumerable<Inmueble> ObtenerTodos();
     }
