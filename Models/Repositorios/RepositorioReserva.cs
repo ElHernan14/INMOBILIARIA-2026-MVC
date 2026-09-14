@@ -341,14 +341,16 @@ namespace INMOBILIARIA.Models.Repositorios
 				Inmueble = Inmuebles.ObtenerPorId(reader.GetInt32("inmueble_id")), 				//a chequear
 				Inquilino = Inquilinos.ObtenerPorId(reader.GetInt32("inquilino_id")), 			//a chequear
 				UsuarioCreador = Usuarios.ObtenerPorId(reader.GetInt32("usuario_creador_id")), 	//a chequear
-				UsuarioCancelador = reader.IsDBNull(reader.GetInt32("usuario_cancelador_id"))	//a chequear
-					? new Usuario {}
-					: Usuarios.ObtenerPorId(reader.GetInt32("usuario_cancelador_id")),
+				UsuarioCancelador = reader["usuario_cancelador_id"] is int id
+    				? Usuarios.ObtenerPorId(id)
+    				: new Usuario {},
 				FechaDesde = reader.GetDateOnly("fecha_desde"),
 				FechaHasta = reader.GetDateOnly("fecha_hasta"),
 				Activo = !reader.GetBoolean("cancelada"),
 				FechaCreacion = reader.GetDateTime("fecha_creacion"),
-				FechaCancelacion = reader.GetDateTime("fecha_cancelacion")
+				FechaCancelacion = reader["fecha_cancelacion"] is DateTime date
+					? date
+					: null
 			};
 		}
 	}
