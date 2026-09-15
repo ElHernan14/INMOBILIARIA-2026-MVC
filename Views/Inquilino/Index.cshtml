@@ -1,0 +1,193 @@
+@model IEnumerable<INMOBILIARIA.Models.Inquilino>
+
+@{
+    ViewData["Title"] = "Inquilinos";
+    var page = ViewBag.page ?? 1;
+	var TotalPaginas = ViewBag.TotalPaginas ?? 1;
+
+    var nombre = ViewBag.nombre ?? "";
+    var apellido = ViewBag.apellido ?? "";
+    var dni = ViewBag.dni ?? "";
+    var email = ViewBag.email ?? "";
+
+}
+
+<h1>
+	Inquilinos
+	<div class="btn-group pull-right">
+		<a class="btn btn-primary" asp-action="Create" title="Crear"><i class="fa-solid fa-plus"></i></a>
+	</div>
+</h1>
+
+<form class="w-100 p-3 bg-light rounded border shadow-sm my-3" id="filtroInquilinoIndex">
+  <div class="row g-2 align-items-end">
+    
+    <!-- Campo: Nombre -->
+    <div class="col-md">
+      <label for="buscarNombre" class="form-label fw-bold small text-muted">Nombre</label>
+      <input type="text" class="form-control" id="buscarNombre" placeholder="Ej: Juan" value="@(nombre)">
+    </div>
+
+    <!-- Campo: Apellido -->
+    <div class="col-md">
+      <label for="buscarApellido" class="form-label fw-bold small text-muted">Apellido</label>
+      <input type="text" class="form-control" id="buscarApellido" placeholder="Ej: Pérez" value="@(apellido)">
+    </div>
+
+    <!-- Campo: DNI -->
+    <div class="col-md">
+      <label for="buscarDni" class="form-label fw-bold small text-muted">DNI / Documento</label>
+      <input type="number" class="form-control" id="buscarDni" placeholder="Ej: 12345678" value="@(dni)">
+    </div>
+
+    <!-- Campo: Email -->
+    <div class="col-md">
+      <label for="buscarEmail" class="form-label fw-bold small text-muted">Email</label>
+      <input type="email" class="form-control" id="buscarEmail" placeholder="ejemplo@correo.com" value="@(email)">
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="col-md-auto d-flex gap-2 mt-3 mt-md-0">
+      <button type="submit" class="btn btn-primary px-3">
+        🔍 Buscar
+      </button>
+      <button type="reset" class="btn btn-outline-secondary" title="Limpiar campos">
+        Limpiar
+      </button>
+    </div>
+
+  </div>
+</form>
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>
+				@Html.DisplayNameFor(model => model.Id)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Nombre)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Apellido)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Dni)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Email)
+			</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td>
+					@Html.DisplayFor(modelItem => item.Id)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Nombre)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Apellido)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Dni)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Email)
+				</td>
+				<td>
+					<div class="btn-group" role="group">
+						<a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id" title="Editar">
+							<i class="fa-solid fa-pen"></i>
+						</a>
+						<a class="btn btn-danger" asp-action="Eliminar" asp-route-id="@item.Id" title="Eliminar">
+							<i class="fa-solid fa-trash-can"></i>
+						</a>
+						@* <a class="btn btn-secondary" asp-action="PorPropietario" asp-controller="Inmuebles"
+							asp-route-id="@item.Id" title="Mis Propiedades">
+							<i class="fa-solid fa-building"></i>
+						</a> *@
+					</div>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
+
+<!-- Paginación -->
+<nav aria-label="Page navigation">
+	<ul class="pagination">
+		<!-- Botón "Anterior" -->
+		@if (page > 1)
+		{
+			<li class="page-item">
+				<a class="page-link" href="~/Inquilino/Index?page=@(page - 1)" aria-label="Anterior">
+					<i class="fa-solid fa-angles-left"></i>
+				</a>
+			</li>
+		}
+		else
+		{
+			<li class="page-item disabled">
+				<span class="page-link"><i class="fa-solid fa-angles-left"></i></span>
+			</li>
+		}
+
+		<!-- Números de página -->
+		@for (int i = 1; i <= TotalPaginas; i++)
+		{
+			<li class="page-item @(i == page ? "active" : "")">
+				<a class="page-link" href="~/Inquilino/Index?page=@i">@i</a>
+			</li>
+		}
+		<!-- Botón "Siguiente" -->
+		@if (page < TotalPaginas)
+		{
+			<li class="page-item">
+				<a class="page-link" href="~/Inquilino/Index?page=@(page + 1)" aria-label="Siguiente">
+					<i class="fa-solid fa-angles-right"></i>
+				</a>
+			</li>
+		}
+		else
+		{
+			<li class="page-item disabled">
+				<span class="page-link"><i class="fa-solid fa-angles-right"></i></span>
+			</li>
+		}
+	</ul>
+</nav>
+
+@section Scripts {
+    <script>
+        document.querySelector("#filtroInquilinoIndex").addEventListener("submit", (e) => {
+            e.preventDefault();
+            // Obtener los valores de los inputs
+            const nombre = $("#buscarNombre").val().trim();
+            const apellido = $("#buscarApellido").val().trim();
+            const dni = $("#buscarDni").val().trim();
+            const email = $("#buscarEmail").val().trim();
+
+            // Crear un objeto con los parámetros
+            const params = new URLSearchParams();
+
+            if (nombre) params.append("nombre", nombre);
+            if (apellido) params.append("apellido", apellido);
+            if (dni) params.append("dni", dni);
+            if (email) params.append("email", email);
+
+            // Ruta base del controlador Razor / ASP.NET MVC
+            const baseUrl = '@Url.Action("Index", "Inquilino")';
+            
+            // Construir la URL final (ejemplo: /Inquilinos/Index?nombre=juan&dni=123)
+            const queryString = params.toString();
+            const nuevaUrl = queryString ? `${baseUrl}?${queryString}` : baseUrl;
+
+            // Redirigir el navegador a la nueva URL (Simula la recarga nativa)
+            window.location.href = nuevaUrl;
+        });
+    </script>
+}

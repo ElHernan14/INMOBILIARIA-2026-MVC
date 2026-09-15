@@ -16,6 +16,24 @@ namespace INMOBILIARIA.Controllers
             this.configuration = configuration;
         }
 
+        public IActionResult Index(bool activo = true, string? nombre = null, string? apellido = null, string? dni = null, string? email = null, int page = 1)
+        {
+            int tam = 5;
+
+            List<Inquilino> lista = repositorioInquilino.ObtenerTodos(activo, nombre, apellido, dni, email, tam, Math.Max(page, 1));
+            int total = repositorioInquilino.ContarTodos(activo, nombre, apellido, dni, email);
+
+            ViewBag.activo = activo;
+            ViewBag.nombre = nombre;
+            ViewBag.apellido = apellido;
+            ViewBag.dni = dni;
+            ViewBag.email = email;
+            ViewBag.page = page;
+            ViewBag.TotalPaginas = total % tam == 0 ? total / tam : total / tam + 1;
+
+            return View(lista);
+        }
+
         [HttpPost]
         // [ValidateAntiForgeryToken] // quitar cuando se requiera
         public ActionResult Create([FromBody] Inquilino inquilino)
