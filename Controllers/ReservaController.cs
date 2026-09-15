@@ -20,7 +20,7 @@ namespace INMOBILIARIA.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "Empleado")]
+        [Authorize]
         public ActionResult Index()
         {
             IEnumerable<Reserva> reservas = repositorioReserva.ObtenerTodas();
@@ -30,6 +30,7 @@ namespace INMOBILIARIA.Controllers
 
         [HttpPost]
         // [ValidateAntiForgeryToken] // quitar cuando se requiera
+        [Authorize]
         public ActionResult Create([FromBody] Reserva reserva)
         {
             try
@@ -55,6 +56,7 @@ namespace INMOBILIARIA.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public ActionResult Update([FromBody] Reserva reserva)
         {
             try
@@ -87,6 +89,7 @@ namespace INMOBILIARIA.Controllers
         }
 
         [HttpDelete]
+        [Authorize]
         public ActionResult Delete(int id)
         {
             try
@@ -113,6 +116,7 @@ namespace INMOBILIARIA.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public ActionResult ObtenerTodas()
         {
             try
@@ -132,6 +136,7 @@ namespace INMOBILIARIA.Controllers
         }
 
 		[HttpGet]
+        [Authorize]
 		public ActionResult ObtenerPorFecha([FromBody] DateOnly fecha)
 		{
 			try
@@ -148,6 +153,7 @@ namespace INMOBILIARIA.Controllers
 		}
 
 		[HttpGet]
+        [Authorize]
 		public ActionResult ObtenerPorInmueble(int id)
 		{
 			try
@@ -164,6 +170,7 @@ namespace INMOBILIARIA.Controllers
 		}
 
 		[HttpGet]
+        [Authorize]
 		public ActionResult ObtenerPorInquilino(int id)
 		{
 			try
@@ -180,6 +187,7 @@ namespace INMOBILIARIA.Controllers
 		}
 
         [HttpGet]
+        [Authorize]
         public ActionResult Detalles(int id)
         {
             try
