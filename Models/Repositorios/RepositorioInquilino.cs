@@ -146,5 +146,134 @@ namespace INMOBILIARIA.Models.Repositorios
 			}
         }
 
+		public List<Inquilino> ObtenerTodos(bool activo = true, string? nombre = null, string? apellido = null, string? dni = null, string? email = null, int limit = 10, int page = 1)
+        {
+           try
+		   {
+                List<Inquilino> lista = [];
+				using (MySqlConnection connection = new MySqlConnection(connectionString))
+				{
+					string sqlString = @"SELECT * FROM inquilinos WHERE activo = @activo";
+
+					if (!string.IsNullOrWhiteSpace(nombre))
+						sqlString += " AND nombre LIKE @nombre";
+
+					if (!string.IsNullOrWhiteSpace(apellido))
+						sqlString += " AND apellido LIKE @apellido";
+
+					if (!string.IsNullOrWhiteSpace(dni))
+						sqlString += " AND dni LIKE @dni";
+
+					if (!string.IsNullOrWhiteSpace(email))
+						sqlString += " AND email LIKE @email";
+
+					sqlString += " LIMIT @limit OFFSET @offset";
+
+					
+					using (MySqlCommand command = new MySqlCommand(sqlString, connection))
+					{
+						command.CommandType = CommandType.Text;
+						int offset = (page - 1) * limit;
+						command.Parameters.AddWithValue("@activo", activo);
+
+						if (!string.IsNullOrWhiteSpace(nombre))
+							command.Parameters.AddWithValue("@nombre", $"%{nombre}%");
+
+						if (!string.IsNullOrWhiteSpace(apellido))
+							command.Parameters.AddWithValue("@apellido", $"%{apellido}%");
+
+						if (!string.IsNullOrWhiteSpace(dni))
+							command.Parameters.AddWithValue("@dni", $"%{dni}%");
+
+						if (!string.IsNullOrWhiteSpace(email))
+							command.Parameters.AddWithValue("@email", $"%{email}%");
+
+						command.Parameters.AddWithValue("@limit", limit);
+						command.Parameters.AddWithValue("@offset", offset);
+						connection.Open();
+						var reader = command.ExecuteReader();
+						while (reader.Read())
+						{
+							Inquilino p = new Inquilino
+							{
+								Id = reader.GetInt32(nameof(Propietario.Id)),
+								Nombre = reader.GetString("Nombre"),
+								Apellido = reader.GetString("Apellido"),
+								Dni = reader.GetString("Dni"),
+								Email = reader.GetString("Email"),
+								Activo = reader.GetBoolean("Activo"),
+							};
+
+                            lista.Add(p);
+						}
+						connection.Close();
+					}
+				}
+				return lista;
+		   }
+		   catch (Exception ex)
+		   {
+				Console.WriteLine($"Error RepositorioInquilino - ObtenerTodos: {ex.Message}");
+				throw;
+		   }
+        }
+
+		public int ContarTodos(bool activo = true, string? nombre = null, string? apellido = null, string? dni = null, string? email = null)
+		{
+			try
+		   {
+                int total = 0;
+				using (MySqlConnection connection = new MySqlConnection(connectionString))
+				{
+
+					string sqlString = @"SELECT COUNT(*) FROM inquilinos WHERE activo = @activo";
+
+					if (!string.IsNullOrWhiteSpace(nombre))
+						sqlString += " AND nombre LIKE @nombre";
+
+					if (!string.IsNullOrWhiteSpace(apellido))
+						sqlString += " AND apellido LIKE @apellido";
+
+					if (!string.IsNullOrWhiteSpace(dni))
+						sqlString += " AND dni LIKE @dni";
+
+					if (!string.IsNullOrWhiteSpace(email))
+						sqlString += " AND email LIKE @email";
+
+					using (MySqlCommand command = new MySqlCommand(sqlString, connection))
+					{
+						command.CommandType = CommandType.Text;
+						command.Parameters.AddWithValue("@activo", activo);
+
+						if (!string.IsNullOrWhiteSpace(nombre))
+							command.Parameters.AddWithValue("@nombre", $"%{nombre}%");
+
+						if (!string.IsNullOrWhiteSpace(apellido))
+							command.Parameters.AddWithValue("@apellido", $"%{apellido}%");
+
+						if (!string.IsNullOrWhiteSpace(dni))
+							command.Parameters.AddWithValue("@dni", $"%{dni}%");
+
+						if (!string.IsNullOrWhiteSpace(email))
+							command.Parameters.AddWithValue("@email", $"%{email}%");
+
+						connection.Open();
+						var reader = command.ExecuteReader();
+						if (reader.Read())
+						{
+							total = reader.GetInt32(0);
+						}
+						connection.Close();
+					}
+				}
+				return total;
+		   }
+		   catch (Exception ex)
+		   {
+				Console.WriteLine($"Error RepositorioInquilino - ContarTodos: {ex.Message}");
+				throw;
+		   }
+		}
+
     }
 }
