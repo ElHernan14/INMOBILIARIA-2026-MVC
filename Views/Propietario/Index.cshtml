@@ -194,8 +194,18 @@
                         </td>
 
 
-                        <!-- ÚNICA ACCIÓN -->
+                        <!-- ACCIÓNES -->
                         <td class="text-end pe-4">
+
+                            <a :href="editUrl(propietario.Id)"
+                               class="btn btn-sm btn-outline-primary px-3">
+
+                                Editar
+                                <span class="ms-1">
+                                    →
+                                </span>
+
+                            </a>
 
                             <a :href="detailsUrl(propietario.Id)"
                                class="btn btn-sm btn-outline-primary px-3">
@@ -268,6 +278,10 @@
 
                     return `/Propietario/Detalles/${id}`;
 
+                },
+
+                editUrl(id) {
+                    return `/Propietario/Update/${id}`;
                 }
 
             }

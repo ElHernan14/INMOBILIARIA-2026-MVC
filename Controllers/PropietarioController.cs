@@ -2,6 +2,7 @@ using INMOBILIARIA.Models.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using INMOBILIARIA.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Reflection.Metadata.Ecma335;
 
 namespace INMOBILIARIA.Controllers
 {
@@ -45,10 +46,32 @@ namespace INMOBILIARIA.Controllers
 			}
 		}
 
+		[HttpGet]
+		[Authorize]
+		public ActionResult Update(int id)
+		{
+			try
+			{
+				Propietario? propietario = repositorioPropietario.ObtenerPorId(id);
+				
+				if (propietario == null)
+				{
+					return RedirectToAction(nameof(Index));
+				}
+
+				return View(propietario);
+			}
+			catch (Exception ex)
+			{
+                Console.Error.WriteLine("Ocurrió un error, en PropietarioController - Update", ex);
+				return StatusCode(500, "Ocurrió un error");
+			}
+		}
 
 		[HttpPost]
 		[Authorize]
-		public ActionResult Update([FromBody] Propietario propietario)
+		[ValidateAntiForgeryToken]
+		public ActionResult Update(Propietario propietario)
 		{
 			try
 			{
@@ -57,15 +80,10 @@ namespace INMOBILIARIA.Controllers
 
 				if (!ModelState.IsValid) return BadRequest(ModelState);
 
-				Propietario p = repositorioPropietario.ObtenerPorId(propietario.Id);
-				if(p == null)
-				{
-					return NotFound("Propietario no encontrado");
-				}
-
 				repositorioPropietario.Modificacion(propietario);
 
-				return Ok("Propietario editado");
+				TempData["SuccessMessage"] = "El propietario se editó correctamente.";
+				return RedirectToAction(nameof(Create));
 			}
 			catch (Exception ex)
 			{
