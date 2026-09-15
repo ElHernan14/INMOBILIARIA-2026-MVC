@@ -9,6 +9,7 @@ CREATE TABLE usuarios (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	nombre VARCHAR(100) NOT NULL,
 	apellido VARCHAR(100) NOT NULL,
+	dni VARCHAR(10) NOT NULL,
 	email VARCHAR(254) NOT NULL UNIQUE,
 	avatar VARCHAR(255),
 	password VARCHAR(255) NOT NULL,
@@ -95,5 +96,5 @@ CREATE TABLE pagos (
 	FOREIGN KEY (usuario_cancelador_id) REFERENCES usuarios(id)
 );
 
-ALTER TABLE usuarios
-ADD COLUMN dni VARCHAR(10) NOT NULL AFTER apellido;
+-- ALTER TABLE usuarios
+-- ADD COLUMN dni VARCHAR(10) NOT NULL AFTER apellido;
