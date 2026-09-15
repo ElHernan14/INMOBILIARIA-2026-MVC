@@ -34,7 +34,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization(options =>
 {
     // Política para administradores solamente
-    options.AddPolicy("Administrador", policy => policy.RequireRole("ADMINISTRADOR"));
+    options.AddPolicy("ADMINISTRADOR", policy => policy.RequireRole("ADMINISTRADOR"));
 });
 
 

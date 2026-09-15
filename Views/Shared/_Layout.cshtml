@@ -1,54 +1,242 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="description"
+          content="Sistema de gestión inmobiliaria." />
+
+    <meta name="theme-color"
+          content="#ffffff" />
+
     <title>@ViewData["Title"] - INMOBILIARIA</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/INMOBILIARIA.styles.css" asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/INMOBILIARIA.styles.css"
+          asp-append-version="true" />
+
+    @* Vue se carga globalmente para las vistas que realmente lo necesiten. *@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
-<body>
+
+<body class="d-flex flex-column min-vh-100">
+
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">INMOBILIARIA</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+            <div class="container">
+
+                <a class="navbar-brand fw-bold"
+                   asp-controller="Home"
+                   asp-action="Index">
+                    INMOBILIARIA
+                </a>
+
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarPrincipal"
+                        aria-controls="navbarPrincipal"
+                        aria-expanded="false"
+                        aria-label="Abrir navegación">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <div id="navbarPrincipal"
+                     class="collapse navbar-collapse">
+
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link"
+                               asp-controller="Home"
+                               asp-action="Index">
+                                Inicio
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Propietario" asp-action="Index">Propietario</a>
-                        </li>
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Propietario"
+                                   asp-action="Index">
+                                    Propietarios
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Inquilino"
+                                   asp-action="Index">
+                                    Inquilinos
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Inmueble"
+                                   asp-action="Index">
+                                    Inmuebles
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Reserva"
+                                   asp-action="Index">
+                                    Reservas
+                                </a>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("ADMINISTRADOR"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Usuario"
+                                   asp-action="Index">
+                                    Usuarios
+                                </a>
+                            </li>
+                        }
+
                     </ul>
+
+                    <div class="d-flex align-items-center gap-2">
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            var nombreCompleto =
+                                User.FindFirst("FullName")?.Value
+                                ?? User.Identity?.Name
+                                ?? "Usuario";
+
+                            <div class="dropdown">
+
+                                <button class="btn btn-light dropdown-toggle"
+                                        type="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+
+                                    @nombreCompleto
+                                </button>
+
+                                <ul class="dropdown-menu dropdown-menu-end">
+
+                                    <li>
+                                        <h6 class="dropdown-header">
+                                            @nombreCompleto
+                                        </h6>
+                                    </li>
+
+                                    @if (!string.IsNullOrWhiteSpace(User.Identity?.Name))
+                                    {
+                                        <li>
+                                            <span class="dropdown-item-text small text-secondary">
+                                                @User.Identity.Name
+                                            </span>
+                                        </li>
+                                    }
+
+                                    <li>
+                                        <hr class="dropdown-divider" />
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="Usuario"
+                                           asp-action="Perfil">
+                                            Mi perfil
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <hr class="dropdown-divider" />
+                                    </li>
+
+                                    <li>
+                                        <form asp-controller="Usuario"
+                                              asp-action="Logout"
+                                              method="post">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="dropdown-item text-danger">
+                                                Cerrar sesión
+                                            </button>
+                                        </form>
+                                    </li>
+
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <a class="btn btn-outline-primary"
+                               asp-controller="Usuario"
+                               asp-action="Login">
+                                Iniciar sesión
+                            </a>
+
+                            <a class="btn btn-primary"
+                               asp-controller="Usuario"
+                               asp-action="Register">
+                                Crear cuenta
+                            </a>
+                        }
+
+                    </div>
+
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
+    <main role="main" class="flex-grow-1 py-4">
+        @RenderBody()
+    </main>
+
+    <footer class="border-top text-muted py-4">
         <div class="container">
-            &copy; 2026 - INMOBILIARIA - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="d-flex flex-column flex-md-row
+                        justify-content-between
+                        align-items-md-center
+                        gap-2">
+
+                <span>
+                    &copy; 2026 - INMOBILIARIA
+                </span>
+
+                <a asp-controller="Home"
+                   asp-action="Privacy"
+                   class="text-decoration-none">
+                    Privacidad
+                </a>
+
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+
+    <script src="~/js/site.js"
+            asp-append-version="true">
+    </script>
+
+    @await RenderSectionAsync(
+        "Scripts",
+        required: false
+    )
+
 </body>
 </html>

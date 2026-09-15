@@ -40,7 +40,7 @@ public class UsuarioController : Controller
     }
 
     // GET: /Usuario/Index
-    [Authorize(Policy = "Administrador")]
+    [Authorize(Policy = "ADMINISTRADOR")]
     public IActionResult Index()
     {
         return View();
@@ -239,7 +239,7 @@ public class UsuarioController : Controller
     }
 
     // GET: /Usuario/Create
-    [Authorize(Policy = "Administrador")]
+    [Authorize(Policy = "ADMINISTRADOR")]
     [HttpGet]
     public IActionResult Create()
     {
@@ -251,7 +251,7 @@ public class UsuarioController : Controller
     }
 
     // POST: /Usuario/Create
-    [Authorize(Policy = "Administrador")]
+    [Authorize(Policy = "ADMINISTRADOR")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult Create(Usuario usuario, IFormFile? avatarFile)
@@ -310,7 +310,7 @@ public class UsuarioController : Controller
     }
 
     // GET: /Usuario/Details/5
-    [Authorize(Policy = "Administrador")]
+    [Authorize(Policy = "ADMINISTRADOR")]
     [HttpGet]
     public IActionResult Details(int id)
     {
@@ -327,7 +327,7 @@ public class UsuarioController : Controller
     }
 
     // GET: /Usuario/Edit/5
-    [Authorize(Policy = "Administrador")]
+    [Authorize(Policy = "ADMINISTRADOR")]
     [HttpGet]
     public IActionResult Edit(int id)
     {
@@ -432,7 +432,7 @@ public class UsuarioController : Controller
     }
 
     // GET: /Usuario/Delete/5
-    [Authorize(Policy = "Administrador")]
+    [Authorize(Policy = "ADMINISTRADOR")]
     [HttpGet]
     public IActionResult Delete(int id)
     {
@@ -449,7 +449,7 @@ public class UsuarioController : Controller
     }
 
     // POST: /Usuario/Delete/5
-    [Authorize(Policy = "Administrador")]
+    [Authorize(Policy = "ADMINISTRADOR")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult DeleteConfirmed(int id)
