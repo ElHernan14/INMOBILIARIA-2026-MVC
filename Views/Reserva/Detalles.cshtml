@@ -6,13 +6,13 @@
 
 <div>
 	<div>
-		<h1>Reserva {{ reserva.Id }}</h1>
+		<h1>Reserva @Model.Id</h1>
 		<span v-if="reserva.Activo" class="badge rounded-pill text-bg-success px-3 py-2">Activo</span>
 		<span v-else="badge rounded-pill text-bg-secondary px-3 py-2">Inactivo</span>
 
 		<div>
-			<p><b>Desde: </b>{{reserva.FechaDesde}}</p>
-			<p><b>Hasta: </b>{{reserva.FechaHasta}}</p>
+			<p><b>Desde: </b>@Model.FechaDesde</p>
+			<p><b>Hasta: </b>@Model.FechaHasta</p>
 		</div>
 	</div>
 	<div>
@@ -26,23 +26,23 @@
 				<tbody>
 					<tr>
 						<td>Tipo</td>
-						<td>{{reserva.Inmueble.TipoInmueble}}</td>
+						<td>@Model.Inmueble.TipoInmueble</td>
 					</tr>
 					<tr>
 						<td>Direccion</td>
-						<td>{{reserva.Inmueble.Direccion}}</td>
+						<td>@Model.Inmueble.Direccion</td>
 					</tr>
 					<tr>
 						<td>Coordenadas</td>
-						<td>{{reserva.Inmueble.Coordenadas}}</td>
+						<td>@Model.Inmueble.Cordenadas</td>
 					</tr>
 					<tr>
 						<td>Propietario</td>
-						<td>{{reserva.Propietario.Nombre}}</td>
+						<td>@Model.Inmueble.Propietario.Nombre</td>
 					</tr>
 					<tr>
 						<td>Codigo de Propietario</td>
-						<td>{{reserva.Propietario.Id}}</td>
+						<td>@Model.Inmueble.Propietario.Id</td>
 					</tr>
 				</tbody>
 			</table>
@@ -57,11 +57,11 @@
 				<tbody>
 					<tr>
 						<td>Nombre</td>
-						<td>{{reserva.Inquilino.Nombre}}</td>
+						<td>@Model.Inquilino.Nombre</td>
 					</tr>
 					<tr>
 						<td>Codigo del Inquilino</td>
-						<td>{{reserva.Inquilino.Id}}</td>
+						<td>@Model.Inquilino.Id</td>
 					</tr>
 				</tbody>
 			</table>
