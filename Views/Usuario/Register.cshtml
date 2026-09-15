@@ -1,3 +1,917 @@
-<div>
-    <h1>REGISTER</h1>
+@model INMOBILIARIA.Models.Usuario
+
+@{
+ViewData["Title"] = "Crear cuenta";
+}
+
+<div id="registerApp" class="container py-5">
+<div class="row justify-content-center">
+
+    <div class="col-12 col-lg-9 col-xl-8">
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+
+            <div class="card-body p-4 p-md-5">
+
+                <div class="mb-4">
+
+                    <h1 class="h3 fw-bold mb-1">
+                        Crear cuenta
+                    </h1>
+
+                    <p class="text-secondary mb-0">
+                        Completá tus datos para registrarte en el sistema.
+                    </p>
+
+                </div>
+
+                <form id="registerForm"
+                      asp-action="Register"
+                      asp-controller="Usuario"
+                      method="post"
+                      enctype="multipart/form-data"
+                      v-on:submit.prevent="registrarUsuario">
+
+                    @Html.AntiForgeryToken()
+
+                    <div class="row g-4">
+
+                        <!-- Datos personales -->
+
+                        <div class="col-12">
+
+                            <h2 class="h5 fw-semibold mb-3">
+                                Datos personales
+                            </h2>
+
+                            <div class="row g-3">
+
+                                <div class="col-12 col-md-6">
+
+                                    <label asp-for="Nombre"
+                                           class="form-label fw-semibold">
+                                        Nombre
+                                    </label>
+
+                                    <input asp-for="Nombre"
+                                           v-model.trim="form.nombre"
+                                           type="text"
+                                           class="form-control"
+                                           v-bind:class="{
+                                               'is-invalid': errores.nombre
+                                           }"
+                                           placeholder="Nombre"
+                                           autocomplete="given-name" />
+
+                                    <span asp-validation-for="Nombre"
+                                          class="invalid-feedback d-block"
+                                          v-if="errores.nombre"
+                                          v-text="errores.nombre">
+                                    </span>
+
+                                </div>
+
+                                <div class="col-12 col-md-6">
+
+                                    <label asp-for="Apellido"
+                                           class="form-label fw-semibold">
+                                        Apellido
+                                    </label>
+
+                                    <input asp-for="Apellido"
+                                           v-model.trim="form.apellido"
+                                           type="text"
+                                           class="form-control"
+                                           v-bind:class="{
+                                               'is-invalid': errores.apellido
+                                           }"
+                                           placeholder="Apellido"
+                                           autocomplete="family-name" />
+
+                                    <span asp-validation-for="Apellido"
+                                          class="invalid-feedback d-block"
+                                          v-if="errores.apellido"
+                                          v-text="errores.apellido">
+                                    </span>
+
+                                </div>
+
+                                <div class="col-12 col-md-6">
+
+                                    <label asp-for="Dni"
+                                           class="form-label fw-semibold">
+                                        DNI
+                                    </label>
+
+                                    <input asp-for="Dni"
+                                           v-model.trim="form.dni"
+                                           type="text"
+                                           inputmode="numeric"
+                                           class="form-control"
+                                           v-bind:class="{
+                                               'is-invalid': errores.dni
+                                           }"
+                                           placeholder="Ej. 30123456"
+                                           autocomplete="off" />
+
+                                    <span asp-validation-for="Dni"
+                                          class="invalid-feedback d-block"
+                                          v-if="errores.dni"
+                                          v-text="errores.dni">
+                                    </span>
+
+                                </div>
+
+                                <div class="col-12 col-md-6">
+
+                                    <label asp-for="Email"
+                                           class="form-label fw-semibold">
+                                        Email
+                                    </label>
+
+                                    <input asp-for="Email"
+                                           v-model.trim="form.email"
+                                           type="email"
+                                           class="form-control"
+                                           v-bind:class="{
+                                               'is-invalid': errores.email
+                                           }"
+                                           placeholder="nombre@ejemplo.com"
+                                           autocomplete="email" />
+
+                                    <span asp-validation-for="Email"
+                                          class="invalid-feedback d-block"
+                                          v-if="errores.email"
+                                          v-text="errores.email">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-12">
+                            <hr class="my-1">
+                        </div>
+
+                        <!-- Contraseña -->
+
+                        <div class="col-12">
+
+                            <h2 class="h5 fw-semibold mb-3">
+                                Acceso
+                            </h2>
+
+                            <div class="row g-3">
+
+                                <div class="col-12">
+
+                                    <label asp-for="Password"
+                                           class="form-label fw-semibold">
+                                        Contraseña
+                                    </label>
+
+                                    <div class="input-group">
+
+                                        <input asp-for="Password"
+                                               v-model="form.password"
+                                               v-bind:type="
+                                                   mostrarPassword
+                                                       ? 'text'
+                                                       : 'password'
+                                               "
+                                               class="form-control"
+                                               v-bind:class="{
+                                                   'is-invalid':
+                                                       errores.password
+                                               }"
+                                               placeholder="Mínimo 6 caracteres"
+                                               autocomplete="new-password" />
+
+                                        <button type="button"
+                                                class="btn btn-outline-secondary"
+                                                v-on:click="
+                                                    mostrarPassword =
+                                                        !mostrarPassword
+                                                "
+                                                v-bind:disabled="enviando"
+                                                v-text="
+                                                    mostrarPassword
+                                                        ? 'Ocultar'
+                                                        : 'Ver'
+                                                ">
+                                        </button>
+
+                                    </div>
+
+                                    <span asp-validation-for="Password"
+                                          class="invalid-feedback d-block"
+                                          v-if="errores.password"
+                                          v-text="errores.password">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-12">
+                            <hr class="my-1">
+                        </div>
+
+                        <!-- Avatar -->
+
+                        <div class="col-12">
+
+                            <h2 class="h5 fw-semibold mb-3">
+                                Foto de perfil
+                            </h2>
+
+                            <div class="row g-4 align-items-center">
+
+                                <div class="col-12 col-md-8">
+
+                                    <label for="avatarFile"
+                                           class="form-label fw-semibold">
+                                        Avatar
+                                    </label>
+
+                                    <input id="avatarFile"
+                                           name="avatarFile"
+                                           type="file"
+                                           class="form-control"
+                                           accept=".jpg,.jpeg,.png,.webp"
+                                           required
+                                           v-on:change="seleccionarAvatar"
+                                           v-bind:class="{
+                                               'is-invalid':
+                                                   errores.avatar
+                                           }" />
+
+                                    <div class="form-text">
+                                        JPG, JPEG, PNG o WEBP. Máximo 2 MB.
+                                    </div>
+
+                                    <span class="invalid-feedback d-block"
+                                          data-valmsg-for="avatarFile"
+                                          v-if="errores.avatar"
+                                          v-text="errores.avatar">
+                                    </span>
+
+                                </div>
+
+                                <div class="col-12 col-md-4 text-center">
+
+                                    <div v-if="avatarPreview"
+                                         class="d-flex justify-content-center">
+
+                                        <img v-bind:src="avatarPreview"
+                                             alt="Vista previa del avatar"
+                                             class="rounded-circle object-fit-cover shadow-sm"
+                                             style="width: 120px; height: 120px;">
+
+                                    </div>
+
+                                    <div v-else
+                                         class="d-flex justify-content-center">
+
+                                        <div class="rounded-circle bg-light border
+                                                    d-flex align-items-center
+                                                    justify-content-center"
+                                             style="width: 120px; height: 120px;">
+
+                                            <span class="text-secondary">
+                                                Sin foto
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Acciones -->
+
+                        <div class="col-12">
+
+                            <hr>
+
+                            <div class="d-flex flex-column
+                                        flex-sm-row
+                                        justify-content-end
+                                        gap-2">
+
+                                <a asp-controller="Home"
+                                   asp-action="Index"
+                                   class="btn btn-outline-secondary">
+                                    Cancelar
+                                </a>
+
+                                <button type="submit"
+                                        class="btn btn-primary px-4"
+                                        v-bind:disabled="enviando">
+
+                                    <span v-if="enviando"
+                                          class="spinner-border spinner-border-sm me-2"
+                                          role="status"
+                                          aria-hidden="true">
+                                    </span>
+
+                                    <span v-text="
+                                        enviando
+                                            ? 'Registrando...'
+                                            : 'Crear cuenta'
+                                    ">
+                                    </span>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- ModelState general -->
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="validation-summary-valid">
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
+
+</div>
+
+@section Scripts {
+
+```
+<script>
+
+    Vue.createApp({
+
+        data() {
+
+            return {
+
+                enviando: false,
+
+                mostrarPassword: false,
+
+                avatarPreview: null,
+
+                form: {
+
+                    nombre: @Html.Raw(
+                        System.Text.Json.JsonSerializer.Serialize(
+                            Model?.Nombre ?? ""
+                        )
+                    ),
+
+                    apellido: @Html.Raw(
+                        System.Text.Json.JsonSerializer.Serialize(
+                            Model?.Apellido ?? ""
+                        )
+                    ),
+
+                    dni: @Html.Raw(
+                        System.Text.Json.JsonSerializer.Serialize(
+                            Model?.Dni ?? ""
+                        )
+                    ),
+
+                    email: @Html.Raw(
+                        System.Text.Json.JsonSerializer.Serialize(
+                            Model?.Email ?? ""
+                        )
+                    ),
+
+                    password: ""
+
+                },
+
+                errores: {
+
+                    nombre: "",
+                    apellido: "",
+                    dni: "",
+                    email: "",
+                    password: "",
+                    avatar: ""
+
+                }
+
+            };
+
+        },
+
+        methods: {
+
+            validar() {
+
+                this.limpiarErrores();
+
+                let valido = true;
+
+                if (!this.form.nombre) {
+
+                    this.errores.nombre =
+                        "El nombre es obligatorio.";
+
+                    valido = false;
+
+                }
+                else if (
+                    this.form.nombre.length < 2 ||
+                    this.form.nombre.length > 100
+                ) {
+
+                    this.errores.nombre =
+                        "El nombre debe tener entre 2 y 100 caracteres.";
+
+                    valido = false;
+
+                }
+
+                if (!this.form.apellido) {
+
+                    this.errores.apellido =
+                        "El apellido es obligatorio.";
+
+                    valido = false;
+
+                }
+                else if (
+                    this.form.apellido.length < 2 ||
+                    this.form.apellido.length > 100
+                ) {
+
+                    this.errores.apellido =
+                        "El apellido debe tener entre 2 y 100 caracteres.";
+
+                    valido = false;
+
+                }
+
+                if (!this.form.dni) {
+
+                    this.errores.dni =
+                        "El DNI es obligatorio.";
+
+                    valido = false;
+
+                }
+                else if (!/^\d{7,10}$/.test(this.form.dni)) {
+
+                    this.errores.dni =
+                        "El DNI debe contener solamente números y tener entre 7 y 10 dígitos.";
+
+                    valido = false;
+
+                }
+
+                if (!this.form.email) {
+
+                    this.errores.email =
+                        "El email es obligatorio.";
+
+                    valido = false;
+
+                }
+                else if (!this.validarEmail(this.form.email)) {
+
+                    this.errores.email =
+                        "El formato del email no es válido.";
+
+                    valido = false;
+
+                }
+                else if (this.form.email.length > 254) {
+
+                    this.errores.email =
+                        "El email no puede superar los 254 caracteres.";
+
+                    valido = false;
+
+                }
+
+                if (!this.form.password) {
+
+                    this.errores.password =
+                        "La contraseña es obligatoria.";
+
+                    valido = false;
+
+                }
+                else if (
+                    this.form.password.length < 6 ||
+                    this.form.password.length > 100
+                ) {
+
+                    this.errores.password =
+                        "La contraseña debe tener entre 6 y 100 caracteres.";
+
+                    valido = false;
+
+                }
+
+                return valido;
+            },
+
+            validarEmail(email) {
+
+                return /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(email);
+
+            },
+
+            validarAvatar(archivo) {
+
+                if (!archivo) {
+
+                    this.errores.avatar =
+                        "La foto de perfil es obligatoria.";
+
+                    return false;
+
+                }
+
+                const maximoBytes =
+                    2 * 1024 * 1024;
+
+                if (archivo.size === 0) {
+
+                    this.errores.avatar =
+                        "El archivo seleccionado está vacío.";
+
+                    return false;
+
+                }
+
+                if (archivo.size > maximoBytes) {
+
+                    this.errores.avatar =
+                        "El avatar no puede superar los 2 MB.";
+
+                    return false;
+
+                }
+
+                const extensionesPermitidas = [
+                    ".jpg",
+                    ".jpeg",
+                    ".png",
+                    ".webp"
+                ];
+
+                const nombre =
+                    archivo.name.toLowerCase();
+
+                const extension =
+                    nombre.substring(
+                        nombre.lastIndexOf(".")
+                    );
+
+                if (
+                    !extensionesPermitidas.includes(
+                        extension
+                    )
+                ) {
+
+                    this.errores.avatar =
+                        "El avatar debe ser JPG, JPEG, PNG o WEBP.";
+
+                    return false;
+
+                }
+
+                return true;
+            },
+
+            seleccionarAvatar(evento) {
+
+                this.errores.avatar = "";
+
+                const archivo =
+                    evento.target.files[0];
+
+                if (!archivo) {
+
+                    this.avatarPreview = null;
+
+                    return;
+
+                }
+
+                if (!this.validarAvatar(archivo)) {
+
+                    evento.target.value = "";
+
+                    this.avatarPreview = null;
+
+                    return;
+
+                }
+
+                this.avatarPreview =
+                    URL.createObjectURL(archivo);
+
+            },
+
+            limpiarErrores() {
+
+                this.errores = {
+
+                    nombre: "",
+                    apellido: "",
+                    dni: "",
+                    email: "",
+                    password: "",
+                    avatar: ""
+
+                };
+
+            },
+
+            leerErroresServidor(documento) {
+                const mapa = {
+                    "Email": "email",
+                    "Password": "password"
+                };
+
+                const mensajes =
+                    documento.querySelectorAll(
+                        "[data-valmsg-for]"
+                    );
+
+                mensajes.forEach(elemento => {
+                    const campo =
+                        elemento.getAttribute(
+                            "data-valmsg-for"
+                        );
+
+                    const mensaje =
+                        elemento.textContent.trim();
+
+                    if (!campo || !mensaje) {
+                        return;
+                    }
+
+                    const propiedad =
+                        mapa[campo];
+
+                    if (propiedad) {
+                        this.errores[propiedad] =
+                            mensaje;
+                    }
+                });
+
+                const resumen =
+                    documento.querySelector(
+                        "[data-valmsg-summary]"
+                    );
+
+                if (resumen) {
+                    const elementos =
+                        resumen.querySelectorAll("li");
+
+                    if (elementos.length > 0) {
+                        return Array.from(elementos)
+                            .map(elemento =>
+                                elemento.textContent.trim()
+                            )
+                            .filter(mensaje =>
+                                mensaje.length > 0
+                            )
+                            .join(" ");
+                    }
+                }
+
+                return "";
+            },
+
+            async registrarUsuario() {
+
+                if (this.enviando) {
+                    return;
+                }
+
+                this.limpiarErrores();
+
+                if (!this.validar()) {
+                    return;
+                }
+
+                const inputAvatar =
+                    document.getElementById(
+                        "avatarFile"
+                    );
+
+                const archivo =
+                    inputAvatar.files.length > 0
+                        ? inputAvatar.files[0]
+                        : null;
+
+                if (!this.validarAvatar(archivo)) {
+                    return;
+                }
+
+                this.enviando = true;
+
+                try {
+
+                    const form =
+                        document.getElementById(
+                            "registerForm"
+                        );
+
+                    const formData =
+                        new FormData(form);
+
+                    formData.set(
+                        "Nombre",
+                        this.form.nombre
+                    );
+
+                    formData.set(
+                        "Apellido",
+                        this.form.apellido
+                    );
+
+                    formData.set(
+                        "Dni",
+                        this.form.dni
+                    );
+
+                    formData.set(
+                        "Email",
+                        this.form.email
+                    );
+
+                    formData.set(
+                        "Password",
+                        this.form.password
+                    );
+
+                    const response =
+                        await fetch(
+                            form.action,
+                            {
+                                method: "POST",
+                                body: formData,
+                                credentials: "same-origin",
+                                redirect: "follow"
+                            }
+                        );
+
+                    if (response.redirected) {
+
+                        window.location.href =
+                            response.url;
+
+                        return;
+
+                    }
+
+                    const html =
+                        await response.text();
+
+                    const parser =
+                        new DOMParser();
+
+                    const documento =
+                        parser.parseFromString(
+                            html,
+                            "text/html"
+                        );
+
+                        console.log(
+                        documento.querySelector(
+                            "[data-valmsg-summary]"
+                        )?.outerHTML
+                    );
+
+                    const errorGeneral =
+                        this.leerErroresServidor(
+                            documento
+                        );
+
+                    if (errorGeneral) {
+
+                        const contenedor =
+                            document.createElement("div");
+
+                        contenedor.className =
+                            "alert alert-danger";
+
+                        contenedor.setAttribute(
+                            "role",
+                            "alert"
+                        );
+
+                        contenedor.textContent =
+                            errorGeneral;
+
+                        const formulario =
+                            document.getElementById(
+                                "registerForm"
+                            );
+
+                        formulario.prepend(
+                            contenedor
+                        );
+
+                    }
+
+                    if (
+                        response.ok &&
+                        !errorGeneral &&
+                        Object.values(this.errores)
+                            .every(error => !error)
+                    ) {
+
+                        this.errorGeneral = "";
+
+                    }
+
+                    if (
+                        !response.ok &&
+                        !errorGeneral &&
+                        Object.values(this.errores)
+                            .every(error => !error)
+                    ) {
+
+                        const contenedor =
+                            document.createElement("div");
+
+                        contenedor.className =
+                            "alert alert-danger";
+
+                        contenedor.setAttribute(
+                            "role",
+                            "alert"
+                        );
+
+                        contenedor.textContent =
+                            "No se pudo registrar el usuario.";
+
+                        document.getElementById(
+                            "registerForm"
+                        ).prepend(contenedor);
+
+                    }
+
+                }
+                catch (error) {
+
+                    console.error(
+                        "Error al registrar usuario:",
+                        error
+                    );
+
+                    const contenedor =
+                        document.createElement("div");
+
+                    contenedor.className =
+                        "alert alert-danger";
+
+                    contenedor.setAttribute(
+                        "role",
+                        "alert"
+                    );
+
+                    contenedor.textContent =
+                        "No se pudo conectar con el servidor.";
+
+                    document.getElementById(
+                        "registerForm"
+                    ).prepend(contenedor);
+
+                }
+                finally {
+
+                    this.enviando = false;
+
+                }
+
+            }
+
+        }
+
+    }).mount("#registerApp");
+
+</script>
+
+}

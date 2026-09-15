@@ -94,3 +94,6 @@ CREATE TABLE pagos (
 	FOREIGN KEY (usuario_creador_id) REFERENCES usuarios(id),
 	FOREIGN KEY (usuario_cancelador_id) REFERENCES usuarios(id)
 );
+
+ALTER TABLE usuarios
+ADD COLUMN dni VARCHAR(10) NOT NULL AFTER apellido;

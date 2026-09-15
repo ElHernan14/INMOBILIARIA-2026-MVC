@@ -1,15 +1,452 @@
-<div>
-    <h1>LOGIN</h1>
+@model INMOBILIARIA.Models.LoginView
 
-    <form asp-action="Login">
-        <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-control" id="Email" name="Email" placeholder="name@example.com">
+@{
+    ViewData["Title"] = "Iniciar sesión";
+    var mensajeExito = TempData.Peek("Success")?.ToString();
+}
+
+<div id="loginApp" class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-sm-10 col-md-7 col-lg-5 col-xl-4">
+
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-4 p-md-5">
+
+                    <div class="text-center mb-4">
+                        <div class="mb-3">
+                            <div class="d-inline-flex align-items-center justify-content-center
+                                        bg-primary bg-opacity-10 text-primary rounded-circle"
+                                 style="width: 64px; height: 64px;">
+                                <span class="fs-3">🔐</span>
+                            </div>
+                        </div>
+
+                        <h1 class="h3 fw-bold mb-2">
+                            Iniciar sesión
+                        </h1>
+
+                        <p class="text-secondary mb-0">
+                            Ingresá a tu cuenta para continuar.
+                        </p>
+                    </div>
+
+                    <form id="loginForm"
+                          asp-action="Login"
+                          asp-controller="Usuario"
+                          method="post"
+                          v-on:submit.prevent="iniciarSesion">
+
+                        @Html.AntiForgeryToken()
+
+                        <input asp-for="ReturnUrl" type="hidden" />
+
+                        <!-- Mensaje de registro exitoso -->
+                        @if (!string.IsNullOrWhiteSpace(mensajeExito))
+                        {
+                            <div class="alert alert-success py-2"
+                                 role="alert">
+                                @mensajeExito
+                            </div>
+                        }
+
+                        <!-- Error general -->
+                        <div v-if="errorGeneral"
+                             class="alert alert-danger py-2"
+                             role="alert"
+                             v-text="errorGeneral">
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label asp-for="Email"
+                                   class="form-label fw-semibold">
+                                Email
+                            </label>
+
+                            <input asp-for="Email"
+                                   v-model.trim="form.email"
+                                   type="email"
+                                   class="form-control form-control-lg"
+                                   v-bind:class="{
+                                       'is-invalid': errores.email
+                                   }"
+                                   placeholder="nombre@@ejemplo.com"
+                                   autocomplete="email"
+                                   autofocus />
+
+                            <span asp-validation-for="Email"
+                                  class="invalid-feedback d-block"
+                                  v-if="errores.email"
+                                  v-text="errores.email">
+                            </span>
+                        </div>
+
+                        <!-- Contraseña -->
+                        <div class="mb-4">
+                            <label asp-for="Password"
+                                   class="form-label fw-semibold">
+                                Contraseña
+                            </label>
+
+                            <div class="input-group">
+                                <input asp-for="Password"
+                                       v-model="form.password"
+                                       v-bind:type="
+                                           mostrarPassword
+                                               ? 'text'
+                                               : 'password'
+                                       "
+                                       class="form-control form-control-lg"
+                                       v-bind:class="{
+                                           'is-invalid':
+                                               errores.password
+                                       }"
+                                       placeholder="Ingresá tu contraseña"
+                                       autocomplete="current-password" />
+
+                                <button type="button"
+                                        class="btn btn-outline-secondary"
+                                        v-on:click="
+                                            mostrarPassword =
+                                                !mostrarPassword
+                                        "
+                                        v-bind:disabled="enviando"
+                                        v-bind:aria-label="
+                                            mostrarPassword
+                                                ? 'Ocultar contraseña'
+                                                : 'Mostrar contraseña'
+                                        "
+                                        v-text="
+                                            mostrarPassword
+                                                ? 'Ocultar'
+                                                : 'Ver'
+                                        ">
+                                </button>
+                            </div>
+
+                            <span asp-validation-for="Password"
+                                  class="invalid-feedback d-block"
+                                  v-if="errores.password"
+                                  v-text="errores.password">
+                            </span>
+                        </div>
+
+                        <!-- Acceso -->
+                        <button type="submit"
+                                class="btn btn-primary btn-lg w-100"
+                                v-bind:disabled="enviando">
+
+                            <span v-if="enviando"
+                                  class="spinner-border spinner-border-sm me-2"
+                                  role="status"
+                                  aria-hidden="true">
+                            </span>
+
+                            <span v-text="
+                                enviando
+                                    ? 'Ingresando...'
+                                    : 'Iniciar sesión'
+                            ">
+                            </span>
+                        </button>
+
+                        <!-- ModelState general -->
+                        <div asp-validation-summary="ModelOnly"
+                             class="validation-summary-valid">
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+            <p class="text-center text-secondary small mt-4 mb-0">
+                Acceso al sistema de gestión inmobiliaria
+            </p>
+
         </div>
-        <div class="mb-3">
-            <label for="exampleFormControlInput2" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" name="Password" >
-        </div>
-        <button type="submit">enviar</button>
-    </form>
+    </div>
 </div>
+
+@section Scripts {
+<script>
+    Vue.createApp({
+        data() {
+            return {
+                enviando: false,
+
+                mostrarPassword: false,
+
+                form: {
+                    email: @Html.Raw(
+                        System.Text.Json.JsonSerializer.Serialize(
+                            Model?.Email ?? ""
+                        )
+                    ),
+
+                    password: ""
+                },
+
+                errores: {
+                    email: "",
+                    password: ""
+                },
+
+                errorGeneral: ""
+            };
+        },
+
+        methods: {
+
+            validar() {
+                this.errores.email = "";
+                this.errores.password = "";
+                this.errorGeneral = "";
+
+                let valido = true;
+
+                if (!this.form.email) {
+                    this.errores.email =
+                        "El email es obligatorio.";
+
+                    valido = false;
+                }
+                else if (
+                    !this.validarEmail(this.form.email)
+                ) {
+                    this.errores.email =
+                        "El formato del email no es válido.";
+
+                    valido = false;
+                }
+                else if (
+                    this.form.email.length > 254
+                ) {
+                    this.errores.email =
+                        "El email no puede superar los 254 caracteres.";
+
+                    valido = false;
+                }
+
+                if (!this.form.password) {
+                    this.errores.password =
+                        "La contraseña es obligatoria.";
+
+                    valido = false;
+                }
+                else if (
+                    this.form.password.length < 6
+                ) {
+                    this.errores.password =
+                        "La contraseña debe tener al menos 6 caracteres.";
+
+                    valido = false;
+                }
+                else if (
+                    this.form.password.length > 100
+                ) {
+                    this.errores.password =
+                        "La contraseña no puede superar los 100 caracteres.";
+
+                    valido = false;
+                }
+
+                return valido;
+            },
+
+            validarEmail(email) {
+                return /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(
+                    email
+                );
+            },
+
+            leerErroresServidor(documento) {
+
+                const mapa = {
+                    "Email": "email",
+                    "Password": "password"
+                };
+
+                /*
+                 * Errores asociados a propiedades del modelo.
+                 */
+                const mensajes =
+                    documento.querySelectorAll(
+                        "[data-valmsg-for]"
+                    );
+
+                mensajes.forEach(elemento => {
+
+                    const campo =
+                        elemento.getAttribute(
+                            "data-valmsg-for"
+                        );
+
+                    const mensaje =
+                        elemento.textContent.trim();
+
+                    if (!campo || !mensaje) {
+                        return;
+                    }
+
+                    const propiedad =
+                        mapa[campo];
+
+                    if (propiedad) {
+                        this.errores[propiedad] =
+                            mensaje;
+                    }
+                });
+
+                /*
+                 * Errores generales de ModelState.
+                 *
+                 * asp-validation-summary="ModelOnly"
+                 * genera .validation-summary-errors
+                 * cuando existen errores.
+                 */
+                const resumen =
+                    documento.querySelector(
+                        ".validation-summary-errors"
+                    );
+
+                if (resumen) {
+
+                    const elementos =
+                        resumen.querySelectorAll("li");
+
+                    if (elementos.length > 0) {
+
+                        return Array.from(elementos)
+                            .map(elemento =>
+                                elemento.textContent.trim()
+                            )
+                            .filter(mensaje =>
+                                mensaje.length > 0
+                            )
+                            .join(" ");
+                    }
+                }
+
+                return "";
+            },
+
+            async iniciarSesion() {
+
+                if (this.enviando) {
+                    return;
+                }
+
+                if (!this.validar()) {
+                    return;
+                }
+
+                this.enviando = true;
+                this.errorGeneral = "";
+
+                try {
+
+                    const form =
+                        document.getElementById(
+                            "loginForm"
+                        );
+
+                    const formData =
+                        new FormData(form);
+
+                    formData.set(
+                        "Email",
+                        this.form.email
+                    );
+
+                    formData.set(
+                        "Password",
+                        this.form.password
+                    );
+
+                    const response =
+                        await fetch(
+                            form.action,
+                            {
+                                method: "POST",
+                                body: formData,
+                                credentials: "same-origin",
+                                redirect: "follow"
+                            }
+                        );
+
+                    /*
+                     * Login correcto.
+                     *
+                     * El controller redirige después
+                     * de crear la cookie de autenticación.
+                     */
+                    if (response.redirected) {
+
+                        window.location.href =
+                            response.url;
+
+                        return;
+                    }
+
+                    /*
+                     * Login rechazado.
+                     *
+                     * El controller devuelve nuevamente
+                     * la vista con ModelState.
+                     */
+                    const html =
+                        await response.text();
+
+                    const parser =
+                        new DOMParser();
+
+                    const documento =
+                        parser.parseFromString(
+                            html,
+                            "text/html"
+                        );
+
+                    const errorGeneral =
+                        this.leerErroresServidor(
+                            documento
+                        );
+
+                    if (errorGeneral) {
+
+                        this.errorGeneral =
+                            errorGeneral;
+                    }
+
+                    /*
+                     * Fallback para errores inesperados
+                     * del servidor.
+                     */
+                    if (
+                        !response.ok &&
+                        !errorGeneral &&
+                        Object.values(this.errores)
+                            .every(error => !error)
+                    ) {
+                        this.errorGeneral =
+                            "No se pudo iniciar sesión.";
+                    }
+                }
+                catch (error) {
+
+                    console.error(
+                        "Error al iniciar sesión:",
+                        error
+                    );
+
+                    this.errorGeneral =
+                        "No se pudo conectar con el servidor.";
+                }
+                finally {
+
+                    this.enviando = false;
+                }
+            }
+        }
+    }).mount("#loginApp");
+</script>
+}

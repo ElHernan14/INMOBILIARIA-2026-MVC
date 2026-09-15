@@ -1,0 +1,53 @@
+@{
+    ViewData["Title"] = "Acceso denegado";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body text-center p-5">
+
+                    <div class="mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center
+                                    rounded-circle bg-danger bg-opacity-10 text-danger"
+                             style="width: 80px; height: 80px;">
+
+                            <span class="fs-2">403</span>
+
+                        </div>
+                    </div>
+
+                    <h1 class="h3 fw-bold mb-3">
+                        Acceso denegado
+                    </h1>
+
+                    <p class="text-secondary mb-4">
+                        No tenés permisos suficientes para acceder
+                        a esta sección.
+                    </p>
+
+                    <div class="d-flex flex-column flex-sm-row
+                                justify-content-center gap-2">
+
+                        <a asp-controller="Home"
+                           asp-action="Index"
+                           class="btn btn-primary">
+                            Volver al inicio
+                        </a>
+
+                        <a asp-controller="Usuario"
+                           asp-action="Perfil"
+                           class="btn btn-outline-secondary">
+                            Ver mi perfil
+                        </a>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

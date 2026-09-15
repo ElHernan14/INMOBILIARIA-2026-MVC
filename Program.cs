@@ -22,21 +22,19 @@ builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
-    {
-        options.LoginPath        = "/usuario/Login";
-        // options.LogoutPath       = "/usuario/Logout";
-        // options.AccessDeniedPath = "/usuario/AccessDenied";
-        // options.Cookie.Name      = "Inmobiliaria.Auth";
-        options.Cookie.HttpOnly  = true;
-        options.SlidingExpiration = true;
-        options.ExpireTimeSpan    = TimeSpan.FromHours(8);
-    });
+        {
+            options.LoginPath = "/Usuario/Login";
+            options.AccessDeniedPath = "/Usuario/AccessDenied";
+            options.Cookie.HttpOnly = true;
+            options.SlidingExpiration = true;
+            options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        });
 
 // Configurar políticas de autorización
 builder.Services.AddAuthorization(options =>
 {
     // Política para administradores solamente
-    options.AddPolicy("Administrador", policy => policy.RequireRole("Administrador"));
+    options.AddPolicy("Administrador", policy => policy.RequireRole("ADMINISTRADOR"));
 });
 
 
@@ -55,6 +53,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

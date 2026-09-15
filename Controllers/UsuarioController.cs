@@ -1,12 +1,12 @@
-using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using INMOBILIARIA.Models;
 using INMOBILIARIA.Models.Interfaces;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace INMOBILIARIA.Controllers;
 
@@ -14,119 +14,664 @@ public class UsuarioController : Controller
 {
     private readonly IRepositorioUsuario repositorioUsuario;
     private readonly IConfiguration configuration;
+    private readonly IWebHostEnvironment environment;
+    private readonly ILogger<UsuarioController> logger;
 
-    public UsuarioController(IRepositorioUsuario repositorioUsuario, IConfiguration configuration)
+    private const long TamanoMaximoAvatar = 2 * 1024 * 1024;
+
+    private static readonly string[] ExtensionesAvatarPermitidas =
+    {
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".webp"
+    };
+
+    public UsuarioController(
+        IRepositorioUsuario repositorioUsuario,
+        IConfiguration configuration,
+        IWebHostEnvironment environment,
+        ILogger<UsuarioController> logger)
     {
         this.repositorioUsuario = repositorioUsuario;
         this.configuration = configuration;
+        this.environment = environment;
+        this.logger = logger;
     }
-    
+
+    // GET: /Usuario/Index
+    [Authorize(Policy = "Administrador")]
     public IActionResult Index()
     {
         return View();
     }
 
-    public IActionResult Login(string returnUrl)
-    {
-        TempData["returnUrl"] = returnUrl;
-        return View();
-    }
-
-    [HttpPost]
-    // [ValidateAntiForgeryToken]
-    [Authorize(Policy = "Administrador")]
-    public ActionResult Create([FromBody] Usuario u)
-    {
-        // if (!ModelState.IsValid)
-        //     return View();
-        try
-        {
-            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                            password: u.Password,
-                            salt: System.Text.Encoding.ASCII.GetBytes(configuration["Salt"]),
-                            prf: KeyDerivationPrf.HMACSHA1,
-                            iterationCount: 1000,
-                            numBytesRequested: 256 / 8));
-            u.Password = hashed;
-            u.Rol = User.IsInRole("ADMINISTRADOR") ? u.Rol : RolUsuario.EMPLEADO;
-            var nbreRnd = Guid.NewGuid();//posible nombre aleatorio
-            int res = repositorioUsuario.Alta(u);
-            // if (u.AvatarFile != null && u.Id > 0)
-            // {
-            //     string wwwPath = environment.WebRootPath;
-            //     string path = Path.Combine(wwwPath, "Uploads");
-            //     if (!Directory.Exists(path))
-            //     {
-            //         Directory.CreateDirectory(path);
-            //     }
-            //     //Path.GetFileName(u.AvatarFile.FileName);//este nombre se puede repetir
-            //     string fileName = "avatar_" + u.Id + Path.GetExtension(u.AvatarFile.FileName);
-            //     string pathCompleto = Path.Combine(path, fileName);
-            //     u.Avatar = Path.Combine("/Uploads", fileName);
-            //     // Esta operación guarda la foto en memoria en la ruta que necesitamos
-            //     using (FileStream stream = new FileStream(pathCompleto, FileMode.Create))
-            //     {
-            //         u.AvatarFile.CopyTo(stream);
-            //     }
-            //     repositorio.Modificacion(u);
-            // }
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            // ViewBag.Roles = Usuario.ObtenerRoles();
-            // return View();
-
-            Console.Error.WriteLine("Ocurrió un error, en PropietarioController - create", ex);
-            return StatusCode(500, "Ocurrió un error");
-        }
-    }
-
-	[HttpPost]
+    // GET: /Usuario/Login
     [AllowAnonymous]
+    [HttpGet]
+    public IActionResult Login(string? returnUrl = null)
+    {
+        var model = new LoginView
+        {
+            ReturnUrl = EsUrlLocal(returnUrl)
+                ? returnUrl
+                : null
+        };
+
+        return View(model);
+    }
+
+    // POST: /Usuario/Login
+    [AllowAnonymous]
+    [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginView login)
     {
+        if (!ModelState.IsValid)
+        {
+            return View(login);
+        }
+
         try
         {
-            var returnUrl = String.IsNullOrEmpty(TempData["returnUrl"] as string) ? "/Home" : TempData["returnUrl"].ToString();
-            // if (ModelState.IsValid)
+            var usuario = repositorioUsuario.ObtenerPorEmail(login.Email);
+
+            string hashed = GenerarHash(login.Password);
+
+            if (usuario == null ||
+                !usuario.Activo ||
+                usuario.Password != hashed)
             {
-                string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                    password: login.Password,
-                    salt: System.Text.Encoding.ASCII.GetBytes(configuration["Salt"]),
-                    prf: KeyDerivationPrf.HMACSHA1,
-                    iterationCount: 1000,
-                    numBytesRequested: 256 / 8));
+                ModelState.AddModelError(
+                    string.Empty,
+                    "El email o la contraseña no son correctos.");
 
-                var e = repositorioUsuario.ObtenerPorEmail(login.Email);
-                if (e == null || e.Password != hashed)
-                {
-                    ModelState.AddModelError("", "El email o la clave no son correctos");
-                    TempData["returnUrl"] = returnUrl;
-                    return View();
-                }
-
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, e.Email),
-                    new Claim("FullName", e.Nombre + " " + e.Apellido),
-                    new Claim(ClaimTypes.Role, e.RolNombre),
-                };
-
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-                TempData.Remove("returnUrl");
-                return Redirect(returnUrl);
+                return View(login);
             }
-            TempData["returnUrl"] = returnUrl;
-            return View();
+
+            var claims = new List<Claim>
+            {
+                new Claim(
+                    ClaimTypes.NameIdentifier,
+                    usuario.Id.ToString()),
+
+                new Claim(
+                    ClaimTypes.Name,
+                    usuario.Email),
+
+                new Claim(
+                    ClaimTypes.Role,
+                    usuario.RolNombre),
+
+                new Claim(
+                    "FullName",
+                    usuario.NombreCompleto)
+            };
+
+            var claimsIdentity = new ClaimsIdentity(
+                claims,
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            var principal = new ClaimsPrincipal(claimsIdentity);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal);
+
+            string destino = EsUrlLocal(login.ReturnUrl)
+                ? login.ReturnUrl!
+                : Url.Action("Index", "Home")!;
+
+            return Redirect(destino);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return View();
+            logger.LogError(ex, "Error al iniciar sesión.");
+
+            ModelState.AddModelError(
+                string.Empty,
+                "Ocurrió un error al iniciar sesión.");
+
+            return View(login);
         }
+    }
+
+    // GET: /Usuario/Register
+    [AllowAnonymous]
+    [HttpGet]
+    public IActionResult Register()
+    {
+        return View(new Usuario
+        {
+            Rol = RolUsuario.EMPLEADO,
+            Activo = true
+        });
+    }
+
+    // POST: /Usuario/Register
+    [AllowAnonymous]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Register(
+        Usuario usuario,
+        IFormFile? avatarFile)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(usuario);
+        }
+
+        try
+        {
+            usuario.Nombre = usuario.Nombre.Trim();
+            usuario.Apellido = usuario.Apellido.Trim();
+            usuario.Dni = usuario.Dni.Trim();
+            usuario.Email = usuario.Email.Trim();
+
+            usuario.Rol = RolUsuario.EMPLEADO;
+            usuario.Activo = true;
+
+            if (string.IsNullOrWhiteSpace(usuario.Password))
+            {
+                ModelState.AddModelError(
+                    nameof(usuario.Password),
+                    "La contraseña es obligatoria.");
+
+                return View(usuario);
+            }
+
+            if (avatarFile is null)
+            {
+                ModelState.AddModelError(
+                    "avatarFile",
+                    "La foto de perfil es obligatoria.");
+
+                return View(usuario);
+            }
+
+            var usuarioExistente =
+                repositorioUsuario.ObtenerPorEmail(usuario.Email);
+
+            if (usuarioExistente is not null)
+            {
+                ModelState.AddModelError(
+                    nameof(usuario.Email),
+                    "Ya existe un usuario registrado con ese email.");
+
+                return View(usuario);
+            }
+
+            usuario.Password = GenerarHash(usuario.Password);
+
+            int id = repositorioUsuario.Alta(usuario);
+
+            string? rutaAvatar =
+                GuardarAvatar(avatarFile, id);
+
+            if (rutaAvatar is null)
+            {
+                repositorioUsuario.Baja(id);
+                return View(usuario);
+            }
+
+            usuario.Id = id;
+            usuario.Avatar = rutaAvatar;
+
+            repositorioUsuario.Modificacion(usuario);
+
+            TempData["Success"] =
+                "La cuenta fue creada correctamente. Ya podés iniciar sesión.";
+
+            return RedirectToAction(nameof(Login));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(
+                ex,
+                "Error al registrar el usuario.");
+
+            ModelState.AddModelError(
+                string.Empty,
+                "No se pudo completar el registro.");
+
+            return View(usuario);
+        }
+    }
+
+    // GET: /Usuario/Create
+    [Authorize(Policy = "Administrador")]
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View(new Usuario
+        {
+            Rol = RolUsuario.EMPLEADO,
+            Activo = true
+        });
+    }
+
+    // POST: /Usuario/Create
+    [Authorize(Policy = "Administrador")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Create(Usuario usuario, IFormFile? avatarFile)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(usuario);
+        }
+
+        try
+        {
+            usuario.Nombre = usuario.Nombre.Trim();
+            usuario.Apellido = usuario.Apellido.Trim();
+            usuario.Dni = usuario.Dni.Trim();
+            usuario.Email = usuario.Email.Trim();
+
+            if (string.IsNullOrWhiteSpace(usuario.Password))
+            {
+                ModelState.AddModelError(
+                    nameof(usuario.Password),
+                    "La contraseña es obligatoria.");
+
+                return View(usuario);
+            }
+
+            usuario.Password = GenerarHash(usuario.Password);
+
+            int id = repositorioUsuario.Alta(usuario);
+
+            if (avatarFile is not null)
+            {
+                string? rutaAvatar = GuardarAvatar(avatarFile, id);
+
+                if (rutaAvatar is null)
+                {
+                    repositorioUsuario.Baja(id);
+                    return View(usuario);
+                }
+
+                usuario.Avatar = rutaAvatar;
+                repositorioUsuario.Modificacion(usuario);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error al crear el usuario.");
+
+            ModelState.AddModelError(
+                string.Empty,
+                "No se pudo crear el usuario.");
+
+            return View(usuario);
+        }
+    }
+
+    // GET: /Usuario/Details/5
+    [Authorize(Policy = "Administrador")]
+    [HttpGet]
+    public IActionResult Details(int id)
+    {
+        var usuario = repositorioUsuario.ObtenerPorId(id);
+
+        if (usuario is null)
+        {
+            return NotFound();
+        }
+
+        usuario.Password = string.Empty;
+
+        return View(usuario);
+    }
+
+    // GET: /Usuario/Edit/5
+    [Authorize(Policy = "Administrador")]
+    [HttpGet]
+    public IActionResult Edit(int id)
+    {
+        var usuario = repositorioUsuario.ObtenerPorId(id);
+
+        if (usuario is null)
+        {
+            return NotFound();
+        }
+
+        usuario.Password = string.Empty;
+
+        return View(usuario);
+    }
+
+    // POST: /Usuario/Edit/5
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Edit(int id, Usuario usuario, IFormFile? avatarFile)
+    {
+        bool esAdministrador = User.IsInRole("ADMINISTRADOR");
+
+        if (!esAdministrador && !EsUsuarioActual(id))
+        {
+            return Forbid();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View(usuario);
+        }
+
+        try
+        {
+            var usuarioActual = repositorioUsuario.ObtenerPorId(id);
+
+            if (usuarioActual is null)
+            {
+                return NotFound();
+            }
+
+            usuario.Id = id;
+
+            usuario.Nombre = usuario.Nombre.Trim();
+            usuario.Apellido = usuario.Apellido.Trim();
+            usuario.Dni = usuario.Dni.Trim();
+            usuario.Email = usuario.Email.Trim();
+
+            // Si no se escribió una contraseña nueva, conservamos el hash actual.
+            if (string.IsNullOrWhiteSpace(usuario.Password))
+            {
+                usuario.Password = usuarioActual.Password;
+            }
+            else
+            {
+                usuario.Password = GenerarHash(usuario.Password);
+            }
+
+            // Un empleado no puede cambiar su propio rol ni su estado.
+            if (!esAdministrador)
+            {
+                usuario.Rol = usuarioActual.Rol;
+                usuario.Activo = usuarioActual.Activo;
+            }
+
+            if (avatarFile is not null)
+            {
+                string? rutaAvatar = GuardarAvatar(avatarFile, id);
+
+                if (rutaAvatar is null)
+                {
+                    return View(usuario);
+                }
+
+                usuario.Avatar = rutaAvatar;
+            }
+            else
+            {
+                usuario.Avatar = usuarioActual.Avatar;
+            }
+
+            repositorioUsuario.Modificacion(usuario);
+
+            if (EsUsuarioActual(id))
+            {
+                return RedirectToAction(nameof(Perfil));
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error al modificar el usuario.");
+
+            ModelState.AddModelError(
+                string.Empty,
+                "No se pudo modificar el usuario.");
+
+            return View(usuario);
+        }
+    }
+
+    // GET: /Usuario/Delete/5
+    [Authorize(Policy = "Administrador")]
+    [HttpGet]
+    public IActionResult Delete(int id)
+    {
+        var usuario = repositorioUsuario.ObtenerPorId(id);
+
+        if (usuario is null)
+        {
+            return NotFound();
+        }
+
+        usuario.Password = string.Empty;
+
+        return View(usuario);
+    }
+
+    // POST: /Usuario/Delete/5
+    [Authorize(Policy = "Administrador")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult DeleteConfirmed(int id)
+    {
+        try
+        {
+            var usuario = repositorioUsuario.ObtenerPorId(id);
+
+            if (usuario is null)
+            {
+                return NotFound();
+            }
+
+            repositorioUsuario.Baja(id);
+
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error al dar de baja el usuario.");
+
+            TempData["Error"] = "No se pudo dar de baja el usuario.";
+
+            return RedirectToAction(nameof(Index));
+        }
+    }
+
+    // GET: /Usuario/Perfil
+    [Authorize]
+    [HttpGet]
+    public IActionResult Perfil()
+    {
+        int? idUsuario = ObtenerIdUsuarioActual();
+
+        if (idUsuario is null)
+        {
+            return Challenge();
+        }
+
+        var usuario = repositorioUsuario.ObtenerPorId(idUsuario.Value);
+
+        if (usuario is null)
+        {
+            return NotFound();
+        }
+
+        usuario.Password = string.Empty;
+
+        return View(usuario);
+    }
+
+    // GET: /Usuario/Foto/5
+    [Authorize]
+    [HttpGet]
+    public IActionResult Foto(int id)
+    {
+        var usuario = repositorioUsuario.ObtenerPorId(id);
+
+        if (usuario is null ||
+            string.IsNullOrWhiteSpace(usuario.Avatar))
+        {
+            return NotFound();
+        }
+
+        string rutaRelativa = usuario.Avatar.TrimStart(
+            '/',
+            '\\');
+
+        string rutaCompleta = Path.Combine(
+            environment.WebRootPath,
+            rutaRelativa.Replace(
+                '/',
+                Path.DirectorySeparatorChar));
+
+        if (!System.IO.File.Exists(rutaCompleta))
+        {
+            return NotFound();
+        }
+
+        string extension = Path.GetExtension(rutaCompleta)
+            .ToLowerInvariant();
+
+        string contentType = extension switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".webp" => "image/webp",
+            _ => "application/octet-stream"
+        };
+
+        byte[] bytes = System.IO.File.ReadAllBytes(rutaCompleta);
+
+        return File(bytes, contentType);
+    }
+
+    // GET: /Usuario/Avatar
+    [Authorize]
+    [HttpGet]
+    public IActionResult Avatar()
+    {
+        int? idUsuario = ObtenerIdUsuarioActual();
+
+        if (idUsuario is null)
+        {
+            return Challenge();
+        }
+
+        return Foto(idUsuario.Value);
+    }
+
+    // POST: /Usuario/Logout
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme);
+
+        return RedirectToAction(
+            "Index",
+            "Home");
+    }
+
+    // GET: /Usuario/AccessDenied
+    [AllowAnonymous]
+    [HttpGet]
+    public IActionResult AccessDenied()
+    {
+        return View();
+    }
+
+    private string GenerarHash(string password)
+    {
+        string salt = configuration["Salt"] ?? string.Empty;
+
+        return Convert.ToBase64String(
+            KeyDerivation.Pbkdf2(
+                password: password,
+                salt: System.Text.Encoding.ASCII.GetBytes(salt),
+                prf: KeyDerivationPrf.HMACSHA1,
+                iterationCount: 1000,
+                numBytesRequested: 256 / 8));
+    }
+
+    private int? ObtenerIdUsuarioActual()
+    {
+        string? claimId = User.FindFirstValue(
+            ClaimTypes.NameIdentifier);
+
+        if (int.TryParse(claimId, out int id))
+        {
+            return id;
+        }
+
+        return null;
+    }
+
+    private bool EsUsuarioActual(int id)
+    {
+        int? idActual = ObtenerIdUsuarioActual();
+
+        return idActual.HasValue && idActual.Value == id;
+    }
+
+    private bool EsUrlLocal(string? url)
+    {
+        return !string.IsNullOrWhiteSpace(url)
+            && Url.IsLocalUrl(url);
+    }
+
+    private string? GuardarAvatar(IFormFile archivo, int usuarioId)
+    {
+        if (archivo.Length == 0)
+        {
+            ModelState.AddModelError(
+                "avatarFile",
+                "El archivo seleccionado está vacío.");
+
+            return null;
+        }
+
+        if (archivo.Length > TamanoMaximoAvatar)
+        {
+            ModelState.AddModelError(
+                "avatarFile",
+                "El avatar no puede superar los 2 MB.");
+
+            return null;
+        }
+
+        string extension = Path.GetExtension(
+            archivo.FileName).ToLowerInvariant();
+
+        if (!ExtensionesAvatarPermitidas.Contains(extension))
+        {
+            ModelState.AddModelError(
+                "avatarFile",
+                "El avatar debe ser JPG, JPEG, PNG o WEBP.");
+
+            return null;
+        }
+
+        string carpetaUploads = Path.Combine(
+            environment.WebRootPath,
+            "Uploads");
+
+        Directory.CreateDirectory(carpetaUploads);
+
+        string nombreArchivo =
+            $"avatar_{usuarioId}{extension}";
+
+        string rutaCompleta = Path.Combine(
+            carpetaUploads,
+            nombreArchivo);
+
+        using var stream = new FileStream(
+            rutaCompleta,
+            FileMode.Create);
+
+        archivo.CopyTo(stream);
+
+        return $"/Uploads/{nombreArchivo}";
     }
 }
