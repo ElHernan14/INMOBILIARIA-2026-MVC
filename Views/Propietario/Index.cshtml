@@ -19,11 +19,17 @@
             </p>
         </div>
 
-        <div class="text-end">
+        <div class="d-flex align-items-center gap-3">
 
-            <span class="badge rounded-pill text-bg-light border px-3 py-2">
+            <a asp-controller="Propietario"
+               asp-action="Create"
+               class="btn btn-primary">
+                Añadir propietario
+            </a>
+
+            <!--<span class="badge rounded-pill text-bg-light border px-3 py-2">
                 {{ propietarios.length }} registrados
-            </span>
+            </span>-->
 
         </div>
 

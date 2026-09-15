@@ -17,21 +17,26 @@ namespace INMOBILIARIA.Controllers
             this.configuration = configuration;
         }
 
+		[HttpGet]
+		[Authorize]
+		public ActionResult Create()
+		{
+			return View(new Propietario {});
+		}
+
 		[HttpPost]
-		// [ValidateAntiForgeryToken] // quitar cuando se requiera
-		public ActionResult Create([FromBody] Propietario propietario)
+		[Authorize]
+		[ValidateAntiForgeryToken]
+		public ActionResult Create(Propietario propietario)
 		{
 			try
 			{
-				// throw new Exception("Ocurrió un error inesperado."); ESTO PARA FORZAR UN ERROR
-
-				if(propietario == null) return BadRequest("Los datos del propietario son nulos");
-
-				if (!ModelState.IsValid) return BadRequest(ModelState);
+				if (!ModelState.IsValid) return View(propietario);
 
                 repositorioPropietario.Alta(propietario);
 
-                return Ok("propietario creado");
+				TempData["SuccessMessage"] = "El propietario se registró correctamente.";
+				return RedirectToAction(nameof(Create));
 			}
 			catch (Exception ex)
 			{
@@ -42,6 +47,7 @@ namespace INMOBILIARIA.Controllers
 
 
 		[HttpPost]
+		[Authorize]
 		public ActionResult Update([FromBody] Propietario propietario)
 		{
 			try
@@ -69,6 +75,7 @@ namespace INMOBILIARIA.Controllers
 		}
 
 		[HttpDelete]
+		[Authorize]
 		public ActionResult Delete(int id)
 		{
 			try
@@ -91,14 +98,12 @@ namespace INMOBILIARIA.Controllers
 		}
 
 		[HttpGet]
-		[Authorize(Policy = "Administrador")]
+		[Authorize]
 		public ActionResult Index()
 		{
 			try
 			{
-
 				List<Propietario> lista = repositorioPropietario.ObtenerTodos(1, "", 10, 1);
-
 				return View(lista);
 			}
 			catch (Exception ex)
@@ -110,7 +115,7 @@ namespace INMOBILIARIA.Controllers
 
 		[HttpGet]
 		// [ValidateAntiForgeryToken] // quitar cuando se requiera
-		[Authorize(Policy = "Administrador")]
+		[Authorize]
 		public ActionResult Detalles(int id)
 		{
 			try

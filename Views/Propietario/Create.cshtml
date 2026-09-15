@@ -1,0 +1,60 @@
+@model Propietario
+
+@{
+	ViewData["Title"] = "Nuevo propietario";
+}
+
+<div class="row justify-content-center">
+	<div class="col-12 col-md-8 col-lg-6">
+		<h1 class="h2 mb-4">Registrar propietario</h1>
+
+		@if (TempData["SuccessMessage"] is string successMessage)
+		{
+			<div class="alert alert-success" role="alert">@successMessage</div>
+		}
+
+		<form id="newPropietarioForm"
+			  asp-action="Create"
+			  asp-controller="Propietario"
+			  method="post">
+			@Html.AntiForgeryToken()
+
+			<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+			<div class="row g-3">
+				<div class="col-md-6">
+					<label asp-for="Nombre" class="form-label"></label>
+					<input asp-for="Nombre" class="form-control" autocomplete="given-name" />
+					<span asp-validation-for="Nombre" class="text-danger"></span>
+				</div>
+
+				<div class="col-md-6">
+					<label asp-for="Apellido" class="form-label"></label>
+					<input asp-for="Apellido" class="form-control" autocomplete="family-name" />
+					<span asp-validation-for="Apellido" class="text-danger"></span>
+				</div>
+
+				<div class="col-md-12">
+					<label asp-for="Dni" class="form-label">DNI</label>
+					<input asp-for="Dni" class="form-control" inputmode="numeric" />
+					<span asp-validation-for="Dni" class="text-danger"></span>
+				</div>
+
+				<div class="col-md-12">
+					<label asp-for="Email" class="form-label"></label>
+					<input asp-for="Email" class="form-control" type="email" autocomplete="email" />
+					<span asp-validation-for="Email" class="text-danger"></span>
+				</div>
+
+				<div class="col-12 d-flex justify-content-end gap-2 mt-4">
+					<a asp-action="Create" class="btn btn-outline-secondary">Cancelar</a>
+					<button type="submit" class="btn btn-primary">Registrar propietario</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}
