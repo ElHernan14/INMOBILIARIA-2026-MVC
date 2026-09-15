@@ -1,6 +1,7 @@
 using System.Reflection.Metadata.Ecma335;
 using INMOBILIARIA.Models;
 using INMOBILIARIA.Models.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace INMOBILIARIA.Controllers
@@ -17,6 +18,15 @@ namespace INMOBILIARIA.Controllers
             this.repositorioReserva = repositorioInmueble;
             this.configuration = configuration;
         }
+
+        [HttpGet]
+        [Authorize(Policy = "Empleado")]
+        public ActionResult Index()
+        {
+            IEnumerable<Reserva> reservas = repositorioReserva.ObtenerTodas();
+            return View(reservas);
+        }
+
 
         [HttpPost]
         // [ValidateAntiForgeryToken] // quitar cuando se requiera
