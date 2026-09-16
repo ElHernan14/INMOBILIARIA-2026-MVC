@@ -173,5 +173,34 @@ namespace INMOBILIARIA.Models.Repositorios
 			};
 			return p;
 		}
+
+		public int Contar()
+		{
+			try
+			{
+				int total = 0;
+				using (MySqlConnection connection = new MySqlConnection(connectionString))
+				{
+					string sql = @"SELECT COUNT(*) FROM tipos_inmueble WHERE activo = 1";
+					using (MySqlCommand command = new MySqlCommand(sql, connection))
+					{
+						command.CommandType = CommandType.Text;
+						connection.Open();
+						MySqlDataReader reader = command.ExecuteReader();
+						if (reader.Read())
+						{
+							total = reader.GetInt32(0);
+						}
+						connection.Close();
+					}
+				}
+				return total;
+			} 
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error RepositorioInmueble - Contar: {ex.Message}");
+				throw;
+			}
+		}
     }
 }
