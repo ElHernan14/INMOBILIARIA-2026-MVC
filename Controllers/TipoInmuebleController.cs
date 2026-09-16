@@ -1,5 +1,6 @@
 using INMOBILIARIA.Models;
 using INMOBILIARIA.Models.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
@@ -17,25 +18,39 @@ namespace INMOBILIARIA.Controllers
             this.configuration = configuration;
         }
 
-		[HttpPost]
-		// [ValidateAntiForgeryToken] // quitar cuando se requiera
-		public ActionResult Create([FromBody] TipoInmueble tipoInmueble)
+		[HttpGet]
+		public ActionResult Create()
 		{
 			try
 			{
-				// throw new Exception("Ocurrió un error inesperado."); ESTO PARA FORZAR UN ERROR
+				return View(new TipoInmueble {});
+			}
+			catch (Exception ex)
+			{
+				Console.Error.WriteLine("Ocurrió un error, en TipoInmuebleController - GET create ", ex.Message);
+				return StatusCode(500, "Ocurrió un error");
+			}
+			
+		}
 
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public ActionResult Create(TipoInmueble tipoInmueble)
+		{
+			try
+			{
 				if(tipoInmueble == null) return BadRequest("Los datos del tipo inmueble son nulos");
 
 				if (!ModelState.IsValid) return BadRequest(ModelState);
 
-                repositorioTipoInmueble.Alta(tipoInmueble);
+                int id = repositorioTipoInmueble.Alta(tipoInmueble);
 
-                return Ok("tipo inmueble creado");
+				TempData["SuccessMessage"] = $"El Tipo de Inmueble se registró correctamente, con el código COD-00{id}.";
+				return RedirectToAction(nameof(Create));
 			}
 			catch (Exception ex)
 			{
-                Console.Error.WriteLine("Ocurrió un error, en TipoInmuebleController - create", ex);
+                Console.Error.WriteLine("Ocurrió un error, en TipoInmuebleController - POST create ", ex.Message);
 				return StatusCode(500, "Ocurrió un error");
 			}
 		}
