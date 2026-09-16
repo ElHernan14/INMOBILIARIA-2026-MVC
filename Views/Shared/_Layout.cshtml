@@ -24,6 +24,7 @@
           asp-append-version="true" />
           
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     
 
     <link rel="stylesheet" 
@@ -31,9 +32,11 @@
 
     @* Vue se carga globalmente para las vistas que realmente lo necesiten. *@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+
 </head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100" onload="init()">
 
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
@@ -231,6 +234,43 @@
             </div>
         </div>
     </footer>
+
+    <script type="text/javascript">
+    const notyf = new Notyf({
+			duration: 2500,
+			types: [
+				{
+					type: 'info',
+					background: '#004085',
+					icon: {
+						className: 'fa-solid fa-circle-info',
+						tagName: 'i',
+						color: 'white'
+					}
+				}
+			]
+		});
+		function init() {
+			let error = "@(ViewBag.Error??"")";
+			let mensaje = "@(ViewBag.Mensaje??"")";
+			let id = +"@(ViewBag.Id??0)";
+			notyf.info = function(mensaje) {
+				notyf.open({
+					type: 'info',
+					message: mensaje,
+				});
+			}
+			if(error) {
+				notyf.error(error);
+			}
+			if(mensaje) {
+				notyf.info(mensaje);
+			}
+			if(id) {
+				notyf.success(`La entidad fue dada de alta con id: ${id}`);
+			}
+		}
+    </script>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
