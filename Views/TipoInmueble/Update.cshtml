@@ -2,12 +2,12 @@
 @model TipoInmueble
 
 @{
-	ViewData["Title"] = "Nuevo Tipo de Inmueble";
+	ViewData["Title"] = "Editar Tipo de Inmueble";
 }
 
 <div class="row justify-content-center">
 	<div class="col-12 col-md-8 col-lg-6">
-		<h1 class="h2 mb-4">Registrar Tipo de Inmueble</h1>
+		<h1 class="h2 mb-4">Editar Tipo de Inmueble</h1>
 
 		@if (TempData["SuccessMessage"] is string successMessage)
 		{
@@ -15,7 +15,7 @@
 		}
 
 		<form id="newTipoInmuebleForm"
-			  asp-action="Create"
+			  asp-action="Update"
 			  asp-controller="TipoInmueble"
 			  method="post">
 			@Html.AntiForgeryToken()
@@ -37,7 +37,7 @@
 				
 				<div class="col-12 d-flex justify-content-end gap-2 mt-4">
 					<a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
-					<button type="submit" class="btn btn-primary">Registrar Tipo de Inmueble</button>
+					<button type="submit" class="btn btn-primary">Editar Tipo de Inmueble</button>
 				</div>
 			</div>
 		</form>

@@ -83,7 +83,7 @@ namespace INMOBILIARIA.Models.Repositorios
 					{
 						command.CommandType = CommandType.Text;
 						command.Parameters.AddWithValue("@nombre", p.Nombre);
-						command.Parameters.AddWithValue("@apellido", p.Descripcion);
+						command.Parameters.AddWithValue("@descripcion", p.Descripcion);
 						command.Parameters.AddWithValue("@id", p.Id);
 						connection.Open();
 						res = command.ExecuteNonQuery();

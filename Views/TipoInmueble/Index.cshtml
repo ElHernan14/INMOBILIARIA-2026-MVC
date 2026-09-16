@@ -18,6 +18,11 @@
     <div id="successAlert" class="alert alert-success" role="alert" hidden=true></div>
     <div id="errorAlert" class="alert alert-danger" role="alert" hidden=true></div>
 
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="alert alert-success" role="alert">@successMessage</div>
+    }
+
     <!-- Listado -->
     <div class="card border-0 shadow-sm overflow-hidden">
         <!-- Cabecera de tabla -->
@@ -87,6 +92,14 @@
                         </td>
 
                         <td>
+                            <a :href="editUrl(tipoInmueble.Id)"
+                               class="btn btn-sm btn-outline-primary px-3">
+                                Editar
+                                <span class="ms-1">
+                                    <i class="bi bi-pencil-square"></i>
+                                </span>
+                            </a>
+                            
                             <a href="#"
                                @@click.prevent="deleteTI(tipoInmueble.Id)"
                                class="btn btn-sm btn-outline-danger px-3">
@@ -197,6 +210,10 @@
 
                 getPage(index) {
                     return `/TipoInmueble?page=${index}`;
+                },
+
+                editUrl(id) {
+                    return `/TipoInmueble/Update/${id}`;
                 },
 
                 async deleteTI(id) {

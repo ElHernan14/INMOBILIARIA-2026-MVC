@@ -55,9 +55,28 @@ namespace INMOBILIARIA.Controllers
 			}
 		}
 
+		[HttpGet]
+		public ActionResult Update(int id = -1)
+		{
+			try
+			{
+				if (id < 1) { return RedirectToAction(nameof(Index)); }
+
+				TipoInmueble? tInmueble = repositorioTipoInmueble.ObtenerPorId(id);
+
+				if (tInmueble == null) { return RedirectToAction(nameof(Index)); }
+
+				return View(tInmueble);
+			}
+			catch (Exception ex)
+			{
+				Console.Error.WriteLine("Ocurrió un error, en TipoInmuebleController - update GET", ex.Message);
+				return StatusCode(500, "Ocurrió un error");
+			}
+		}
 
 		[HttpPost]
-		public ActionResult Update([FromBody] TipoInmueble tipoInmueble)
+		public ActionResult Update(TipoInmueble tipoInmueble)
 		{
 			try
 			{
@@ -74,7 +93,8 @@ namespace INMOBILIARIA.Controllers
 
 				repositorioTipoInmueble.Modificacion(tipoInmueble);
 
-				return Ok("Tipo inmueble editado");
+				TempData["SuccessMessage"] = $"El Tipo de inmueble COD-00{tipoInmueble.Id} se editó correctamente.";
+				return RedirectToAction(nameof(Index));
 			}
 			catch (Exception ex)
 			{
