@@ -124,15 +124,7 @@ namespace INMOBILIARIA.Models.Repositorios
 						var reader = command.ExecuteReader();
 						if (reader.Read())
 						{
-							p = new Propietario
-							{
-								Id = reader.GetInt32(nameof(Propietario.Id)),
-								Nombre = reader.GetString("Nombre"),
-								Apellido = reader.GetString("Apellido"),
-								Dni = reader.GetString("Dni"),
-								Email = reader.GetString("Email"),
-								Activo = reader.GetBoolean("Activo"),
-							};
+							p = Mapear(reader);
 						}
 						connection.Close();
 					}
@@ -168,16 +160,7 @@ namespace INMOBILIARIA.Models.Repositorios
 						var reader = command.ExecuteReader();
 						while (reader.Read())
 						{
-							Propietario p = new Propietario
-							{
-								Id = reader.GetInt32(nameof(Propietario.Id)),
-								Nombre = reader.GetString("Nombre"),
-								Apellido = reader.GetString("Apellido"),
-								Dni = reader.GetString("Dni"),
-								Email = reader.GetString("Email"),
-								Activo = reader.GetBoolean("Activo"),
-							};
-
+							Propietario p = Mapear(reader);
                             lista.Add(p);
 						}
 						connection.Close();
@@ -222,6 +205,19 @@ namespace INMOBILIARIA.Models.Repositorios
 				Console.WriteLine($"Error RepositorioPropietario - ContarTodos: {ex.Message}");
 				throw;
 		   }
+		}
+
+		public Propietario Mapear(MySqlDataReader reader)
+		{
+			Propietario p = new Propietario {
+				Id = reader.GetInt32(nameof(Propietario.Id)),
+				Nombre = reader.GetString("Nombre"),
+				Apellido = reader.GetString("Apellido"),
+				Dni = reader.GetString("Dni"),
+				Email = reader.GetString("Email"),
+				Activo = reader.GetBoolean("Activo"),
+			};
+			return p;
 		}
 
     }
