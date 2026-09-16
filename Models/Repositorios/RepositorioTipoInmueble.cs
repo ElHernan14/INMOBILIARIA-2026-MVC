@@ -118,13 +118,7 @@ namespace INMOBILIARIA.Models.Repositorios
 						var reader = command.ExecuteReader();
 						if (reader.Read())
 						{
-							p = new TipoInmueble
-							{
-								Id = reader.GetInt32(nameof(Propietario.Id)),
-								Nombre = reader.GetString("Nombre"),
-								Descripcion = reader.GetString("Descripcion"),
-								Activo = reader.GetBoolean("Activo"),
-							};
+							p = Mapear(reader);
 						}
 						connection.Close();
 					}
@@ -154,15 +148,7 @@ namespace INMOBILIARIA.Models.Repositorios
 						var reader = command.ExecuteReader();
 						while (reader.Read())
 						{
-							TipoInmueble p = new TipoInmueble
-							{
-								Id = reader.GetInt32(nameof(Propietario.Id)),
-								Nombre = reader.GetString("Nombre"),
-								Descripcion = reader.GetString("Descripcion"),
-								Activo = reader.GetBoolean("Activo"),
-							};
-
-                            lista.Add(p);
+                            lista.Add(Mapear(reader));
 						}
 						connection.Close();
 					}
@@ -176,5 +162,16 @@ namespace INMOBILIARIA.Models.Repositorios
 		   }
         }
 
+		private static TipoInmueble Mapear(MySqlDataReader reader)
+		{
+			TipoInmueble p = new TipoInmueble
+			{
+				Id = reader.GetInt32(nameof(Propietario.Id)),
+				Nombre = reader.GetString("Nombre"),
+				Descripcion = reader.GetString("Descripcion"),
+				Activo = reader.GetBoolean("Activo"),
+			};
+			return p;
+		}
     }
 }
