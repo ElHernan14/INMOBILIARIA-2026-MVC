@@ -36,6 +36,11 @@
 
     <div id="successAlert" class="alert alert-success" role="alert" hidden=true></div>
     <div id="errorAlert" class="alert alert-danger" role="alert" hidden=true></div>
+    
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="alert alert-success" role="alert">@successMessage</div>
+    }
 
     <!-- Listado -->
     <div class="card border-0 shadow-sm overflow-hidden">

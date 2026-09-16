@@ -83,8 +83,8 @@ namespace INMOBILIARIA.Controllers
 
 				repositorioPropietario.Modificacion(propietario);
 
-				TempData["SuccessMessage"] = "El propietario se editó correctamente.";
-				return RedirectToAction(nameof(Create));
+				TempData["SuccessMessage"] = $"El propietario {propietario.Id} se editó correctamente.";
+				return RedirectToAction(nameof(Index));
 			}
 			catch (Exception ex)
 			{
