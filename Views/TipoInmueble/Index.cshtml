@@ -37,9 +37,10 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th class="ps-4">Nombre</th>
+                        <th class="text-start ps-4">Nombre</th>
                         <th>Descripción</th>
-                        <th class="text-end pe-4">Estado</th>
+                        <th class="text-start">Estado</th>
+                        <th class="text-start pe-4">Acción</th>
                     </tr>
                 </thead>
 
@@ -84,12 +85,23 @@
                                 Inactivo
                             </span>
                         </td>
+
+                        <td>
+                            <a href="#"
+                               @@click.prevent="deleteTI(tipoInmueble.Id)"
+                               class="btn btn-sm btn-outline-danger px-3">
+                                Eliminar
+                                <span class="ms-1">
+                                    <i class="bi bi-trash-fill"></i>
+                                </span>
+                            </a>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
-    
+
     <!-- Paginado -->
     <div>
         <nav aria-label="Page navigation" class="py-3">
@@ -185,6 +197,27 @@
 
                 getPage(index) {
                     return `/TipoInmueble?page=${index}`;
+                },
+
+                async deleteTI(id) {
+                    let success = document.getElementById("successAlert");
+                    let error = document.getElementById("errorAlert");
+                    const response = await fetch(`/TipoInmueble/Delete/${id}`, { 
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    });
+                    if (response.ok) {
+                        error.hidden = true;
+                        this.resultados = this.resultados.filter(p => p.Id !== id);
+                        success.textContent = `Tipo de Inmueble codigo COD-00${id} eliminado.`;
+                        success.hidden = false;
+                    } else {
+                        success.hidden = true;
+                        error.textContent = `No se pudo eliminar el Tipo de Inmueble con el codigo COD-00${id}.`;
+                        error.hidden = false;
+                    }
                 }
             }
 
