@@ -83,7 +83,7 @@ namespace INMOBILIARIA.Models.Repositorios
 					{
 						command.CommandType = CommandType.Text;
 						command.Parameters.AddWithValue("@nombre", p.Nombre);
-						command.Parameters.AddWithValue("@apellido", p.Descripcion);
+						command.Parameters.AddWithValue("@descripcion", p.Descripcion);
 						command.Parameters.AddWithValue("@id", p.Id);
 						connection.Open();
 						res = command.ExecuteNonQuery();
@@ -118,13 +118,7 @@ namespace INMOBILIARIA.Models.Repositorios
 						var reader = command.ExecuteReader();
 						if (reader.Read())
 						{
-							p = new TipoInmueble
-							{
-								Id = reader.GetInt32(nameof(Propietario.Id)),
-								Nombre = reader.GetString("Nombre"),
-								Descripcion = reader.GetString("Descripcion"),
-								Activo = reader.GetBoolean("Activo"),
-							};
+							p = Mapear(reader);
 						}
 						connection.Close();
 					}
@@ -154,15 +148,7 @@ namespace INMOBILIARIA.Models.Repositorios
 						var reader = command.ExecuteReader();
 						while (reader.Read())
 						{
-							TipoInmueble p = new TipoInmueble
-							{
-								Id = reader.GetInt32(nameof(Propietario.Id)),
-								Nombre = reader.GetString("Nombre"),
-								Descripcion = reader.GetString("Descripcion"),
-								Activo = reader.GetBoolean("Activo"),
-							};
-
-                            lista.Add(p);
+                            lista.Add(Mapear(reader));
 						}
 						connection.Close();
 					}
@@ -175,6 +161,88 @@ namespace INMOBILIARIA.Models.Repositorios
 				throw;
 		   }
         }
+		
+		public PagedResults<TipoInmueble> ObtenerTodos(int page = 1, int limit = 10)
+		{
+			try
+			{
+				PagedResults<TipoInmueble> resultados = new()
+				{
+					TotalResults = Contar(),
+					CurrentPage = page,
+					PageSize = limit
+				};
 
+				using (MySqlConnection connection = new MySqlConnection(connectionString))
+				{
+					string sql = @"SELECT * FROM tipos_inmueble
+						WHERE activo = 1 LIMIT @limit OFFSET @offset";
+
+					using (MySqlCommand command = new MySqlCommand(sql, connection))
+					{
+						int offset = (page - 1) * limit;
+						command.CommandType = CommandType.Text;
+						command.Parameters.AddWithValue("@limit", limit);
+						command.Parameters.AddWithValue("@offset", offset);
+
+						connection.Open();
+						var reader = command.ExecuteReader();
+						while (reader.Read())
+						{
+							resultados.Resultados.Add(Mapear(reader));
+						}
+						connection.Close();
+					}
+				}
+
+				return resultados;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error RepositorioInmueble - ObtenerTodos: {ex.Message}");
+				throw;
+			}
+		}
+
+		private static TipoInmueble Mapear(MySqlDataReader reader)
+		{
+			TipoInmueble p = new TipoInmueble
+			{
+				Id = reader.GetInt32(nameof(Propietario.Id)),
+				Nombre = reader.GetString("Nombre"),
+				Descripcion = reader.GetString("Descripcion"),
+				Activo = reader.GetBoolean("Activo"),
+			};
+			return p;
+		}
+
+		public int Contar()
+		{
+			try
+			{
+				int total = 0;
+				using (MySqlConnection connection = new MySqlConnection(connectionString))
+				{
+					string sql = @"SELECT COUNT(*) FROM tipos_inmueble WHERE activo = 1";
+					using (MySqlCommand command = new MySqlCommand(sql, connection))
+					{
+						command.CommandType = CommandType.Text;
+						connection.Open();
+						MySqlDataReader reader = command.ExecuteReader();
+						if (reader.Read())
+						{
+							total = reader.GetInt32(0);
+						}
+						connection.Close();
+					}
+				}
+				return total;
+			} 
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error RepositorioInmueble - Contar: {ex.Message}");
+				throw;
+			}
+		}
     }
 }
