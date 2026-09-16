@@ -1,6 +1,7 @@
+using INMOBILIARIA.Models;
 using INMOBILIARIA.Models.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using INMOBILIARIA.Models;
+using System.Text.Json;
 
 namespace INMOBILIARIA.Controllers
 {
@@ -85,6 +86,21 @@ namespace INMOBILIARIA.Controllers
 			catch (Exception ex)
 			{
 				Console.Error.WriteLine("Ocurrió un error, en TipoInmuebleController - delete", ex);
+				return StatusCode(500, "Ocurrió un error");
+			}
+		}
+
+        [HttpGet]
+		public ActionResult Index(int page = 1, int limit = 10)
+		{
+			try
+			{
+				PagedResults<TipoInmueble> p = repositorioTipoInmueble.ObtenerTodos(page, limit);
+				return View(p);
+			}
+			catch (Exception ex)
+			{
+				Console.Error.WriteLine("Ocurrió un error, en TipoInmuebleController - Index", ex);
 				return StatusCode(500, "Ocurrió un error");
 			}
 		}
