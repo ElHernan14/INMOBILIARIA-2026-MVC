@@ -1,11 +1,10 @@
-@model List<INMOBILIARIA.Models.Propietario>
+@model PagedResults<INMOBILIARIA.Models.Propietario>
 
 @{
     ViewData["Title"] = "Propietarios";
 }
 
-<div id="propietarios-app">
-
+<div id="propietarios-app" class="px-5">
     <!-- Encabezado -->
     <div class="d-flex justify-content-between align-items-center mb-4">
 
@@ -240,6 +239,22 @@
 
     </div>
 
+    <!-- Paginado -->
+    <div>
+        <nav aria-label="Page navigation" class="py-3">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" :class="{ disabled: currentPage === 1 }"><a class="page-link" :href="getPage(currentPage - 1)">Previous</a></li>
+                <li class="page-item" 
+                    v-for="(page, index) in visiblePages"
+                    :key="index"
+                    :class="{ active: currentPage === page, disabled: page === '...' }">
+                    <a class="page-link" v-if="page !== '...'" :href="getPage(page)">{{ page }}</a>
+                    <span class="page-link" v-else>...</span>
+                <li class="page-item" :class="{ disabled: currentPage === totalPages }"><a class="page-link" :href="getPage(currentPage + 1)">Next</a></li>
+            </ul>
+        </nav>
+    </div>
+
 </div>
 
 @section Scripts {
@@ -253,29 +268,73 @@
             data() {
 
                 return {
-
                     /*
                      * Los datos son enviados por Razor desde el Controller.
                      * Vue no consulta ni genera datos.
                      */
                     propietarios: @Html.Raw(
-                        System.Text.Json.JsonSerializer.Serialize(Model)
-                    )
-
+                        System.Text.Json.JsonSerializer.Serialize(Model?.Resultados ?? new List<INMOBILIARIA.Models.Propietario>())
+                    ),
+                    currentPage: @Model?.CurrentPage ?? 1,
+                    pageSize: @Model?.PageSize ?? 10,
+                    totalResults: @Model?.TotalResults ?? 0,
+                    totalPages: @Model?.TotalPages ?? 0
                 };
-
             },
 
+            computed: {
+                visiblePages() {
+                    const total = this.totalPages;
+                    const current = this.currentPage;
+                    
+                    // Number of buttons to show on each side of the current page
+                    const delta = 2; 
+
+                    // If the total pages are 7 or less show all of them
+                    if (total <= 7) {
+                        return Array.from({ length: total }, (_, i) => i + 1);
+                    }
+
+                    const pages = [];
+                    
+                    // Calculate the window of pages around the current page
+                    const left = Math.max(2, current - delta);
+                    const right = Math.min(total - 1, current + delta);
+
+                    // Always show the first page
+                    pages.push(1);
+
+                    // Add an ellipsis if there is a gap between 1 and the left window
+                    if (left > 2) {
+                        pages.push('...');
+                    }
+
+                    // Add the numbers in the window
+                    for (let i = left; i <= right; i++) {
+                        pages.push(i);
+                    }
+
+                    // Add an ellipsis if there is a gap between the right window and the last page
+                    if (right < total - 1) {
+                        pages.push('...');
+                    }
+
+                    // Always show the last page
+                    pages.push(total);
+
+                    return pages;
+                }
+            },
 
             methods: {
 
                 iniciales(propietario) {
 
                     const nombre =
-                        propietario.nombre?.charAt(0) ?? "";
+                        propietario.Nombre?.charAt(0) ?? "";
 
                     const apellido =
-                        propietario.apellido?.charAt(0) ?? "";
+                        propietario.Apellido?.charAt(0) ?? "";
 
                     return (
                         nombre + apellido
@@ -314,6 +373,10 @@
                         error.textContent = `No se pudo eliminar el propietario con el codigo COD-00${id}.`;
                         error.hidden = false;
                     }
+                },
+
+                getPage(index) {
+                    return `/Propietario?page=${index}`;
                 }
             }
 

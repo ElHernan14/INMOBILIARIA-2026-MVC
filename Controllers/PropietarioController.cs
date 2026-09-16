@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using INMOBILIARIA.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.Principal;
 
 namespace INMOBILIARIA.Controllers
 {
@@ -117,12 +118,12 @@ namespace INMOBILIARIA.Controllers
 
 		[HttpGet]
 		[Authorize]
-		public ActionResult Index()
+		public ActionResult Index(int page = 1) // uses ?id=<int>, defaults to 1
 		{
 			try
 			{
-				List<Propietario> lista = repositorioPropietario.ObtenerTodos(1, "", 10, 1);
-				return View(lista);
+				PagedResults<Propietario> resultados = repositorioPropietario.ObtenerTodos(1, "", 10, page);
+				return View(resultados);
 			}
 			catch (Exception ex)
 			{

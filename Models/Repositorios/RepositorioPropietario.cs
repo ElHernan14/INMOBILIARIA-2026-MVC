@@ -138,11 +138,49 @@ namespace INMOBILIARIA.Models.Repositorios
 		   }
         }
 
-		public List<Propietario> ObtenerTodos(int activo, string nombreApellido, int limit, int page)
+		public List<Propietario> ObtenerTodos(int activo = 1, string nombreApellido = "")
+		{
+			try
+			{
+				List<Propietario> lista = [];
+				using (MySqlConnection connection = new MySqlConnection(connectionString))
+				{
+					string sql = @"SELECT * FROM propietarios 
+						WHERE activo = @activo
+						AND (nombre LIKE @nombreApellido OR apellido LIKE @nombreApellido)";
+					using (MySqlCommand command = new MySqlCommand(sql, connection))
+					{
+						command.CommandType = CommandType.Text;
+						command.Parameters.AddWithValue("@activo", activo);
+						command.Parameters.AddWithValue("@nombreApellido", "%" + nombreApellido + "%");
+						connection.Open();
+						var reader = command.ExecuteReader();
+						while (reader.Read())
+						{
+							lista.Add(Mapear(reader));
+						}
+						connection.Close();
+					}
+				}
+				return lista;
+			}
+			catch (Exception ex)
+		   	{
+				Console.WriteLine($"Error RepositorioPropietario - ObtenerTodos(): {ex.Message}");
+				throw;
+		   	}
+		}
+
+		public PagedResults<Propietario> ObtenerTodos(int activo, string nombreApellido, int limit, int page)
         {
            try
 		   {
-                List<Propietario> lista = [];
+                PagedResults<Propietario> resultados = new PagedResults<Propietario>
+				{
+					TotalResults = ContarTodos(1,""),
+					CurrentPage = page,
+					PageSize = limit
+				};
 				using (MySqlConnection connection = new MySqlConnection(connectionString))
 				{
 					string sql = @"SELECT * FROM propietarios WHERE activo = @activo 
@@ -161,12 +199,12 @@ namespace INMOBILIARIA.Models.Repositorios
 						while (reader.Read())
 						{
 							Propietario p = Mapear(reader);
-                            lista.Add(p);
+                            resultados.Resultados.Add(p);
 						}
 						connection.Close();
 					}
 				}
-				return lista;
+				return resultados;
 		   }
 		   catch (Exception ex)
 		   {
