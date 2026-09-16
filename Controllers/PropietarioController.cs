@@ -56,7 +56,7 @@ namespace INMOBILIARIA.Controllers
 				
 				if (propietario == null)
 				{
-					return RedirectToAction(nameof(Index));
+					return NotFound("Propietario no encontrado");
 				}
 
 				return View(propietario);
@@ -98,7 +98,7 @@ namespace INMOBILIARIA.Controllers
 		{
 			try
 			{
-				Propietario p = repositorioPropietario.ObtenerPorId(id);
+				Propietario? p = repositorioPropietario.ObtenerPorId(id);
 				if(p == null)
 				{
 					return NotFound("Propietario no encontrado");
@@ -139,7 +139,12 @@ namespace INMOBILIARIA.Controllers
 			try
 			{
 
-				Propietario p = repositorioPropietario.ObtenerPorId(id);
+				Propietario? p = repositorioPropietario.ObtenerPorId(id);
+
+				if (p == null) 
+				{
+					return NotFound("Propietario no encontrado");
+				}
 
 				return View(p);
 			}

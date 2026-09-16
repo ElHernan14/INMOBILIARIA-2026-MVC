@@ -35,6 +35,8 @@
 
     </div>
 
+    <div id="successAlert" class="alert alert-success" role="alert" hidden=true></div>
+    <div id="errorAlert" class="alert alert-danger" role="alert" hidden=true></div>
 
     <!-- Listado -->
     <div class="card border-0 shadow-sm overflow-hidden">
@@ -199,23 +201,32 @@
 
                             <a :href="editUrl(propietario.Id)"
                                class="btn btn-sm btn-outline-primary px-3">
-
                                 Editar
                                 <span class="ms-1">
-                                    →
+                                    <i class="bi bi-pencil-square"></i>
                                 </span>
 
                             </a>
 
                             <a :href="detailsUrl(propietario.Id)"
                                class="btn btn-sm btn-outline-primary px-3">
-
                                 Ver detalles
                                 <span class="ms-1">
                                     →
                                 </span>
 
                             </a>
+
+                            <a href="#"
+                               @@click="deleteUrl(propietario.Id)"
+                               class="btn btn-sm btn-outline-danger px-3">
+                                Eliminar
+                                <span class="ms-1">
+                                    <i class="bi bi-trash-fill"></i>
+                                </span>
+
+                            </a>
+
 
                         </td>
 
@@ -230,7 +241,6 @@
     </div>
 
 </div>
-
 
 @section Scripts {
     <!-- Vue 3 -->
@@ -282,12 +292,32 @@
 
                 editUrl(id) {
                     return `/Propietario/Update/${id}`;
-                }
+                },
 
+                async deleteUrl(id) {
+                    let success = document.getElementById("successAlert");
+                    let error = document.getElementById("errorAlert");
+
+                    const response = await fetch(`/Propietario/Delete/${id}`, { 
+                        method: "DELETE", 
+                        headers: { 
+                            "Content-Type": "application/json"
+                        }
+                    });
+                    if (response.ok) {
+                        error.hidden = true;
+                        this.propietarios = this.propietarios.filter(p => p.Id !== id);
+                        success.textContent = `Propietario codigo COD-00${id} eliminado.`;
+                        success.hidden = false;
+                    } else {
+                        success.hidden = true;
+                        error.textContent = `No se pudo eliminar el propietario con el codigo COD-00${id}.`;
+                        error.hidden = false;
+                    }
+                }
             }
 
         }).mount("#propietarios-app");
 
     </script>
-
 }
