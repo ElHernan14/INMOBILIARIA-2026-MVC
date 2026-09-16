@@ -19,6 +19,7 @@ namespace INMOBILIARIA.Controllers
         }
 
 		[HttpGet]
+		[Authorize]
 		public ActionResult Create()
 		{
 			try
@@ -56,6 +57,7 @@ namespace INMOBILIARIA.Controllers
 		}
 
 		[HttpGet]
+		[Authorize]
 		public ActionResult Update(int id = -1)
 		{
 			try
@@ -76,6 +78,8 @@ namespace INMOBILIARIA.Controllers
 		}
 
 		[HttpPost]
+		[Authorize]
+		[ValidateAntiForgeryToken]
 		public ActionResult Update(TipoInmueble tipoInmueble)
 		{
 			try
@@ -104,6 +108,7 @@ namespace INMOBILIARIA.Controllers
 		}
 
 		[HttpDelete]
+		[Authorize]
 		public ActionResult Delete(int id)
 		{
 			try
@@ -126,6 +131,7 @@ namespace INMOBILIARIA.Controllers
 		}
 
         [HttpGet]
+		[Authorize]
 		public ActionResult Index(int page = 1, int limit = 10)
 		{
 			try
@@ -141,6 +147,7 @@ namespace INMOBILIARIA.Controllers
 		}
 
         [HttpGet]
+		[Authorize]
 		public ActionResult ObtenerTodos()
 		{
 			try
