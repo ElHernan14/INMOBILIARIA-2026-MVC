@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace INMOBILIARIA.Controllers;
 
+[Authorize(Policy = "ADMINISTRADOR")]
 public class UsuarioController : Controller
 {
     private readonly IRepositorioUsuario repositorioUsuario;

@@ -348,20 +348,23 @@
                                                         Editar
                                                     </a>
 
-                                                    <form asp-action="Anular"
-                                                          asp-route-id="@pago.Id"
-                                                          method="post"
-                                                          class="d-inline"
-                                                          onsubmit="return confirm('¿Anular este pago?');">
+                                                    @if(User.IsInRole("ADMINISTRADOR")) {
+                                                        <form asp-action="Anular"
+                                                            asp-route-id="@pago.Id"
+                                                            method="post"
+                                                            class="d-inline"
+                                                            onsubmit="return confirm('¿Anular este pago?');">
 
-                                                        @Html.AntiForgeryToken()
+                                                            @Html.AntiForgeryToken()
 
-                                                        <button type="submit"
-                                                                class="btn btn-sm btn-outline-danger">
-                                                            Anular
-                                                        </button>
+                                                            <button type="submit"
+                                                                    class="btn btn-sm btn-outline-danger">
+                                                                Anular
+                                                            </button>
 
-                                                    </form>
+                                                        </form>
+                                                    }
+                                                
                                                 }
 
                                             </div>

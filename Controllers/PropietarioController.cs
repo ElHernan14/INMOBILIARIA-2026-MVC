@@ -94,7 +94,7 @@ namespace INMOBILIARIA.Controllers
 		}
 
 		[HttpDelete]
-		[Authorize]
+		[Authorize(Policy = "ADMINISTRADOR")]
 		public ActionResult Delete(int id)
 		{
 			try

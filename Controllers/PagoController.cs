@@ -231,6 +231,7 @@ namespace INMOBILIARIA.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "ADMINISTRADOR")]
         public IActionResult Detalle(int id)
         {
             Pago? pago = repositorioPago.ObtenerPorId(id);
@@ -243,6 +244,7 @@ namespace INMOBILIARIA.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "ADMINISTRADOR")]
         public IActionResult Anular(int id)
         {
             Pago? pago = repositorioPago.ObtenerPorId(id);
