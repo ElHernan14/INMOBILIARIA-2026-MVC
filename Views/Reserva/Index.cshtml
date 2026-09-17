@@ -1,47 +1,408 @@
-@model INMOBILIARIA.Models.Reserva
+@model INMOBILIARIA.Models.PagedResults<INMOBILIARIA.Models.Reserva>
 
 @{
-	ViewData["Title"] = "Reservas";
+    ViewData["Title"] = "Reservas";
 }
-<div>
-	<div class="d-flex justify-content-between align-items-center mb-4">
-		<div>
-			<h1 class="fw-bold mb-1">Reservas</h1>
-			<p class="text-muted mb-0">Listado de reservas</p>
-		</div>
-	</div>
-	<div>
-		<!--Lista-->
-		<div class="table-responsive">
-			<table class="table table-hover align-middle mb-0">
-				<thead>
-					<tr>
-						<th>Inquilino</th>
-						<th>Inmueble</th>
-						<th>Desde</th>
-						<th>Hasta</th>
-						<th>Estado</th>
-					</tr>
-				</thead>
-				<tbody>
-					<!--TODO:Vacio-->
-					<!--Populate List-->
-					<tr v-for="reserva in reservas" :key="reserva.Id">
-						<td>{{reserva.Inquilino.Nombre}}#{{reserva.Inquilino.Id}}</td>
-						<td>{{reserva.Inmueble.Direccion}}</td>
-						<td>{{reserva.FechaDesde}}</td>
-						<td>{{reserva.FechaHasta}}</td>
-						<td>
-							<span v-if="reserva.Activo" class="badge rounded-pill text-bg-success">
-								Activo
-							</span>
-							<span v-else class="badge rounded-pill text-bg-secondary">
-								Inactivo
-							</span>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-	</div>
+
+<div id="reserva-app" class="px-5">
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold mb-1">
+                Reservas
+            </h1>
+
+            <p class="text-muted mb-0">
+                Listado de reservas registradas en la inmobiliaria.
+            </p>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <a asp-controller="Reserva"
+               asp-action="Create"
+               class="btn btn-primary">
+                Añadir reserva
+            </a>
+            <!--<span class="badge rounded-pill text-bg-light border px-3 py-2">
+                {{ reserva.length }} registrados
+            </span>-->
+        </div>
+    </div>
+
+    <div id="successAlert" class="alert alert-success" role="alert" hidden=true></div>
+    <div id="errorAlert" class="alert alert-danger" role="alert" hidden=true></div>
+    
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="alert alert-success" role="alert">@successMessage</div>
+    }
+
+    <!-- Listado -->
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <!-- Cabecera de tabla -->
+        <div class="card-header bg-white border-bottom py-3">
+            <div class="d-flex align-items-center">
+                <div class="bg-primary bg-opacity-10 rounded-3 p-2 me-3">
+                    <span class="text-primary fw-bold">
+                        R
+                    </span>
+                </div>
+
+                <div>
+                    <h2 class="h6 fw-bold mb-0">
+                        Reservas registradas
+                    </h2>
+
+                    <small class="text-muted">
+                        Información general
+                    </small>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">
+                            Reserva
+                        </th>
+
+                        <th>
+                            Inmueble
+                        </th>
+
+                        <th>
+                            Período
+                        </th>
+
+                        <th>
+                            Estado
+                        </th>
+
+                        <th class="text-end pe-4">
+                            Acción
+                        </th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <!-- Estado vacío -->
+                    <tr v-if="reserva.length === 0">
+
+                        <td colspan="5"
+                            class="text-center py-5">
+
+                            <div class="mb-2">
+                                <span class="fs-3 text-muted">
+                                    —
+                                </span>
+                            </div>
+
+                            <div class="fw-semibold">
+                                No hay reservas registradas
+                            </div>
+
+                            <small class="text-muted">
+                                Cuando se registren reservas aparecerán aquí.
+                            </small>
+
+                        </td>
+
+                    </tr>
+
+
+                    <!-- reserva -->
+                    <tr v-for="Reserva in reserva"
+                        :key="Reserva.Id">
+
+                        <td class="ps-4">
+
+                            <div class="d-flex align-items-center">
+
+                                <!-- Avatar -->
+                                <div class="rounded-circle bg-primary bg-opacity-10
+                                            text-primary d-flex align-items-center
+                                            justify-content-center me-3"
+                                     style="width: 42px; height: 42px;">
+
+                                    <span class="fw-bold">
+                                        {{ iniciales(Reserva) }}
+                                    </span>
+
+                                </div>
+
+
+                                <!-- Inquilino -->
+                                <div>
+
+                                    <div class="fw-semibold">
+
+                                        {{ Reserva.Inquilino?.Nombre }}
+                                        {{ Reserva.Inquilino?.Apellido }}
+
+                                    </div>
+
+                                    <small class="text-muted">
+                                        Reserva #COD-00{{ Reserva.Id }}
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="fw-semibold">
+                                {{ Reserva.Inmueble?.Direccion ?? '—' }}
+                            </div>
+
+                            <small class="text-muted">
+                                Inmueble #COD-00{{ Reserva.Inmueble?.Id ?? '—' }}
+                            </small>
+
+                        </td>
+
+
+                        <td>
+
+                            <div>
+                                {{ formatearFecha(Reserva.FechaDesde) }}
+                                →
+                                {{ formatearFecha(Reserva.FechaHasta) }}
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            <span v-if="Reserva.Activo"
+                                  class="badge rounded-pill text-bg-success">
+
+                                Activo
+
+                            </span>
+
+                            <span v-else
+                                  class="badge rounded-pill text-bg-secondary">
+
+                                Inactivo
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- ACCIÓNES -->
+                        <td class="text-end pe-4">
+
+                            <a :href="editUrl(Reserva.Id)"
+                               class="btn btn-sm btn-outline-primary px-3">
+                                Editar
+                                <span class="ms-1">
+                                    <i class="bi bi-pencil-square"></i>
+                                </span>
+
+                            </a>
+
+                            <a :href="detailsUrl(Reserva.Id)"
+                               class="btn btn-sm btn-outline-primary px-3">
+                                Ver detalles
+                                <span class="ms-1">
+                                    →
+                                </span>
+
+                            </a>
+
+                            <a href="#"
+                               @@click="eliminar(Reserva.Id)"
+                               class="btn btn-sm btn-outline-danger px-3">
+                                Eliminar
+                                <span class="ms-1">
+                                    <i class="bi bi-trash-fill"></i>
+                                </span>
+
+                            </a>
+
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- Paginado -->
+    <div>
+        <nav aria-label="Page navigation" class="py-3">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" :class="{ disabled: currentPage === 1 }"><a class="page-link" :href="getPage(currentPage - 1)">Previous</a></li>
+                <li class="page-item" 
+                    v-for="(page, index) in visiblePages"
+                    :key="index"
+                    :class="{ active: currentPage === page, disabled: page === '...' }">
+                    <a class="page-link" v-if="page !== '...'" :href="getPage(page)">{{ page }}</a>
+                    <span class="page-link" v-else>...</span>
+                <li class="page-item" :class="{ disabled: currentPage === totalPages }"><a class="page-link" :href="getPage(currentPage + 1)">Next</a></li>
+            </ul>
+        </nav>
+    </div>
+
 </div>
+
+@section Scripts {
+    <!-- Vue 3 -->
+    <script>
+
+        const { createApp } = Vue;
+
+        createApp({
+
+            data() {
+
+                return {
+                    /*
+                     * Los datos son enviados por Razor desde el Controller.
+                     * Vue no consulta ni genera datos.
+                     */
+                    reserva: @Html.Raw(
+                        System.Text.Json.JsonSerializer.Serialize(Model?.Resultados ?? new List<INMOBILIARIA.Models.Reserva>())
+                    ),
+                    currentPage: @Model?.CurrentPage ?? 1,
+                    pageSize: @Model?.PageSize ?? 10,
+                    totalResults: @Model?.TotalResults ?? 0,
+                    totalPages: @Model?.TotalPages ?? 0
+                };
+            },
+
+            computed: {
+                visiblePages() {
+                    const total = this.totalPages;
+                    const current = this.currentPage;
+                    
+                    // Number of buttons to show on each side of the current page
+                    const delta = 2; 
+
+                    // If the total pages are 7 or less show all of them
+                    if (total <= 7) {
+                        return Array.from({ length: total }, (_, i) => i + 1);
+                    }
+
+                    const pages = [];
+                    
+                    // Calculate the window of pages around the current page
+                    const left = Math.max(2, current - delta);
+                    const right = Math.min(total - 1, current + delta);
+
+                    // Always show the first page
+                    pages.push(1);
+
+                    // Add an ellipsis if there is a gap between 1 and the left window
+                    if (left > 2) {
+                        pages.push('...');
+                    }
+
+                    // Add the numbers in the window
+                    for (let i = left; i <= right; i++) {
+                        pages.push(i);
+                    }
+
+                    // Add an ellipsis if there is a gap between the right window and the last page
+                    if (right < total - 1) {
+                        pages.push('...');
+                    }
+
+                    // Always show the last page
+                    pages.push(total);
+
+                    return pages;
+                }
+            },
+
+            methods: {
+
+                iniciales(Reserva) {
+
+                    const nombre =
+                        Reserva.Inquilino?.Nombre?.charAt(0) ?? "";
+
+                    const apellido =
+                        Reserva.Inquilino?.Apellido?.charAt(0) ?? "";
+
+                    return (
+                        nombre + apellido
+                    ).toUpperCase();
+
+                },
+
+
+                formatearFecha(valor) {
+
+                    if (!valor) return '—';
+
+                    const fecha = new Date(valor);
+
+                    if (isNaN(fecha)) return valor;
+
+                    return fecha.toLocaleDateString('es-AR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
+
+                },
+
+
+                detailsUrl(id) {
+
+                    return `/Reserva/Detalles/${id}`;
+
+                },
+
+                editUrl(id) {
+                    return `/Reserva/Update/${id}`;
+                },
+
+                async eliminar(id) {
+                    let success = document.getElementById("successAlert");
+                    let error = document.getElementById("errorAlert");
+                    console.log("TB");
+                    const response = await fetch(`/Reserva/Delete/${id}`, { 
+                        method: "DELETE", 
+                        headers: { 
+                            "Content-Type": "application/json"
+                        }
+                    });
+                    if (response.ok) {
+                        error.hidden = true;
+                        this.reserva = this.reserva.filter(p => p.Id !== id);
+                        success.textContent = `Reserva código COD-00${id} eliminada.`;
+                        success.hidden = false;
+                    } else {
+                        success.hidden = true;
+                        error.textContent = `No se pudo eliminar la reserva con el código COD-00${id}.`;
+                        error.hidden = false;
+                    }
+                },
+
+                getPage(index) {
+                    return `/Reserva?page=${index}`;
+                }
+            }
+
+        }).mount("#reserva-app");
+
+    </script>
+}

@@ -188,6 +188,60 @@ namespace INMOBILIARIA.Models.Repositorios
 			}
 		}
 
+		public PagedResults<Reserva> ObtenerTodas(int page = 1, int limit = 10)
+		{
+			try
+			{
+				PagedResults<Reserva> resultados = new()
+				{
+					TotalResults = Contar(),
+					CurrentPage = page,
+					PageSize = limit
+				};
+
+				using (MySqlConnection connection = new MySqlConnection(connectionString))
+				{
+					string sql = @"SELECT
+							id,
+							inmueble_id,
+							inquilino_id,
+							usuario_creador_id,
+							usuario_cancelador_id,
+							fecha_desde,
+							fecha_hasta,
+							cancelada,
+							fecha_creacion,
+							fecha_cancelacion
+						FROM reservas
+						ORDER BY id
+						LIMIT @limit OFFSET @offset";
+
+					using (MySqlCommand command = new MySqlCommand(sql, connection))
+					{
+						int offset = (page - 1) * limit;
+						command.CommandType = CommandType.Text;
+						command.Parameters.AddWithValue("@limit", limit);
+						command.Parameters.AddWithValue("@offset", offset);
+
+						connection.Open();
+						var reader = command.ExecuteReader();
+						while (reader.Read())
+						{
+							resultados.Resultados.Add(MapearReserva(reader));
+						}
+						connection.Close();
+					}
+				}
+
+				return resultados;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error RepositorioReserva - ObtenerTodas paginado: {ex.Message}");
+				throw;
+			}
+		}
+
 		public IEnumerable<Reserva> ObtenerPorFecha(DateOnly fecha)
 		{
 			List<Reserva> reservas = new List<Reserva>();
@@ -352,6 +406,31 @@ namespace INMOBILIARIA.Models.Repositorios
 					? date
 					: null
 			};
+		}
+
+		public int Contar()
+		{
+			try
+			{
+				int total = 0;
+				using (MySqlConnection connection = new MySqlConnection(connectionString))
+				{
+					string sql = "SELECT COUNT(*) FROM reservas";
+					using (MySqlCommand command = new MySqlCommand(sql, connection))
+					{
+						command.CommandType = CommandType.Text;
+						connection.Open();
+						total = Convert.ToInt32(command.ExecuteScalar());
+						connection.Close();
+					}
+				}
+				return total;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error RepositorioReserva - Contar: {ex.Message}");
+				throw;
+			}
 		}
 	}
 }
