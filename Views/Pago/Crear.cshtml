@@ -1,0 +1,302 @@
+@model INMOBILIARIA.Models.Pago
+
+@{
+    ViewData["Title"] = "Nuevo pago";
+
+    var reservas =
+        ViewBag.Reservas as IEnumerable<INMOBILIARIA.Models.Reserva>
+        ?? Enumerable.Empty<INMOBILIARIA.Models.Reserva>();
+}
+
+<div class="container py-4">
+
+    <div class="mb-4">
+
+        <h1 class="h3 mb-1">
+            Registrar pago
+        </h1>
+
+        <p class="text-muted mb-0">
+            Asociá el pago a una reserva existente.
+        </p>
+
+    </div>
+
+    <form asp-action="Crear"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3"></div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-8">
+
+                <div class="card shadow-sm border-0">
+
+                    <div class="card-body">
+
+                        <h5 class="mb-4">
+                            Información del pago
+                        </h5>
+
+                        <div class="mb-3">
+
+                            <label asp-for="Reserva"
+                                   class="form-label">
+                                Reserva
+                            </label>
+
+                            <select asp-for="Reserva.Id"
+                                    class="form-select"
+                                    id="reservaSelect">
+
+                                <option value="">
+                                    Seleccione una reserva
+                                </option>
+
+                                @foreach (var reserva in reservas)
+                                {
+                                    <option value="@reserva.Id"
+                                            data-direccion="@reserva.Inmueble?.Direccion"
+                                            data-tipo="@reserva.Inmueble?.TipoInmueble?.Nombre"
+                                            data-desde="@reserva.FechaDesde.ToString("dd/MM/yyyy")"
+                                            data-hasta="@reserva.FechaHasta.ToString("dd/MM/yyyy")"
+                                            data-inquilino="@reserva.Inquilino?.Nombre @reserva.Inquilino?.Apellido"
+                                            data-dni="@reserva.Inquilino?.Dni">
+
+                                        Reserva #@reserva.Id -
+                                        @reserva.Inmueble?.Direccion -
+                                        @reserva.FechaDesde.ToString("dd/MM/yyyy")
+                                        a
+                                        @reserva.FechaHasta.ToString("dd/MM/yyyy")
+
+                                    </option>
+                                }
+
+                            </select>
+
+                            <span asp-validation-for="Reserva"
+                                  class="text-danger"></span>
+
+                        </div>
+
+                        <div id="reservaInfo"
+                             class="alert alert-light border d-none">
+
+                            <div class="fw-semibold mb-2">
+                                Reserva seleccionada
+                            </div>
+
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        Inmueble
+                                    </small>
+
+                                    <div id="infoDireccion"></div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        Tipo
+                                    </small>
+
+                                    <div id="infoTipo"></div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        Período
+                                    </small>
+
+                                    <div>
+                                        <span id="infoDesde"></span>
+                                        -
+                                        <span id="infoHasta"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        Inquilino
+                                    </small>
+
+                                    <div id="infoInquilino"></div>
+
+                                    <small class="text-muted"
+                                           id="infoDni"></small>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+
+                                <label asp-for="Concepto"
+                                       class="form-label">
+                                    Concepto
+                                </label>
+
+                                <input asp-for="Concepto"
+                                       class="form-control"
+                                       placeholder="Ej. Reserva, alquiler, seña..." />
+
+                                <span asp-validation-for="Concepto"
+                                      class="text-danger"></span>
+
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+
+                                <label asp-for="Fecha"
+                                       class="form-label">
+                                    Fecha
+                                </label>
+
+                                <input asp-for="Fecha"
+                                       type="date"
+                                       class="form-control" />
+
+                                <span asp-validation-for="Fecha"
+                                      class="text-danger"></span>
+
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+
+                                <label asp-for="Importe"
+                                       class="form-label">
+                                    Importe
+                                </label>
+
+                                <input asp-for="Importe"
+                                       type="number"
+                                       step="0.01"
+                                       min="0.01"
+                                       class="form-control" />
+
+                                <span asp-validation-for="Importe"
+                                      class="text-danger"></span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+
+                <div class="card shadow-sm border-0">
+
+                    <div class="card-body">
+
+                        <h5 class="mb-3">
+                            Confirmación
+                        </h5>
+
+                        <p class="text-muted small">
+                            El pago quedará asociado al usuario
+                            actualmente autenticado como creador.
+                        </p>
+
+                        <div class="d-grid gap-2">
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                Registrar pago
+                            </button>
+
+                            <a asp-action="Index"
+                               class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+            const select =
+                document.getElementById("reservaSelect");
+
+            const info =
+                document.getElementById("reservaInfo");
+
+            function actualizarReserva() {
+
+                const option =
+                    select.options[select.selectedIndex];
+
+                if (!option || !option.value) {
+
+                    info.classList.add("d-none");
+
+                    return;
+                }
+
+                document.getElementById("infoDireccion")
+                    .textContent =
+                    option.dataset.direccion || "";
+
+                document.getElementById("infoTipo")
+                    .textContent =
+                    option.dataset.tipo || "";
+
+                document.getElementById("infoDesde")
+                    .textContent =
+                    option.dataset.desde || "";
+
+                document.getElementById("infoHasta")
+                    .textContent =
+                    option.dataset.hasta || "";
+
+                document.getElementById("infoInquilino")
+                    .textContent =
+                    option.dataset.inquilino || "";
+
+                document.getElementById("infoDni")
+                    .textContent =
+                    option.dataset.dni
+                        ? "DNI: " + option.dataset.dni
+                        : "";
+
+                info.classList.remove("d-none");
+            }
+
+            select.addEventListener(
+                "change",
+                actualizarReserva
+            );
+
+            actualizarReserva();
+
+        });
+    </script>
+}

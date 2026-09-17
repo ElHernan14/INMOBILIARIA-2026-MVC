@@ -1,0 +1,415 @@
+@model INMOBILIARIA.Models.PagedResults<INMOBILIARIA.Models.Pago>
+
+@{
+    ViewData["Title"] = "Pagos";
+
+    var resumen = ViewBag.Resumen as INMOBILIARIA.Models.ResumenPagos;
+
+    string? fechaDesde = ViewBag.FechaDesde;
+    string? fechaHasta = ViewBag.FechaHasta;
+    string? termino = ViewBag.Termino;
+
+    bool? anulado = ViewBag.Anulado;
+
+    int limit = ViewBag.Limit ?? 10;
+
+    int totalPaginas = Model.PageSize > 0
+        ? (int)Math.Ceiling(
+            (double)Model.TotalResults / Model.PageSize)
+        : 1;
+}
+
+<div class="container py-4">
+    <div class="mx-auto" style="max-width: 1250px;">
+
+        <!-- Encabezado -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-1">Pagos</h1>
+                <p class="text-muted mb-0">
+                    Gestión y seguimiento de pagos registrados.
+                </p>
+            </div>
+
+            <a asp-action="Crear" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i>
+                Nuevo pago
+            </a>
+        </div>
+
+        <!-- Mensajes -->
+        @if (TempData["Mensaje"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show">
+                @TempData["Mensaje"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show">
+                @TempData["Error"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+            </div>
+        }
+
+        <!-- Dashboard -->
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-6 col-xl-3">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">
+                            Pagos registrados
+                        </div>
+
+                        <div class="fs-3 fw-semibold">
+                            @resumen?.TotalPagos
+                        </div>
+
+                        <small class="text-muted">
+                            Según los filtros actuales
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">
+                            Pagos activos
+                        </div>
+
+                        <div class="fs-3 fw-semibold text-success">
+                            @resumen?.PagosActivos
+                        </div>
+
+                        <small class="text-muted">
+                            Operaciones vigentes
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">
+                            Importe activo
+                        </div>
+
+                        <div class="fs-3 fw-semibold">
+                            @resumen?.ImporteActivo.ToString("C")
+                        </div>
+
+                        <small class="text-muted">
+                            Pagos no anulados
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">
+                            Importe total
+                        </div>
+
+                        <div class="fs-3 fw-semibold">
+                            @resumen?.TotalImporte.ToString("C")
+                        </div>
+
+                        <small class="text-muted">
+                            Incluye pagos anulados
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Filtros -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+
+                <form asp-action="Index"
+                      method="get"
+                      class="row g-3 align-items-end">
+
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            Desde
+                        </label>
+
+                        <input type="date"
+                               name="fechaDesde"
+                               value="@fechaDesde"
+                               class="form-control" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            Hasta
+                        </label>
+
+                        <input type="date"
+                               name="fechaHasta"
+                               value="@fechaHasta"
+                               class="form-control" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            Buscar
+                        </label>
+
+                        <input type="text"
+                               name="termino"
+                               value="@termino"
+                               class="form-control"
+                               placeholder="Concepto, inmueble, inquilino..." />
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">
+                            Estado
+                        </label>
+
+                        <select name="anulado"
+                                class="form-select">
+
+                            <option value="">Todos</option>
+
+                            @if (anulado == false)
+                            {
+                                <option value="false" selected>
+                                    Activos
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="false">
+                                    Activos
+                                </option>
+                            }
+
+                            @if (anulado == true)
+                            {
+                                <option value="true" selected>
+                                    Anulados
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="true">
+                                    Anulados
+                                </option>
+                            }
+
+                        </select>
+                    </div>
+
+                    <div class="col-md-1 d-grid">
+                        <button class="btn btn-dark"
+                                type="submit">
+                            Filtrar
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th>Pago</th>
+                                <th>Reserva</th>
+                                <th>Inmueble</th>
+                                <th>Inquilino</th>
+                                <th>Fecha</th>
+                                <th>Importe</th>
+                                <th>Estado</th>
+                                <th class="text-end">Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @if (!Model.Resultados.Any())
+                            {
+                                <tr>
+                                    <td colspan="8"
+                                        class="text-center py-5 text-muted">
+                                        No se encontraron pagos.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var pago in Model.Resultados)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            <div class="fw-semibold">
+                                                #@pago.Id
+                                            </div>
+
+                                            <div class="small text-muted">
+                                                @pago.Concepto
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <span class="fw-semibold">
+                                                #@pago.Reserva?.Id
+                                            </span>
+
+                                            <div class="small text-muted">
+                                                @pago.Reserva?.FechaDesde.ToString("dd/MM/yyyy")
+                                                -
+                                                @pago.Reserva?.FechaHasta.ToString("dd/MM/yyyy")
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <div class="fw-semibold">
+                                                @pago.Reserva?.Inmueble?.Direccion
+                                            </div>
+
+                                            <div class="small text-muted">
+                                                @pago.Reserva?.Inmueble?.TipoInmueble?.Nombre
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            @pago.Reserva?.Inquilino?.Nombre
+                                            @pago.Reserva?.Inquilino?.Apellido
+                                        </td>
+
+                                        <td>
+                                            @pago.Fecha.ToString("dd/MM/yyyy")
+                                        </td>
+
+                                        <td class="fw-semibold">
+                                            @pago.Importe.ToString("C")
+                                        </td>
+
+                                        <td>
+                                            @if (pago.Anulado)
+                                            {
+                                                <span class="badge bg-danger">
+                                                    Anulado
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">
+                                                    Activo
+                                                </span>
+                                            }
+                                        </td>
+
+                                        <td class="text-end">
+
+                                            <div class="btn-group">
+
+                                                <a asp-action="Detalle"
+                                                   asp-route-id="@pago.Id"
+                                                   class="btn btn-sm btn-outline-secondary">
+                                                    Ver
+                                                </a>
+
+                                                @if (!pago.Anulado)
+                                                {
+                                                    <a asp-action="Editar"
+                                                       asp-route-id="@pago.Id"
+                                                       class="btn btn-sm btn-outline-primary">
+                                                        Editar
+                                                    </a>
+
+                                                    <form asp-action="Anular"
+                                                          asp-route-id="@pago.Id"
+                                                          method="post"
+                                                          class="d-inline"
+                                                          onsubmit="return confirm('¿Anular este pago?');">
+
+                                                        @Html.AntiForgeryToken()
+
+                                                        <button type="submit"
+                                                                class="btn btn-sm btn-outline-danger">
+                                                            Anular
+                                                        </button>
+
+                                                    </form>
+                                                }
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+                                }
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        @if (totalPaginas > 1)
+        {
+            <nav class="mt-4">
+
+                <ul class="pagination justify-content-center">
+
+                    @for (int i = 1; i <= totalPaginas; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@i"
+                               asp-route-limit="@limit"
+                               asp-route-fechaDesde="@fechaDesde"
+                               asp-route-fechaHasta="@fechaHasta"
+                               asp-route-termino="@termino"
+                               asp-route-anulado="@anulado">
+                                @i
+                            </a>
+
+                        </li>
+                    }
+
+                </ul>
+
+            </nav>
+        }
+
+    </div>
+</div>

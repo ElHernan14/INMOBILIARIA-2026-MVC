@@ -1,0 +1,267 @@
+@model INMOBILIARIA.Models.Pago
+
+@{
+    ViewData["Title"] = "Detalle del pago";
+}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h1 class="h3 mb-1">
+                Pago #@Model.Id
+            </h1>
+
+            <p class="text-muted mb-0">
+                Detalle de la operación registrada.
+            </p>
+
+        </div>
+
+        <div>
+
+            @if (Model.Anulado)
+            {
+                <span class="badge bg-danger fs-6">
+                    Anulado
+                </span>
+            }
+            else
+            {
+                <span class="badge bg-success fs-6">
+                    Activo
+                </span>
+            }
+
+        </div>
+
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm border-0 mb-4">
+
+                <div class="card-body">
+
+                    <h5 class="mb-4">
+                        Información del pago
+                    </h5>
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted">
+                                Concepto
+                            </small>
+
+                            <div class="fw-semibold">
+                                @Model.Concepto
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <small class="text-muted">
+                                Fecha
+                            </small>
+
+                            <div>
+                                @Model.Fecha.ToString("dd/MM/yyyy")
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <small class="text-muted">
+                                Importe
+                            </small>
+
+                            <div class="fs-5 fw-semibold">
+                                @Model.Importe.ToString("C")
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <h5 class="mb-4">
+                        Reserva asociada
+                    </h5>
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted">
+                                Reserva
+                            </small>
+
+                            <div class="fw-semibold">
+                                #@Model.Reserva?.Id
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted">
+                                Inmueble
+                            </small>
+
+                            <div class="fw-semibold">
+                                @Model.Reserva?.Inmueble?.Direccion
+                            </div>
+
+                            <div class="small text-muted">
+                                @Model.Reserva?.Inmueble?.TipoInmueble?.Nombre
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted">
+                                Período
+                            </small>
+
+                            <div>
+                                @Model.Reserva?.FechaDesde.ToString("dd/MM/yyyy")
+                                -
+                                @Model.Reserva?.FechaHasta.ToString("dd/MM/yyyy")
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted">
+                                Inquilino
+                            </small>
+
+                            <div class="fw-semibold">
+                                @Model.Reserva?.Inquilino?.Nombre
+                                @Model.Reserva?.Inquilino?.Apellido
+                            </div>
+
+                            <div class="small text-muted">
+                                DNI: @Model.Reserva?.Inquilino?.Dni
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-4">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <h5 class="mb-4">
+                        Auditoría
+                    </h5>
+
+                    <div class="mb-3">
+
+                        <small class="text-muted">
+                            Creado por
+                        </small>
+
+                        <div>
+                            @Model.UsuarioCreador?.Nombre
+                            @Model.UsuarioCreador?.Apellido
+                        </div>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <small class="text-muted">
+                            Fecha de creación
+                        </small>
+
+                        <div>
+                            @Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+                        </div>
+
+                    </div>
+
+                    @if (Model.Anulado)
+                    {
+                        <hr />
+
+                        <div class="mb-3">
+
+                            <small class="text-muted">
+                                Anulado por
+                            </small>
+
+                            <div>
+                                @Model.UsuarioCancelador?.Nombre
+                                @Model.UsuarioCancelador?.Apellido
+                            </div>
+
+                        </div>
+
+                        <div>
+
+                            <small class="text-muted">
+                                Fecha de anulación
+                            </small>
+
+                            <div>
+                                @Model.FechaCancelacion?.ToString(
+                                    "dd/MM/yyyy HH:mm")
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-4">
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+            Volver
+        </a>
+
+        @if (!Model.Anulado)
+        {
+            <a asp-action="Editar"
+               asp-route-id="@Model.Id"
+               class="btn btn-primary">
+                Editar
+            </a>
+        }
+
+    </div>
+
+</div>

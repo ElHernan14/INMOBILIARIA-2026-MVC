@@ -112,6 +112,14 @@
                                     Reservas
                                 </a>
                             </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Pago"
+                                   asp-action="Index">
+                                    Pagos
+                                </a>
+                            </li>
                         }
 
                         @if (User.IsInRole("ADMINISTRADOR"))

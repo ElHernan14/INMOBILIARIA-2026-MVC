@@ -1,352 +1,220 @@
-﻿@model List<INMOBILIARIA.Models.Propietario>
-
-@{
-    ViewData["Title"] = "Propietarios";
+﻿@{
+    ViewData["Title"] = "Inicio";
 }
 
-<div id="propietarios-app">
+<!-- Hero -->
+<section class="py-5">
 
-    <!-- Encabezado -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div class="container">
 
-        <div>
-            <h1 class="h3 fw-bold mb-1">
-                Propietarios
-            </h1>
+        <div class="row align-items-center g-5 py-lg-5">
 
-            <p class="text-muted mb-0">
-                Administración de propietarios de la inmobiliaria.
-            </p>
-        </div>
+            <div class="col-12 col-lg-7">
 
-        <a asp-controller="Propietario"
-           asp-action="Create"
-           class="btn btn-primary">
+                <span class="badge text-bg-primary mb-3">
+                    Tu próximo lugar empieza acá
+                </span>
 
-            <span class="me-1">+</span>
-            Nuevo propietario
+                <h1 class="display-4 fw-bold lh-sm mb-4">
+                    Encontrá el lugar
+                    <span class="text-primary">donde querés estar.</span>
+                </h1>
 
-        </a>
+                <p class="lead text-secondary mb-4">
+                    Te acompañamos en cada paso para encontrar,
+                    alquilar y gestionar tu próxima propiedad
+                    de manera simple y transparente.
+                </p>
 
-    </div>
+                <div class="d-flex flex-column flex-sm-row gap-2">
 
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-controller="Inmueble"
+                           asp-action="Index"
+                           class="btn btn-primary btn-lg px-4">
+                            Ver propiedades
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Usuario"
+                           asp-action="Login"
+                           class="btn btn-primary btn-lg px-4">
+                            Iniciar sesión
+                        </a>
 
-    <!-- Filtros -->
-    <div class="card shadow-sm border-0 mb-4">
-
-        <div class="card-body">
-
-            <div class="row g-3 align-items-end">
-
-                <!-- Búsqueda -->
-                <div class="col-12 col-md-6">
-
-                    <label for="busqueda"
-                           class="form-label fw-semibold">
-
-                        Buscar propietario
-
-                    </label>
-
-                    <input id="busqueda"
-                           v-model="filters.busqueda"
-                           type="text"
-                           class="form-control"
-                           placeholder="Nombre o apellido..." />
-
-                </div>
-
-
-                <!-- Estado -->
-                <div class="col-12 col-md-3">
-
-                    <label for="estado"
-                           class="form-label fw-semibold">
-
-                        Estado
-
-                    </label>
-
-                    <select id="estado"
-                            v-model="filters.estado"
-                            class="form-select">
-
-                        <option value="todos">
-                            Todos
-                        </option>
-
-                        <option value="activos">
-                            Activos
-                        </option>
-
-                        <option value="inactivos">
-                            Inactivos
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- Acciones filtros -->
-                <div class="col-12 col-md-3 d-flex gap-2">
-
-                    <button type="button"
-                            class="btn btn-dark flex-grow-1"
-                            @@click="aplicarFiltros">
-
-                        Buscar
-
-                    </button>
-
-                    <button type="button"
-                            class="btn btn-outline-secondary"
-                            @@click="limpiarFiltros">
-
-                        Limpiar
-
-                    </button>
+                        <a asp-controller="Usuario"
+                           asp-action="Register"
+                           class="btn btn-outline-secondary btn-lg px-4">
+                            Crear cuenta
+                        </a>
+                    }
 
                 </div>
 
             </div>
 
-        </div>
 
-    </div>
+            <div class="col-12 col-lg-5">
 
+                <div class="card border-0 shadow-sm overflow-hidden">
 
-    <!-- Información del listado -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="card-body p-4 p-md-5">
 
-        <span class="text-muted small">
+                        <div class="d-flex align-items-center
+                                    justify-content-center
+                                    rounded-4
+                                    bg-light
+                                    border
+                                    mb-4"
+                             style="height: 280px;">
 
-            Mostrando
-            <strong>{{ propietariosFiltrados.length }}</strong>
-            propietario(s)
+                            <div class="text-center px-4">
 
-        </span>
+                                <div class="display-3 mb-3">
+                                    🏠
+                                </div>
 
-    </div>
+                                <h2 class="h4 fw-bold mb-2">
+                                    Tu próximo hogar
+                                </h2>
 
-
-    <!-- Tabla -->
-    <div class="card shadow-sm border-0">
-
-        <div class="table-responsive">
-
-            <table class="table table-hover align-middle mb-0">
-
-                <thead class="table-light">
-
-                    <tr>
-
-                        <th>Nombre</th>
-                        <th>DNI</th>
-                        <th>Email</th>
-                        <th>Estado</th>
-
-                        <th class="text-end">
-                            Acciones
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    <!-- Sin resultados -->
-                    <tr v-if="propietariosFiltrados.length === 0">
-
-                        <td colspan="5"
-                            class="text-center py-5">
-
-                            <div class="text-muted">
-
-                                No se encontraron propietarios.
+                                <p class="text-secondary mb-0">
+                                    Espacios para vivir,
+                                    crecer y disfrutar.
+                                </p>
 
                             </div>
 
-                        </td>
+                        </div>
 
-                    </tr>
+                        <div class="d-flex justify-content-between
+                                    align-items-center">
 
-
-                    <!-- Propietarios -->
-                    <tr v-for="propietario in propietariosFiltrados"
-                        :key="propietario.id">
-
-                        <td>
-
-                            <div class="fw-semibold">
-
-                                {{ propietario.nombre }}
-                                {{ propietario.apellido }}
-
-                            </div>
-
-                        </td>
-
-
-                        <td>
-                            {{ propietario.dni }}
-                        </td>
-
-
-                        <td>
-                            {{ propietario.email }}
-                        </td>
-
-
-                        <td>
-
-                            <span v-if="propietario.activo"
-                                  class="badge text-bg-success">
-
-                                Activo
-
+                            <span class="small text-secondary">
+                                Gestión inmobiliaria
                             </span>
 
-                            <span v-else
-                                  class="badge text-bg-secondary">
-
-                                Inactivo
-
+                            <span class="badge text-bg-success">
+                                Simple y transparente
                             </span>
 
-                        </td>
-
-
-                        <td class="text-end">
-
-                            <div class="btn-group"
-                                 role="group">
-
-                                <!-- Detalles -->
-                                <a :href="`/Propietario/Details/${propietario.id}`"
-                                   class="btn btn-sm btn-outline-secondary">
-
-                                    Ver
-
-                                </a>
-
-
-                                <!-- Editar -->
-                                <a :href="`/Propietario/Edit/${propietario.id}`"
-                                   class="btn btn-sm btn-outline-primary">
-
-                                    Editar
-
-                                </a>
-
-
-                                <!-- Baja -->
-                                <button type="button"
-                                        class="btn btn-sm btn-outline-danger"
-                                        :disabled="!propietario.activo"
-                                        @@click="abrirModalBaja(propietario)">
-
-                                    Baja
-
-                                </button>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-
-    <!-- Modal de baja -->
-    <div class="modal fade"
-         id="modalBajaPropietario"
-         tabindex="-1"
-         aria-labelledby="modalBajaPropietarioLabel"
-         aria-hidden="true">
-
-        <div class="modal-dialog modal-dialog-centered">
-
-            <div class="modal-content">
-
-                <div class="modal-header">
-
-                    <h5 class="modal-title"
-                        id="modalBajaPropietarioLabel">
-
-                        Dar de baja propietario
-
-                    </h5>
-
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Cerrar">
-                    </button>
-
-                </div>
-
-
-                <div class="modal-body">
-
-                    <p class="mb-2">
-
-                        ¿Está seguro que desea dar de baja al propietario?
-
-                    </p>
-
-                    <div v-if="propietarioSeleccionado"
-                         class="alert alert-warning mb-0">
-
-                        <strong>
-                            {{ propietarioSeleccionado.nombre }}
-                            {{ propietarioSeleccionado.apellido }}
-                        </strong>
-
-                        <br />
-
-                        <small>
-                            DNI: {{ propietarioSeleccionado.dni }}
-                        </small>
+                        </div>
 
                     </div>
 
-                    <p class="text-muted small mt-3 mb-0">
+                </div>
 
-                        El propietario no será eliminado físicamente.
-                        Su estado pasará a inactivo.
+            </div>
 
-                    </p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- Características -->
+<section class="py-5 bg-light">
+
+    <div class="container">
+
+        <div class="text-center mb-5">
+
+            <span class="small text-primary fw-semibold">
+                NUESTRA PROPUESTA
+            </span>
+
+            <h2 class="h2 fw-bold mt-2 mb-2">
+                Todo más simple
+            </h2>
+
+            <p class="text-secondary mb-0">
+                Una experiencia pensada para que encontrar
+                y gestionar una propiedad sea más fácil.
+            </p>
+
+        </div>
+
+
+        <div class="row g-4">
+
+            <div class="col-12 col-md-4">
+
+                <div class="card border-0 shadow-sm h-100">
+
+                    <div class="card-body p-4">
+
+                        <div class="fs-2 mb-3">
+                            🏡
+                        </div>
+
+                        <h3 class="h5 fw-bold">
+                            Propiedades
+                        </h3>
+
+                        <p class="text-secondary mb-0">
+                            Conocé las propiedades disponibles
+                            y encontrá el espacio que mejor se
+                            adapte a tus necesidades.
+                        </p>
+
+                    </div>
 
                 </div>
 
+            </div>
 
-                <div class="modal-footer">
 
-                    <button type="button"
-                            class="btn btn-secondary"
-                            data-bs-dismiss="modal">
+            <div class="col-12 col-md-4">
 
-                        Cancelar
+                <div class="card border-0 shadow-sm h-100">
 
-                    </button>
+                    <div class="card-body p-4">
 
-                    <button type="button"
-                            class="btn btn-danger"
-                            @@click="confirmarBaja">
+                        <div class="fs-2 mb-3">
+                            🤝
+                        </div>
 
-                        Confirmar baja
+                        <h3 class="h5 fw-bold">
+                            Atención personalizada
+                        </h3>
 
-                    </button>
+                        <p class="text-secondary mb-0">
+                            Te acompañamos durante el proceso
+                            para que puedas tomar decisiones
+                            con tranquilidad.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-12 col-md-4">
+
+                <div class="card border-0 shadow-sm h-100">
+
+                    <div class="card-body p-4">
+
+                        <div class="fs-2 mb-3">
+                            ✨
+                        </div>
+
+                        <h3 class="h5 fw-bold">
+                            Gestión simple
+                        </h3>
+
+                        <p class="text-secondary mb-0">
+                            Centralizamos la información para
+                            facilitar la administración de
+                            propiedades y operaciones.
+                        </p>
+
+                    </div>
 
                 </div>
 
@@ -356,155 +224,60 @@
 
     </div>
 
-</div>
+</section>
 
 
-@section Scripts {
+<!-- CTA -->
+<section class="py-5">
 
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <div class="container">
 
-    <script>
+        <div class="card border-0 shadow-sm">
 
-        const { createApp } = Vue;
+            <div class="card-body p-4 p-md-5">
 
-        createApp({
+                <div class="row align-items-center g-4">
 
-            data() {
+                    <div class="col-12 col-md-8">
 
-                return {
+                        <h2 class="h3 fw-bold mb-2">
+                            ¿Buscás una nueva propiedad?
+                        </h2>
 
-                    /*
-                     * Los propietarios vienen desde ASP.NET MVC.
-                     * Vue solamente recibe estos datos para trabajar
-                     * sobre la interfaz.
-                     */
-                    propietarios: @Html.Raw(
-                        System.Text.Json.JsonSerializer.Serialize(Model)
-                    ),
+                        <p class="text-secondary mb-0">
+                            Ingresá a tu cuenta para comenzar
+                            a gestionar tu experiencia inmobiliaria.
+                        </p>
 
-                    filters: {
-                        busqueda: "",
-                        estado: "todos"
-                    },
+                    </div>
 
-                    appliedFilters: {
-                        busqueda: "",
-                        estado: "todos"
-                    },
+                    <div class="col-12 col-md-4 text-md-end">
 
-                    propietarioSeleccionado: null,
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <a asp-controller="Usuario"
+                               asp-action="Perfil"
+                               class="btn btn-primary">
+                                Ir a mi perfil
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Usuario"
+                               asp-action="Register"
+                               class="btn btn-primary">
+                                Crear mi cuenta
+                            </a>
+                        }
 
-                    modalBaja: null
+                    </div>
 
-                };
+                </div>
 
-            },
+            </div>
 
+        </div>
 
-            computed: {
+    </div>
 
-                propietariosFiltrados() {
-
-                    const busqueda =
-                        this.appliedFilters.busqueda
-                            .trim()
-                            .toLowerCase();
-
-                    const estado =
-                        this.appliedFilters.estado;
-
-                    return this.propietarios.filter(propietario => {
-
-                        const nombreCompleto =
-                            `${propietario.nombre} ${propietario.apellido}`
-                                .toLowerCase();
-
-                        const coincideBusqueda =
-                            !busqueda ||
-                            nombreCompleto.includes(busqueda);
-
-                        const coincideEstado =
-                            estado === "todos" ||
-                            (estado === "activos" && propietario.activo) ||
-                            (estado === "inactivos" && !propietario.activo);
-
-                        return coincideBusqueda && coincideEstado;
-
-                    });
-
-                }
-
-            },
-
-
-            methods: {
-
-                aplicarFiltros() {
-
-                    this.appliedFilters = {
-                        busqueda: this.filters.busqueda,
-                        estado: this.filters.estado
-                    };
-
-                },
-
-
-                limpiarFiltros() {
-
-                    this.filters = {
-                        busqueda: "",
-                        estado: "todos"
-                    };
-
-                    this.aplicarFiltros();
-
-                },
-
-
-                abrirModalBaja(propietario) {
-
-                    this.propietarioSeleccionado = propietario;
-
-                    this.modalBaja =
-                        new bootstrap.Modal(
-                            document.getElementById(
-                                "modalBajaPropietario"
-                            )
-                        );
-
-                    this.modalBaja.show();
-
-                },
-
-
-                confirmarBaja() {
-
-                    if (!this.propietarioSeleccionado) {
-                        return;
-                    }
-
-                    /*
-                     * Próximo paso:
-                     *
-                     * llamar al endpoint Razor:
-                     *
-                     * /Propietario/Delete?id=...
-                     *
-                     * y actualizar la vista cuando
-                     * el Controller confirme la baja.
-                     */
-
-                    console.log(
-                        "Solicitar baja:",
-                        this.propietarioSeleccionado.id
-                    );
-
-                }
-
-            }
-
-        }).mount("#propietarios-app");
-
-    </script>
-
-}
+</section>
