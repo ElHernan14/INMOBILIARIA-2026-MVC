@@ -4,20 +4,27 @@
 	ViewData["Title"] = "Detalle de la Reserva";
 }
 
-<div>
+<div class="shadow justify-content-center d-grid w-auto m-auto p-4 card" style="max-width:fit-content">
 	<div>
 		<h1>Reserva @Model.Id</h1>
-		<span v-if="reserva.Activo" class="badge rounded-pill text-bg-success px-3 py-2">Activo</span>
-		<span v-else="badge rounded-pill text-bg-secondary px-3 py-2">Inactivo</span>
+
+		@if (@Model.Activo) 
+		{
+			<span class="badge rounded-pill text-bg-success px-3 py-2">Activo</span>
+		}
+		else 
+		{
+			<span class="badge rounded-pill text-bg-secondary px-3 py-2">Inactivo</span>
+		}
 
 		<div>
 			<p><b>Desde: </b>@Model.FechaDesde</p>
 			<p><b>Hasta: </b>@Model.FechaHasta</p>
 		</div>
 	</div>
-	<div>
-		<div>
-			<table>
+	<div class="row">
+		<div class="col border-end">
+			<table class="table table-striped-columns">
 				<thead>
 					<tr>
 						<th colspan="2">Inmueble</th>
@@ -38,7 +45,7 @@
 					</tr>
 					<tr>
 						<td>Propietario</td>
-						<td>@Model.Inmueble.Propietario.Nombre</td>
+						<td>@Model.Inmueble.Propietario.Nombre @Model.Inmueble.Propietario.Apellido</td>
 					</tr>
 					<tr>
 						<td>Codigo de Propietario</td>
@@ -47,8 +54,8 @@
 				</tbody>
 			</table>
 		</div>
-		<div>
-			<table>
+		<div class="col border-start">
+			<table class="table table-striped-columns">
 				<thead>
 					<tr>
 						<th colspan="2">Inquilino</th>
@@ -58,6 +65,18 @@
 					<tr>
 						<td>Nombre</td>
 						<td>@Model.Inquilino.Nombre</td>
+					</tr>
+					<tr>
+						<td>Apellido</td>
+						<td>@Model.Inquilino.Apellido</td>
+					</tr>
+					<tr>
+						<td>DNI</td>
+						<td>@Model.Inquilino.Dni</td>
+					</tr>
+					<tr>
+						<td>Email</td>
+						<td>@Model.Inquilino.Email</td>
 					</tr>
 					<tr>
 						<td>Codigo del Inquilino</td>

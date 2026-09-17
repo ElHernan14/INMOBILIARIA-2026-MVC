@@ -21,9 +21,9 @@ namespace INMOBILIARIA.Controllers
 
         [HttpGet]
         [Authorize]
-        public ActionResult Index()
+        public ActionResult Index(int page = 1, int limit = 10)
         {
-            IEnumerable<Reserva> reservas = repositorioReserva.ObtenerTodas();
+            PagedResults<Reserva> reservas = repositorioReserva.ObtenerTodas(page, limit);
             return View(reservas);
         }
 
