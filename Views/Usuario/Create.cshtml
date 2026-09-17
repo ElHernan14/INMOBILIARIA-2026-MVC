@@ -1,0 +1,342 @@
+@model INMOBILIARIA.Models.Usuario
+
+@{
+    ViewData["Title"] = "Nuevo usuario";
+}
+
+<div class="container py-4">
+
+    <!-- Encabezado -->
+    <div class="mb-4">
+
+        <div class="d-flex align-items-center gap-2 mb-2">
+
+            <a asp-controller="Usuario"
+               asp-action="Index"
+               class="text-decoration-none text-secondary">
+                Usuarios
+            </a>
+
+            <span class="text-secondary">/</span>
+
+            <span class="text-secondary">
+                Nuevo usuario
+            </span>
+
+        </div>
+
+        <h1 class="h3 fw-bold mb-1">
+            Nuevo usuario
+        </h1>
+
+        <p class="text-secondary mb-0">
+            Completá los datos para crear un nuevo usuario del sistema.
+        </p>
+
+    </div>
+
+
+    <!-- Formulario -->
+    <div class="row justify-content-center">
+
+        <div class="col-12 col-xl-9">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body p-4 p-md-5">
+
+                    <form asp-controller="Usuario"
+                          asp-action="Create"
+                          method="post"
+                          enctype="multipart/form-data">
+
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger"
+                             role="alert">
+                        </div>
+
+
+                        <!-- Datos personales -->
+                        <div class="mb-4">
+
+                            <h2 class="h5 fw-semibold mb-1">
+                                Datos personales
+                            </h2>
+
+                            <p class="small text-secondary mb-3">
+                                Información básica del usuario.
+                            </p>
+
+                            <div class="row g-3">
+
+                                <div class="col-12 col-md-6">
+
+                                    <label asp-for="Nombre"
+                                           class="form-label">
+                                        Nombre
+                                    </label>
+
+                                    <input asp-for="Nombre"
+                                           class="form-control"
+                                           placeholder="Ej. Juan" />
+
+                                    <span asp-validation-for="Nombre"
+                                          class="text-danger small">
+                                    </span>
+
+                                </div>
+
+                                <div class="col-12 col-md-6">
+
+                                    <label asp-for="Apellido"
+                                           class="form-label">
+                                        Apellido
+                                    </label>
+
+                                    <input asp-for="Apellido"
+                                           class="form-control"
+                                           placeholder="Ej. Pérez" />
+
+                                    <span asp-validation-for="Apellido"
+                                          class="text-danger small">
+                                    </span>
+
+                                </div>
+
+                                <div class="col-12 col-md-6">
+
+                                    <label asp-for="Dni"
+                                           class="form-label">
+                                        DNI
+                                    </label>
+
+                                    <input asp-for="Dni"
+                                           class="form-control"
+                                           placeholder="Ej. 30123456"
+                                           inputmode="numeric" />
+
+                                    <span asp-validation-for="Dni"
+                                          class="text-danger small">
+                                    </span>
+
+                                </div>
+
+                                <div class="col-12 col-md-6">
+
+                                    <label asp-for="Email"
+                                           class="form-label">
+                                        Email
+                                    </label>
+
+                                    <input asp-for="Email"
+                                           class="form-control"
+                                           placeholder="usuario@ejemplo.com"
+                                           autocomplete="email" />
+
+                                    <span asp-validation-for="Email"
+                                          class="text-danger small">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <hr class="my-4" />
+
+
+                        <!-- Acceso -->
+                        <div class="mb-4">
+
+                            <h2 class="h5 fw-semibold mb-1">
+                                Acceso y permisos
+                            </h2>
+
+                            <p class="small text-secondary mb-3">
+                                Definí las credenciales y permisos del usuario.
+                            </p>
+
+                            <div class="row g-3">
+
+                                <div class="col-12">
+
+                                    <label asp-for="Password"
+                                           class="form-label">
+                                        Contraseña
+                                    </label>
+
+                                    <input asp-for="Password"
+                                           type="password"
+                                           class="form-control"
+                                           placeholder="Ingresá una contraseña"
+                                           autocomplete="new-password" />
+
+                                    <span asp-validation-for="Password"
+                                          class="text-danger small">
+                                    </span>
+
+                                </div>
+
+                                <div class="col-12 col-md-6">
+
+                                    <label asp-for="Rol"
+                                           class="form-label">
+                                        Rol
+                                    </label>
+
+                                    <select asp-for="Rol"
+                                            class="form-select"
+                                            asp-items="Html.GetEnumSelectList<INMOBILIARIA.Models.RolUsuario>()">
+                                    </select>
+
+                                    <span asp-validation-for="Rol"
+                                          class="text-danger small">
+                                    </span>
+
+                                </div>
+
+                                <div class="col-12 col-md-6">
+
+                                    <label class="form-label">
+                                        Estado
+                                    </label>
+
+                                    <div class="form-check form-switch mt-2">
+
+                                        <input asp-for="Activo"
+                                               class="form-check-input"
+                                               role="switch" />
+
+                                        <label asp-for="Activo"
+                                               class="form-check-label">
+                                            Usuario activo
+                                        </label>
+
+                                    </div>
+
+                                    <span asp-validation-for="Activo"
+                                          class="text-danger small">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <hr class="my-4" />
+
+
+                        <!-- Avatar -->
+                        <div class="mb-4">
+
+                            <h2 class="h5 fw-semibold mb-1">
+                                Foto de perfil
+                            </h2>
+
+                            <p class="small text-secondary mb-3">
+                                Opcional. Podés cargar una imagen JPG, JPEG, PNG o WEBP de hasta 2 MB.
+                            </p>
+
+                            <div class="d-flex flex-column flex-sm-row
+                                        align-items-sm-center
+                                        gap-3
+                                        mb-3">
+
+                                <div id="avatarPreviewContainer"
+                                    class="d-none">
+
+                                    <img id="avatarPreview"
+                                        src="#"
+                                        alt="Vista previa del avatar"
+                                        class="rounded-circle border"
+                                        width="90"
+                                        height="90"
+                                        style="object-fit: cover;" />
+
+                                </div>
+
+                                <div>
+                                    <label for="avatarFile"
+                                        class="form-label">
+                                        Avatar
+                                    </label>
+
+                                    <input type="file"
+                                        id="avatarFile"
+                                        name="avatarFile"
+                                        class="form-control"
+                                        accept=".jpg,.jpeg,.png,.webp" />
+                                </div>
+
+                            </div>
+
+                            <span asp-validation-for="Avatar"
+                                class="text-danger small">
+                            </span>
+
+                        </div>
+
+
+                        <!-- Acciones -->
+                        <div class="d-flex flex-column flex-sm-row
+                                    justify-content-end
+                                    gap-2
+                                    pt-2">
+
+                            <a asp-controller="Usuario"
+                               asp-action="Index"
+                               class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                Crear usuario
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const avatarFile = document.getElementById("avatarFile");
+        const avatarPreview = document.getElementById("avatarPreview");
+        const avatarPreviewContainer =
+            document.getElementById("avatarPreviewContainer");
+
+        avatarFile.addEventListener("change", function () {
+
+            const archivo = this.files[0];
+
+            if (!archivo) {
+                avatarPreview.src = "#";
+                avatarPreviewContainer.classList.add("d-none");
+                return;
+            }
+
+            const url = URL.createObjectURL(archivo);
+
+            avatarPreview.src = url;
+            avatarPreviewContainer.classList.remove("d-none");
+        });
+    </script>
+}

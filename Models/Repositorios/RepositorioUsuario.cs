@@ -243,6 +243,61 @@ namespace INMOBILIARIA.Models.Repositorios
             }
         }
 
+        public IList<Usuario> ObtenerTodos(int limit, int page)
+        {
+            var usuarios = new List<Usuario>();
+
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
+
+            int offset = (page - 1) * limit;
+
+            var sql = """
+                SELECT
+                    id,
+                    nombre,
+                    apellido,
+                    dni,
+                    email,
+                    avatar,
+                    password,
+                    rol,
+                    activo
+                FROM usuarios
+                ORDER BY apellido, nombre
+                LIMIT @limit OFFSET @offset;
+                """;
+
+            using var command = new MySqlCommand(sql, connection);
+
+            command.Parameters.AddWithValue("@limit", limit);
+            command.Parameters.AddWithValue("@offset", offset);
+
+            using var reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                usuarios.Add(Mapear(reader));
+            }
+
+            return usuarios;
+        }
+
+        public int ObtenerCantidad()
+        {
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
+
+            var sql = """
+                SELECT COUNT(*)
+                FROM usuarios;
+                """;
+
+            using var command = new MySqlCommand(sql, connection);
+
+            return Convert.ToInt32(command.ExecuteScalar());
+        }
+
         private Usuario Mapear(MySqlDataReader reader)
         {
             string rolTexto = reader.GetString("rol");

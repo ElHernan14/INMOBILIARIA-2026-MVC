@@ -1,3 +1,404 @@
-<div>
-    <h1>HOME</h1>
+@model IList<INMOBILIARIA.Models.Usuario>
+
+@{
+    ViewData["Title"] = "Usuarios";
+
+    int paginaActual = ViewBag.PaginaActual ?? 1;
+    int totalPaginas = ViewBag.TotalPaginas ?? 1;
+}
+
+<div class="container py-4">
+
+    <!-- Encabezado -->
+    <div class="d-flex flex-column flex-md-row
+                justify-content-between
+                align-items-md-center
+                gap-3
+                mb-4">
+
+        <div>
+            <h1 class="h3 fw-bold mb-1">
+                Usuarios
+            </h1>
+
+            <p class="text-secondary mb-0">
+                Administrá los usuarios y sus permisos de acceso al sistema.
+            </p>
+        </div>
+
+        <a asp-controller="Usuario"
+           asp-action="Create"
+           class="btn btn-primary">
+
+            <span class="me-1">+</span>
+            Nuevo usuario
+        </a>
+
+    </div>
+
+
+    <!-- Mensaje de éxito -->
+    @if (TempData["Success"] is string mensaje)
+    {
+        <div class="alert alert-success alert-dismissible fade show"
+             role="alert">
+
+            @mensaje
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Cerrar">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- Resumen -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-12 col-md-4">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-secondary small mb-1">
+                        Total de usuarios
+                    </div>
+
+                    <div class="fs-3 fw-bold">
+                        @Model.Count
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-12 col-md-4">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-secondary small mb-1">
+                        Administradores
+                    </div>
+
+                    <div class="fs-3 fw-bold">
+                        @Model.Count(u => u.Rol == INMOBILIARIA.Models.RolUsuario.ADMINISTRADOR)
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-12 col-md-4">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-secondary small mb-1">
+                        Usuarios activos
+                    </div>
+
+                    <div class="fs-3 fw-bold">
+                        @Model.Count(u => u.Activo)
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Listado -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-body p-0">
+
+            @if (Model.Count == 0)
+            {
+                <div class="text-center py-5 px-3">
+
+                    <div class="fs-1 mb-3">
+                        👤
+                    </div>
+
+                    <h2 class="h5 fw-semibold">
+                        No hay usuarios registrados
+                    </h2>
+
+                    <p class="text-secondary mb-4">
+                        Todavía no existen usuarios para mostrar.
+                    </p>
+
+                    <a asp-controller="Usuario"
+                       asp-action="Create"
+                       class="btn btn-primary">
+
+                        Crear primer usuario
+
+                    </a>
+
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th class="ps-4">
+                                    Usuario
+                                </th>
+
+                                <th>
+                                    DNI
+                                </th>
+
+                                <th>
+                                    Email
+                                </th>
+
+                                <th>
+                                    Rol
+                                </th>
+
+                                <th>
+                                    Estado
+                                </th>
+
+                                <th class="text-end pe-4">
+                                    Acciones
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var usuario in Model)
+                            {
+                                <tr>
+
+                                    <!-- Usuario -->
+                                    <td class="ps-4">
+
+                                        <div class="d-flex align-items-center gap-3">
+
+                                            @if (!string.IsNullOrWhiteSpace(usuario.Avatar))
+                                            {
+                                                <img src="@usuario.Avatar"
+                                                     alt="Avatar de @usuario.NombreCompleto"
+                                                     class="rounded-circle"
+                                                     width="42"
+                                                     height="42"
+                                                     style="object-fit: cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="rounded-circle bg-light
+                                                            d-flex align-items-center
+                                                            justify-content-center
+                                                            fw-semibold"
+                                                     style="width:42px;height:42px;">
+
+                                                    @usuario.Nombre.FirstOrDefault()
+                                                    @usuario.Apellido.FirstOrDefault()
+
+                                                </div>
+                                            }
+
+                                            <div>
+
+                                                <div class="fw-semibold">
+                                                    @usuario.NombreCompleto
+                                                </div>
+
+                                                <div class="small text-secondary">
+                                                    Usuario #@usuario.Id
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- DNI -->
+                                    <td>
+                                        @usuario.Dni
+                                    </td>
+
+
+                                    <!-- Email -->
+                                    <td>
+                                        <span class="text-break">
+                                            @usuario.Email
+                                        </span>
+                                    </td>
+
+
+                                    <!-- Rol -->
+                                    <td>
+
+                                        @if (usuario.Rol == INMOBILIARIA.Models.RolUsuario.ADMINISTRADOR)
+                                        {
+                                            <span class="badge text-bg-primary">
+                                                Administrador
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge text-bg-secondary">
+                                                Empleado
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- Estado -->
+                                    <td>
+
+                                        @if (usuario.Activo)
+                                        {
+                                            <span class="badge text-bg-success">
+                                                Activo
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge text-bg-danger">
+                                                Inactivo
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- Acciones -->
+                                    <td class="text-end pe-4">
+
+                                        <div class="btn-group"
+                                             role="group">
+
+                                            <a asp-controller="Usuario"
+                                               asp-action="Details"
+                                               asp-route-id="@usuario.Id"
+                                               class="btn btn-sm btn-outline-secondary">
+
+                                                Ver
+
+                                            </a>
+
+                                            <a asp-controller="Usuario"
+                                               asp-action="Edit"
+                                               asp-route-id="@usuario.Id"
+                                               class="btn btn-sm btn-outline-primary">
+
+                                                Editar
+
+                                            </a>
+
+                                            <a asp-controller="Usuario"
+                                               asp-action="Delete"
+                                               asp-route-id="@usuario.Id"
+                                               class="btn btn-sm btn-outline-danger">
+
+                                                Eliminar
+
+                                            </a>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+            @if (totalPaginas > 1)
+            {
+                <div class="border-top px-4 py-3">
+
+                    <nav aria-label="Paginación de usuarios">
+
+                        <ul class="pagination justify-content-center mb-0">
+
+                            <li class="page-item @(paginaActual == 1 ? "disabled" : "")">
+
+                                <a class="page-link"
+                                asp-controller="Usuario"
+                                asp-action="Index"
+                                asp-route-page="@(paginaActual - 1)"
+                                aria-label="Anterior">
+
+                                    &laquo;
+                                </a>
+
+                            </li>
+
+                            @for (int i = 1; i <= totalPaginas; i++)
+                            {
+                                <li class="page-item @(i == paginaActual ? "active" : "")">
+
+                                    <a class="page-link"
+                                    asp-controller="Usuario"
+                                    asp-action="Index"
+                                    asp-route-page="@i">
+
+                                        @i
+
+                                    </a>
+
+                                </li>
+                            }
+
+                            <li class="page-item @(paginaActual == totalPaginas ? "disabled" : "")">
+
+                                <a class="page-link"
+                                asp-controller="Usuario"
+                                asp-action="Index"
+                                asp-route-page="@(paginaActual + 1)"
+                                aria-label="Siguiente">
+
+                                    &raquo;
+                                </a>
+
+                            </li>
+
+                        </ul>
+
+                    </nav>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
 </div>

@@ -199,7 +199,7 @@ namespace INMOBILIARIA.Models.Repositorios
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"Error RepositorioInmueble - ObtenerTodos: {ex.Message}");
+				Console.WriteLine($"Error RepositorioTipoInmueble - ObtenerTodos: {ex.Message}");
 				throw;
 			}
 		}

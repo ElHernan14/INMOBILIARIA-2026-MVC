@@ -19,6 +19,8 @@ public class UsuarioController : Controller
 
     private const long TamanoMaximoAvatar = 2 * 1024 * 1024;
 
+    private const int UsuariosPorPagina = 10;
+
     private static readonly string[] ExtensionesAvatarPermitidas =
     {
         ".jpg",
@@ -41,9 +43,33 @@ public class UsuarioController : Controller
 
     // GET: /Usuario/Index
     [Authorize(Policy = "ADMINISTRADOR")]
-    public IActionResult Index()
+    public IActionResult Index(int page = 1)
     {
-        return View();
+        if (page < 1)
+        {
+            page = 1;
+        }
+
+        int cantidadTotal = repositorioUsuario.ObtenerCantidad();
+
+        int totalPaginas =
+            (int)Math.Ceiling(
+                cantidadTotal / (double)UsuariosPorPagina);
+
+        if (totalPaginas > 0 && page > totalPaginas)
+        {
+            page = totalPaginas;
+        }
+
+        var usuarios =
+            repositorioUsuario.ObtenerTodos(
+                UsuariosPorPagina,
+                page);
+
+        ViewBag.PaginaActual = page;
+        ViewBag.TotalPaginas = totalPaginas;
+
+        return View(usuarios);
     }
 
     // GET: /Usuario/Login
@@ -254,7 +280,9 @@ public class UsuarioController : Controller
     [Authorize(Policy = "ADMINISTRADOR")]
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create(Usuario usuario, IFormFile? avatarFile)
+    public IActionResult Create(
+        Usuario usuario,
+        IFormFile? avatarFile)
     {
         if (!ModelState.IsValid)
         {
@@ -279,11 +307,24 @@ public class UsuarioController : Controller
 
             usuario.Password = GenerarHash(usuario.Password);
 
+            var usuarioExistente =
+                repositorioUsuario.ObtenerPorEmail(usuario.Email);
+
+            if (usuarioExistente is not null)
+            {
+                ModelState.AddModelError(
+                    nameof(usuario.Email),
+                    "Ya existe un usuario registrado con ese email.");
+
+                return View(usuario);
+            }
+
             int id = repositorioUsuario.Alta(usuario);
 
             if (avatarFile is not null)
             {
-                string? rutaAvatar = GuardarAvatar(avatarFile, id);
+                string? rutaAvatar =
+                    GuardarAvatar(avatarFile, id);
 
                 if (rutaAvatar is null)
                 {
@@ -292,14 +333,20 @@ public class UsuarioController : Controller
                 }
 
                 usuario.Avatar = rutaAvatar;
+
                 repositorioUsuario.Modificacion(usuario);
             }
+
+            TempData["Success"] =
+                "El usuario fue creado correctamente.";
 
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error al crear el usuario.");
+            logger.LogError(
+                ex,
+                "Error al crear el usuario.");
 
             ModelState.AddModelError(
                 string.Empty,
@@ -344,17 +391,15 @@ public class UsuarioController : Controller
     }
 
     // POST: /Usuario/Edit/5
-    [Authorize]
+    [Authorize(Policy = "ADMINISTRADOR")]
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Edit(int id, Usuario usuario, IFormFile? avatarFile)
+    public IActionResult Edit(
+        int id,
+        Usuario usuario,
+        IFormFile? avatarFile)
     {
-        bool esAdministrador = User.IsInRole("ADMINISTRADOR");
-
-        if (!esAdministrador && !EsUsuarioActual(id))
-        {
-            return Forbid();
-        }
+        ModelState.Remove(nameof(usuario.Password));
 
         if (!ModelState.IsValid)
         {
@@ -363,7 +408,8 @@ public class UsuarioController : Controller
 
         try
         {
-            var usuarioActual = repositorioUsuario.ObtenerPorId(id);
+            var usuarioActual =
+                repositorioUsuario.ObtenerPorId(id);
 
             if (usuarioActual is null)
             {
@@ -377,7 +423,22 @@ public class UsuarioController : Controller
             usuario.Dni = usuario.Dni.Trim();
             usuario.Email = usuario.Email.Trim();
 
-            // Si no se escribió una contraseña nueva, conservamos el hash actual.
+            // Verificamos que el email no pertenezca a otro usuario.
+            var usuarioExistente =
+                repositorioUsuario.ObtenerPorEmail(usuario.Email);
+
+            if (usuarioExistente is not null &&
+                usuarioExistente.Id != id)
+            {
+                ModelState.AddModelError(
+                    nameof(usuario.Email),
+                    "Ya existe otro usuario registrado con ese email.");
+
+                return View(usuario);
+            }
+
+            // Si no se escribió una contraseña nueva,
+            // conservamos el hash actual.
             if (string.IsNullOrWhiteSpace(usuario.Password))
             {
                 usuario.Password = usuarioActual.Password;
@@ -387,16 +448,12 @@ public class UsuarioController : Controller
                 usuario.Password = GenerarHash(usuario.Password);
             }
 
-            // Un empleado no puede cambiar su propio rol ni su estado.
-            if (!esAdministrador)
-            {
-                usuario.Rol = usuarioActual.Rol;
-                usuario.Activo = usuarioActual.Activo;
-            }
-
+            // Si no se seleccionó un nuevo avatar,
+            // conservamos el avatar actual.
             if (avatarFile is not null)
             {
-                string? rutaAvatar = GuardarAvatar(avatarFile, id);
+                string? rutaAvatar =
+                    GuardarAvatar(avatarFile, id);
 
                 if (rutaAvatar is null)
                 {
@@ -412,16 +469,16 @@ public class UsuarioController : Controller
 
             repositorioUsuario.Modificacion(usuario);
 
-            if (EsUsuarioActual(id))
-            {
-                return RedirectToAction(nameof(Perfil));
-            }
+            TempData["Success"] =
+                "El usuario fue modificado correctamente.";
 
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error al modificar el usuario.");
+            logger.LogError(
+                ex,
+                "Error al modificar el usuario.");
 
             ModelState.AddModelError(
                 string.Empty,
@@ -465,13 +522,19 @@ public class UsuarioController : Controller
 
             repositorioUsuario.Baja(id);
 
+            TempData["Success"] =
+                "El usuario fue eliminado correctamente.";
+
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error al dar de baja el usuario.");
+            logger.LogError(
+                ex,
+                "Error al eliminar el usuario.");
 
-            TempData["Error"] = "No se pudo dar de baja el usuario.";
+            TempData["Error"] =
+                "No se pudo eliminar el usuario.";
 
             return RedirectToAction(nameof(Index));
         }
