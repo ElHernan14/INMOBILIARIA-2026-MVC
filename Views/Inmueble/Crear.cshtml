@@ -1,0 +1,667 @@
+@model INMOBILIARIA.Models.Inmueble
+
+@{
+    ViewData["Title"] = "Nuevo inmueble";
+
+    IEnumerable<INMOBILIARIA.Models.Propietario> propietarios =
+        ViewBag.Propietarios ??
+        Enumerable.Empty<INMOBILIARIA.Models.Propietario>();
+
+    IEnumerable<INMOBILIARIA.Models.TipoInmueble> tiposInmueble =
+        ViewBag.TiposInmueble ??
+        Enumerable.Empty<INMOBILIARIA.Models.TipoInmueble>();
+}
+
+<div class="container py-4">
+    <div class="mx-auto" style="max-width: 1050px;">
+
+        <!-- Encabezado -->
+        <div class="d-flex align-items-center gap-3 mb-4">
+
+            <a asp-action="Index"
+               class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+
+            <div>
+                <h1 class="h3 fw-bold mb-1">
+                    Nuevo inmueble
+                </h1>
+
+                <p class="text-body-secondary mb-0">
+                    Registrá una nueva propiedad en el sistema.
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Errores generales -->
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="ModelOnly"
+                 class="alert alert-danger shadow-sm"
+                 role="alert">
+            </div>
+        }
+
+        <form asp-action="Crear"
+              method="post"
+              enctype="multipart/form-data"
+              id="formCrearInmueble">
+
+            @Html.AntiForgeryToken()
+
+            <!-- Información general -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-body border-0
+                            px-3 px-md-4 pt-4 pb-2">
+
+                    <h2 class="h5 fw-bold mb-1">
+                        Información general
+                    </h2>
+
+                    <p class="small text-body-secondary mb-0">
+                        Datos principales de la propiedad.
+                    </p>
+
+                </div>
+
+                <div class="card-body px-3 px-md-4 pb-4">
+
+                    <div class="row g-4">
+
+                        <!-- Tipo -->
+                        <div class="col-12 col-md-6">
+
+                            <label asp-for="TipoInmueble.Id"
+                                   class="form-label fw-semibold">
+                                Tipo de inmueble
+                            </label>
+
+                            <select asp-for="TipoInmueble.Id"
+                                    class="form-select">
+
+                                <option value="">
+                                    Seleccioná un tipo
+                                </option>
+
+                                @foreach (var tipo in tiposInmueble)
+                                {
+                                    <option value="@tipo.Id">
+                                        @tipo.Nombre
+                                    </option>
+                                }
+
+                            </select>
+
+                            <span asp-validation-for="TipoInmueble.Id"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                        <!-- Propietario -->
+                        <div class="col-12 col-md-6">
+
+                            <label asp-for="Propietario.Id"
+                                   class="form-label fw-semibold">
+                                Propietario
+                            </label>
+
+                            <select asp-for="Propietario.Id"
+                                    class="form-select">
+
+                                <option value="">
+                                    Seleccioná un propietario
+                                </option>
+
+                                @foreach (var propietario in propietarios)
+                                {
+                                    <option value="@propietario.Id">
+                                        @propietario.Nombre
+                                        @propietario.Apellido
+                                        — DNI @propietario.Dni
+                                    </option>
+                                }
+
+                            </select>
+
+                            <span asp-validation-for="Propietario.Id"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                        <!-- Dirección -->
+                        <div class="col-12">
+
+                            <label asp-for="Direccion"
+                                   class="form-label fw-semibold">
+                                Dirección
+                            </label>
+
+                            <input asp-for="Direccion"
+                                   class="form-control"
+                                   placeholder="Ej. Av. Illia 123" />
+
+                            <span asp-validation-for="Direccion"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Ubicación -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-body border-0
+                            px-3 px-md-4 pt-4 pb-2">
+
+                    <h2 class="h5 fw-bold mb-1">
+                        Ubicación
+                    </h2>
+
+                    <p class="small text-body-secondary mb-0">
+                        Las coordenadas son opcionales.
+                    </p>
+
+                </div>
+
+                <div class="card-body px-3 px-md-4 pb-4">
+
+                    <div class="row g-4">
+
+                        <div class="col-12 col-md-6">
+
+                            <label asp-for="Latitud"
+                                   class="form-label fw-semibold">
+                                Latitud
+                            </label>
+
+                            <input asp-for="Latitud"
+                                   class="form-control"
+                                   type="number"
+                                   step="any"
+                                   placeholder="-33.3017" />
+
+                            <span asp-validation-for="Latitud"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                        <div class="col-12 col-md-6">
+
+                            <label asp-for="Longitud"
+                                   class="form-label fw-semibold">
+                                Longitud
+                            </label>
+
+                            <input asp-for="Longitud"
+                                   class="form-control"
+                                   type="number"
+                                   step="any"
+                                   placeholder="-66.3378" />
+
+                            <span asp-validation-for="Longitud"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Datos económicos -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-body border-0
+                            px-3 px-md-4 pt-4 pb-2">
+
+                    <h2 class="h5 fw-bold mb-1">
+                        Condiciones
+                    </h2>
+
+                    <p class="small text-body-secondary mb-0">
+                        Configuración comercial del inmueble.
+                    </p>
+
+                </div>
+
+                <div class="card-body px-3 px-md-4 pb-4">
+
+                    <div class="row g-4">
+
+                        <!-- Cupo -->
+                        <div class="col-12 col-md-4">
+
+                            <label asp-for="Cupo"
+                                   class="form-label fw-semibold">
+                                Cupo
+                            </label>
+
+                            <input asp-for="Cupo"
+                                   class="form-control"
+                                   type="number"
+                                   min="1"
+                                   step="1" />
+
+                            <span asp-validation-for="Cupo"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                        <!-- Precio -->
+                        <div class="col-12 col-md-4">
+
+                            <label asp-for="PrecioDia"
+                                   class="form-label fw-semibold">
+                                Precio por día
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    $
+                                </span>
+
+                                <input asp-for="PrecioDia"
+                                       class="form-control"
+                                       type="number"
+                                       min="0"
+                                       step="0.01" />
+
+                            </div>
+
+                            <span asp-validation-for="PrecioDia"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                        <!-- Reserva -->
+                        <div class="col-12 col-md-4">
+
+                            <label asp-for="PorcentajeReserva"
+                                   class="form-label fw-semibold">
+                                Porcentaje de reserva
+                            </label>
+
+                            <div class="input-group">
+
+                                <input asp-for="PorcentajeReserva"
+                                       class="form-control"
+                                       type="number"
+                                       min="0"
+                                       max="100"
+                                       step="0.01" />
+
+                                <span class="input-group-text">
+                                    %
+                                </span>
+
+                            </div>
+
+                            <span asp-validation-for="PorcentajeReserva"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Estados -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-body border-0
+                            px-3 px-md-4 pt-4 pb-2">
+
+                    <h2 class="h5 fw-bold mb-1">
+                        Estado inicial
+                    </h2>
+
+                    <p class="small text-body-secondary mb-0">
+                        Definí la disponibilidad inicial del inmueble.
+                    </p>
+
+                </div>
+
+                <div class="card-body px-3 px-md-4 pb-4">
+
+                    <div class="row g-3">
+
+                        <div class="col-12 col-md-6">
+
+                            <div class="form-check form-switch">
+
+                                <input asp-for="Disponible"
+                                       class="form-check-input"
+                                       role="switch" />
+
+                                <label asp-for="Disponible"
+                                       class="form-check-label fw-semibold">
+                                    Disponible
+                                </label>
+
+                            </div>
+
+                            <div class="small text-body-secondary mt-1">
+                                El inmueble podrá ser utilizado para nuevas reservas.
+                            </div>
+
+                        </div>
+
+                        <div class="col-12 col-md-6">
+
+                            <div class="form-check form-switch">
+
+                                <input asp-for="Activo"
+                                       class="form-check-input"
+                                       role="switch" />
+
+                                <label asp-for="Activo"
+                                       class="form-check-label fw-semibold">
+                                    Activo
+                                </label>
+
+                            </div>
+
+                            <div class="small text-body-secondary mt-1">
+                                El registro estará activo en el sistema.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Imágenes -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-body border-0
+                            px-3 px-md-4 pt-4 pb-2">
+
+                    <div class="d-flex justify-content-between
+                                align-items-start gap-3">
+
+                        <div>
+                            <h2 class="h5 fw-bold mb-1">
+                                Imágenes
+                            </h2>
+
+                            <p class="small text-body-secondary mb-0">
+                                Agregá una portada y hasta 5 imágenes adicionales.
+                            </p>
+                        </div>
+
+                        <span class="badge rounded-pill
+                                     bg-primary-subtle
+                                     text-primary-emphasis
+                                     border border-primary-subtle">
+                            Máximo 6
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="card-body px-3 px-md-4 pb-4">
+
+                    <!-- Portada -->
+                    <div class="mb-4">
+
+                        <label for="imagenPortada"
+                               class="form-label fw-semibold">
+                            Imagen de portada
+                        </label>
+
+                        <div class="border rounded-3 p-3">
+
+                            <div class="d-flex flex-column
+                                        flex-md-row
+                                        align-items-md-center
+                                        gap-3">
+
+                                <div class="rounded-3 bg-body-secondary
+                                            d-flex align-items-center
+                                            justify-content-center flex-shrink-0"
+                                     style="width: 100px; height: 75px;"
+                                     id="previewPortada">
+
+                                    <i class="bi bi-image
+                                              text-body-secondary fs-3">
+                                    </i>
+
+                                </div>
+
+                                <div class="flex-grow-1">
+
+                                    <input type="file"
+                                           id="imagenPortada"
+                                           name="imagenPortada"
+                                           class="form-control"
+                                           accept="image/*" />
+
+                                    <div class="form-text">
+                                        Esta imagen se guardará como
+                                        <strong>es_portada = true</strong>.
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Imágenes adicionales -->
+                    <div>
+
+                        <label for="imagenes"
+                               class="form-label fw-semibold">
+                            Imágenes adicionales
+                        </label>
+
+                        <input type="file"
+                               id="imagenes"
+                               name="imagenes"
+                               class="form-control"
+                               accept="image/*"
+                               multiple />
+
+                        <div class="form-text">
+                            Podés seleccionar hasta 5 imágenes adicionales.
+                        </div>
+
+                        <div id="mensajeImagenes"
+                             class="small text-danger mt-2 d-none">
+                        </div>
+
+                        <!-- Preview -->
+                        <div id="previewImagenes"
+                             class="row g-2 mt-2">
+                        </div>
+
+                    </div>
+
+                    <div class="alert alert-light border mt-4 mb-0">
+                        <div class="d-flex gap-2">
+
+                            <i class="bi bi-info-circle text-primary"></i>
+
+                            <div class="small">
+                                <strong>Formato recomendado:</strong>
+                                JPG, JPEG, PNG o WEBP.
+                                La portada y las imágenes adicionales
+                                pertenecen al inmueble que estás creando.
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Acciones -->
+            <div class="d-flex flex-column-reverse
+                        flex-sm-row
+                        justify-content-end
+                        gap-2">
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    Cancelar
+                </a>
+
+                <button type="submit"
+                        class="btn btn-primary px-4"
+                        id="btnCrear">
+
+                    <i class="bi bi-check-lg me-1"></i>
+                    Crear inmueble
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        const inputPortada =
+            document.getElementById("imagenPortada");
+
+        const inputImagenes =
+            document.getElementById("imagenes");
+
+        const previewPortada =
+            document.getElementById("previewPortada");
+
+        const previewImagenes =
+            document.getElementById("previewImagenes");
+
+        const mensajeImagenes =
+            document.getElementById("mensajeImagenes");
+
+        const formCrearInmueble =
+            document.getElementById("formCrearInmueble");
+
+        inputPortada.addEventListener("change", function () {
+
+            previewPortada.innerHTML = "";
+
+            const archivo = this.files[0];
+
+            if (!archivo) {
+                previewPortada.innerHTML =
+                    '<i class="bi bi-image text-body-secondary fs-3"></i>';
+
+                return;
+            }
+
+            const imagen = document.createElement("img");
+
+            imagen.src = URL.createObjectURL(archivo);
+            imagen.className =
+                "w-100 h-100 object-fit-cover rounded-3";
+
+            previewPortada.appendChild(imagen);
+        });
+
+        inputImagenes.addEventListener("change", function () {
+
+            previewImagenes.innerHTML = "";
+            mensajeImagenes.classList.add("d-none");
+            mensajeImagenes.textContent = "";
+
+            const archivos = Array.from(this.files);
+
+            if (archivos.length > 5) {
+
+                mensajeImagenes.textContent =
+                    "Podés seleccionar como máximo 5 imágenes adicionales.";
+
+                mensajeImagenes.classList.remove("d-none");
+
+                this.value = "";
+
+                return;
+            }
+
+            archivos.forEach(function (archivo) {
+
+                const columna =
+                    document.createElement("div");
+
+                columna.className =
+                    "col-6 col-sm-4 col-md-3 col-lg-2";
+
+                const contenedor =
+                    document.createElement("div");
+
+                contenedor.className =
+                    "ratio ratio-1x1 rounded-3 overflow-hidden bg-body-secondary";
+
+                const imagen =
+                    document.createElement("img");
+
+                imagen.src =
+                    URL.createObjectURL(archivo);
+
+                imagen.className =
+                    "w-100 h-100 object-fit-cover";
+
+                contenedor.appendChild(imagen);
+                columna.appendChild(contenedor);
+                previewImagenes.appendChild(columna);
+            });
+        });
+
+        formCrearInmueble.addEventListener("submit", function (event) {
+
+            const cantidadAdicionales =
+                inputImagenes.files.length;
+
+            if (cantidadAdicionales > 5) {
+
+                event.preventDefault();
+
+                mensajeImagenes.textContent =
+                    "Podés seleccionar como máximo 5 imágenes adicionales.";
+
+                mensajeImagenes.classList.remove("d-none");
+
+                inputImagenes.focus();
+
+                return;
+            }
+
+        });
+    </script>
+}

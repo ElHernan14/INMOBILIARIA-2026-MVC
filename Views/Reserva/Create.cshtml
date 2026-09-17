@@ -1,0 +1,167 @@
+@model INMOBILIARIA.Models.Reserva
+
+@{
+    ViewData["Title"] = "Nueva reserva";
+
+    IEnumerable<INMOBILIARIA.Models.Inmueble> inmuebles =
+        ViewBag.Inmuebles as IEnumerable<INMOBILIARIA.Models.Inmueble>
+        ?? Enumerable.Empty<INMOBILIARIA.Models.Inmueble>();
+
+    IEnumerable<INMOBILIARIA.Models.Inquilino> inquilinos =
+        ViewBag.Inquilinos as IEnumerable<INMOBILIARIA.Models.Inquilino>
+        ?? Enumerable.Empty<INMOBILIARIA.Models.Inquilino>();
+}
+
+<div class="container py-4">
+    <div class="mx-auto" style="max-width: 850px;">
+
+        <div class="mb-4">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <a asp-action="Index"
+                   class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+
+                <span class="text-muted small">
+                    Reservas
+                </span>
+            </div>
+
+            <h1 class="h3 fw-bold mb-1">
+                Nueva reserva
+            </h1>
+
+            <p class="text-muted mb-0">
+                Registrá una nueva reserva para un inmueble.
+            </p>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5">
+
+                <form asp-action="Create"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger"
+                         role="alert">
+                    </div>
+
+                    <div class="row g-4">
+
+                        <div class="col-12">
+                            <label asp-for="Inmueble"
+                                   class="form-label fw-semibold">
+                                Inmueble
+                            </label>
+
+                            <select asp-for="Inmueble.Id"
+                                    class="form-select">
+                                <option value="">
+                                    Seleccioná un inmueble
+                                </option>
+
+                                @foreach (var inmueble in inmuebles)
+                                {
+                                    <option value="@inmueble.Id">
+                                        @inmueble.Direccion
+                                    </option>
+                                }
+                            </select>
+
+                            <span asp-validation-for="Inmueble"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Inquilino"
+                                   class="form-label fw-semibold">
+                                Inquilino
+                            </label>
+
+                            <select asp-for="Inquilino.Id"
+                                    class="form-select">
+                                <option value="">
+                                    Seleccioná un inquilino
+                                </option>
+
+                                @foreach (var inquilino in inquilinos)
+                                {
+                                    <option value="@inquilino.Id">
+                                        @inquilino.Apellido, @inquilino.Nombre
+                                        — DNI @inquilino.Dni
+                                    </option>
+                                }
+                            </select>
+
+                            <span asp-validation-for="Inquilino"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label asp-for="FechaDesde"
+                                   class="form-label fw-semibold">
+                                Fecha desde
+                            </label>
+
+                            <input asp-for="FechaDesde"
+                                   type="date"
+                                   class="form-control" />
+
+                            <span asp-validation-for="FechaDesde"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label asp-for="FechaHasta"
+                                   class="form-label fw-semibold">
+                                Fecha hasta
+                            </label>
+
+                            <input asp-for="FechaHasta"
+                                   type="date"
+                                   class="form-control" />
+
+                            <span asp-validation-for="FechaHasta"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex flex-column flex-sm-row
+                                justify-content-end gap-2">
+
+                        <a asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            Cancelar
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-primary px-4">
+                            <i class="bi bi-calendar-check me-1"></i>
+                            Crear reserva
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

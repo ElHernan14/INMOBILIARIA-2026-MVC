@@ -1,58 +1,109 @@
 @model INMOBILIARIA.Models.Inquilino
 
 @{
-    ViewData["Title"] = "Eliminar";
+    ViewData["Title"] = "Eliminar inquilino";
 }
 
-<h1>
-	Eliminar Inquilino
+<div class="container py-4">
+    <div class="mx-auto" style="max-width: 850px;">
 
-    <div class="btn-group pull-right">
-		<a class="btn btn-primary" asp-action="Index" title="Volver">← Volver a inquilinos</i></a>
-	</div>
-</h1>
-<hr />
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+            <div>
+                <h1 class="h3 fw-bold mb-1">Eliminar Inquilino</h1>
+                <p class="text-muted mb-0">
+                    Revisá los datos antes de confirmar la eliminación.
+                </p>
+            </div>
 
-<h3>¿Seguro que desea eliminar el inquilino?</h3>
-<div>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Id)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nombre)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nombre)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Apellido)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Apellido)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Dni)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Dni)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete" method="post">
-        @Html.AntiForgeryToken()
-    
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Eliminar" class="btn btn-danger" /> 
-    </form>
+            <a class="btn btn-outline-secondary"
+               asp-action="Index"
+               title="Volver a inquilinos">
+                <i class="fa-solid fa-arrow-left me-2"></i>
+                Volver
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-header bg-danger-subtle border-0 py-3">
+                <div class="d-flex align-items-center gap-2 text-danger-emphasis">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span class="fw-semibold">
+                        Confirmación de eliminación
+                    </span>
+                </div>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+
+                <p class="mb-4">
+                    ¿Seguro que desea eliminar el inquilino?
+                </p>
+
+                <dl class="row g-0 mb-0">
+
+                    <dt class="col-12 col-sm-4 col-md-3 py-2 text-muted">
+                        @Html.DisplayNameFor(model => model.Id)
+                    </dt>
+                    <dd class="col-12 col-sm-8 col-md-9 py-2 fw-semibold">
+                        @Html.DisplayFor(model => model.Id)
+                    </dd>
+
+                    <dt class="col-12 col-sm-4 col-md-3 py-2 text-muted">
+                        @Html.DisplayNameFor(model => model.Nombre)
+                    </dt>
+                    <dd class="col-12 col-sm-8 col-md-9 py-2">
+                        @Html.DisplayFor(model => model.Nombre)
+                    </dd>
+
+                    <dt class="col-12 col-sm-4 col-md-3 py-2 text-muted">
+                        @Html.DisplayNameFor(model => model.Apellido)
+                    </dt>
+                    <dd class="col-12 col-sm-8 col-md-9 py-2">
+                        @Html.DisplayFor(model => model.Apellido)
+                    </dd>
+
+                    <dt class="col-12 col-sm-4 col-md-3 py-2 text-muted">
+                        @Html.DisplayNameFor(model => model.Dni)
+                    </dt>
+                    <dd class="col-12 col-sm-8 col-md-9 py-2">
+                        @Html.DisplayFor(model => model.Dni)
+                    </dd>
+
+                    <dt class="col-12 col-sm-4 col-md-3 py-2 text-muted">
+                        @Html.DisplayNameFor(model => model.Email)
+                    </dt>
+                    <dd class="col-12 col-sm-8 col-md-9 py-2">
+                        @Html.DisplayFor(model => model.Email)
+                    </dd>
+
+                </dl>
+
+                <div class="d-flex flex-column flex-sm-row justify-content-end gap-2 mt-4 pt-3 border-top">
+
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary">
+                        Cancelar
+                    </a>
+
+                    <form asp-action="Delete"
+                          method="post">
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               asp-for="Id" />
+
+                        <button type="submit"
+                                class="btn btn-danger w-100">
+                            <i class="fa-solid fa-trash-can me-2"></i>
+                            Eliminar inquilino
+                        </button>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
 </div>

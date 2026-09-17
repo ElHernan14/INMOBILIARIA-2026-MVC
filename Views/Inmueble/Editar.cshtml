@@ -1,0 +1,781 @@
+@model INMOBILIARIA.Models.Inmueble
+
+@{
+    ViewData["Title"] = "Editar inmueble";
+
+    IEnumerable<INMOBILIARIA.Models.Propietario> propietarios =
+        ViewBag.Propietarios ??
+        Enumerable.Empty<INMOBILIARIA.Models.Propietario>();
+
+    IEnumerable<INMOBILIARIA.Models.TipoInmueble> tiposInmueble =
+        ViewBag.TiposInmueble ??
+        Enumerable.Empty<INMOBILIARIA.Models.TipoInmueble>();
+
+    IEnumerable<INMOBILIARIA.Models.ImagenInmueble> imagenes =
+        ViewBag.Imagenes ??
+        Enumerable.Empty<INMOBILIARIA.Models.ImagenInmueble>();
+}
+
+<div class="container py-4">
+    <div class="mx-auto" style="max-width: 1050px;">
+
+        <!-- Encabezado -->
+        <div class="d-flex align-items-center gap-3 mb-4">
+
+            <a asp-action="Detalle"
+               asp-route-id="@Model.Id"
+               class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+
+            <div>
+                <h1 class="h3 fw-bold mb-1">
+                    Editar inmueble
+                </h1>
+
+                <p class="text-body-secondary mb-0">
+                    Modificá los datos y las imágenes de la propiedad.
+                </p>
+            </div>
+
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All"
+                class="alert alert-danger shadow-sm"
+                role="alert">
+            </div>
+        }
+
+        <form asp-action="Editar"
+              method="post"
+              enctype="multipart/form-data"
+              id="formEditarInmueble">
+
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id" type="hidden" />
+
+            <input type="hidden"
+                name="inmuebleId"
+                value="@Model.Id" />
+
+            <!-- Información general -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-body border-0
+                            px-3 px-md-4 pt-4 pb-2">
+
+                    <h2 class="h5 fw-bold mb-1">
+                        Información general
+                    </h2>
+
+                    <p class="small text-body-secondary mb-0">
+                        Datos principales de la propiedad.
+                    </p>
+
+                </div>
+
+                <div class="card-body px-3 px-md-4 pb-4">
+
+                    <div class="row g-4">
+
+                        <!-- Tipo -->
+                        <div class="col-12 col-md-6">
+
+                            <label asp-for="TipoInmueble.Id"
+                                   class="form-label fw-semibold">
+                                Tipo de inmueble
+                            </label>
+
+                            <select asp-for="TipoInmueble.Id"
+                                    class="form-select">
+
+                                <option value="">
+                                    Seleccioná un tipo
+                                </option>
+
+                                @foreach (var tipo in tiposInmueble)
+                                {
+                                    <option value="@tipo.Id">
+                                        @tipo.Nombre
+                                    </option>
+                                }
+
+                            </select>
+
+                            <span asp-validation-for="TipoInmueble.Id"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                        <!-- Propietario -->
+                        <div class="col-12 col-md-6">
+
+                            <label asp-for="Propietario.Id"
+                                   class="form-label fw-semibold">
+                                Propietario
+                            </label>
+
+                            <select asp-for="Propietario.Id"
+                                    class="form-select">
+
+                                <option value="">
+                                    Seleccioná un propietario
+                                </option>
+
+                                @foreach (var propietario in propietarios)
+                                {
+                                    <option value="@propietario.Id">
+                                        @propietario.Nombre
+                                        @propietario.Apellido
+                                        — DNI @propietario.Dni
+                                    </option>
+                                }
+
+                            </select>
+
+                            <span asp-validation-for="Propietario.Id"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                        <!-- Dirección -->
+                        <div class="col-12">
+
+                            <label asp-for="Direccion"
+                                   class="form-label fw-semibold">
+                                Dirección
+                            </label>
+
+                            <input asp-for="Direccion"
+                                   class="form-control" />
+
+                            <span asp-validation-for="Direccion"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Ubicación -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-body border-0
+                            px-3 px-md-4 pt-4 pb-2">
+
+                    <h2 class="h5 fw-bold mb-1">
+                        Ubicación
+                    </h2>
+
+                </div>
+
+                <div class="card-body px-3 px-md-4 pb-4">
+
+                    <div class="row g-4">
+
+                        <div class="col-12 col-md-6">
+
+                            <label asp-for="Latitud"
+                                   class="form-label fw-semibold">
+                                Latitud
+                            </label>
+
+                            <input asp-for="Latitud"
+                                   class="form-control"
+                                   type="number"
+                                   step="any" />
+
+                            <span asp-validation-for="Latitud"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                        <div class="col-12 col-md-6">
+
+                            <label asp-for="Longitud"
+                                   class="form-label fw-semibold">
+                                Longitud
+                            </label>
+
+                            <input asp-for="Longitud"
+                                   class="form-control"
+                                   type="number"
+                                   step="any" />
+
+                            <span asp-validation-for="Longitud"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Condiciones -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-body border-0
+                            px-3 px-md-4 pt-4 pb-2">
+
+                    <h2 class="h5 fw-bold mb-1">
+                        Condiciones
+                    </h2>
+
+                </div>
+
+                <div class="card-body px-3 px-md-4 pb-4">
+
+                    <div class="row g-4">
+
+                        <div class="col-12 col-md-4">
+
+                            <label asp-for="Cupo"
+                                   class="form-label fw-semibold">
+                                Cupo
+                            </label>
+
+                            <input asp-for="Cupo"
+                                   class="form-control"
+                                   type="number"
+                                   min="1"
+                                   step="1" />
+
+                            <span asp-validation-for="Cupo"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                        <div class="col-12 col-md-4">
+
+                            <label asp-for="PrecioDia"
+                                   class="form-label fw-semibold">
+                                Precio por día
+                            </label>
+
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+
+                                <input asp-for="PrecioDia"
+                                       class="form-control"
+                                       type="number"
+                                       min="0"
+                                       step="0.01" />
+                            </div>
+
+                            <span asp-validation-for="PrecioDia"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                        <div class="col-12 col-md-4">
+
+                            <label asp-for="PorcentajeReserva"
+                                   class="form-label fw-semibold">
+                                Porcentaje de reserva
+                            </label>
+
+                            <div class="input-group">
+
+                                <input asp-for="PorcentajeReserva"
+                                       class="form-control"
+                                       type="number"
+                                       min="0"
+                                       max="100"
+                                       step="0.01" />
+
+                                <span class="input-group-text">%</span>
+
+                            </div>
+
+                            <span asp-validation-for="PorcentajeReserva"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Estados -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-body border-0
+                            px-3 px-md-4 pt-4 pb-2">
+
+                    <h2 class="h5 fw-bold mb-1">
+                        Estado
+                    </h2>
+
+                </div>
+
+                <div class="card-body px-3 px-md-4 pb-4">
+
+                    <div class="row g-3">
+
+                        <div class="col-12 col-md-6">
+
+                            <div class="form-check form-switch">
+
+                                <input asp-for="Disponible"
+                                       class="form-check-input"
+                                       role="switch" />
+
+                                <label asp-for="Disponible"
+                                       class="form-check-label fw-semibold">
+                                    Disponible
+                                </label>
+
+                            </div>
+
+                            <div class="small text-body-secondary mt-1">
+                                Permite nuevas reservas.
+                            </div>
+
+                        </div>
+
+                        <div class="col-12 col-md-6">
+
+                            <div class="form-check form-switch">
+
+                                <input asp-for="Activo"
+                                       class="form-check-input"
+                                       role="switch" />
+
+                                <label asp-for="Activo"
+                                       class="form-check-label fw-semibold">
+                                    Activo
+                                </label>
+
+                            </div>
+
+                            <div class="small text-body-secondary mt-1">
+                                Mantiene activo el registro.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Imágenes existentes -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-body border-0
+                            px-3 px-md-4 pt-4 pb-2">
+
+                    <div class="d-flex justify-content-between
+                                align-items-center gap-3">
+
+                        <div>
+                            <h2 class="h5 fw-bold mb-1">
+                                Imágenes actuales
+                            </h2>
+
+                            <p class="small text-body-secondary mb-0">
+                                Administrá la galería y la imagen de portada.
+                            </p>
+                        </div>
+
+                        <span class="badge rounded-pill
+                                     bg-primary-subtle
+                                     text-primary-emphasis
+                                     border border-primary-subtle">
+                            @imagenes.Count() / 6
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="card-body px-3 px-md-4 pb-4">
+
+                    @if (!imagenes.Any())
+                    {
+                        <div class="rounded-3 bg-body-secondary
+                                    text-center p-4">
+
+                            <i class="bi bi-images display-6
+                                      text-body-secondary"></i>
+
+                            <div class="fw-semibold mt-2">
+                                No hay imágenes cargadas
+                            </div>
+
+                            <div class="small text-body-secondary">
+                                Podés agregar imágenes desde esta misma pantalla.
+                            </div>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row g-3">
+
+                            @foreach (var imagen in imagenes)
+                            {
+                                <div class="col-12 col-sm-6 col-lg-4">
+
+                                    <div class="card h-100 border">
+
+                                        <div class="position-relative">
+
+                                            <img src="@imagen.Path"
+                                                 alt="Imagen del inmueble"
+                                                 class="card-img-top"
+                                                 style="height: 180px; object-fit: cover;" />
+
+                                            @if (imagen.EsPortada)
+                                            {
+                                                <span class="position-absolute
+                                                             top-0 start-0
+                                                             m-2 badge
+                                                             text-bg-primary">
+                                                    <i class="bi bi-star-fill me-1"></i>
+                                                    Portada
+                                                </span>
+                                            }
+
+                                        </div>
+
+                                        <div class="card-body p-3">
+
+                                            <div class="d-flex gap-2">
+
+                                                @if (!imagen.EsPortada)
+                                                {
+                                                    <button type="submit"
+                                                        class="btn btn-sm btn-outline-primary w-100 flex-grow-1"
+                                                        formaction="@Url.Action("EstablecerPortada")"
+                                                        formmethod="post"
+                                                        name="imagenId"
+                                                        value="@imagen.Id"
+                                                        formnovalidate>
+                                                    <i class="bi bi-star me-1"></i>
+                                                    Usar portada
+                                                </button>
+                                                }
+                                                else
+                                                {
+                                                    <div class="flex-grow-1">
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-light w-100"
+                                                                disabled>
+                                                            <i class="bi bi-check2 me-1"></i>
+                                                            Portada actual
+                                                        </button>
+                                                    </div>
+                                                }
+
+                                                <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    title="Eliminar imagen"
+                                                    formaction="@Url.Action("EliminarImagen")"
+                                                    formmethod="post"
+                                                    name="imagenId"
+                                                    value="@imagen.Id"
+                                                    onclick="return confirm('¿Seguro que querés eliminar esta imagen?');"
+                                                    formnovalidate>
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            }
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+            <!-- Agregar imágenes -->
+            @if (imagenes.Count() < 6)
+            {
+                <div class="card border-0 shadow-sm mb-4">
+
+                    <div class="card-header bg-body border-0
+                                px-3 px-md-4 pt-4 pb-2">
+
+                        <h2 class="h5 fw-bold mb-1">
+                            Agregar imágenes
+                        </h2>
+
+                        <p class="small text-body-secondary mb-0">
+                            Podés agregar hasta
+                            @(6 - imagenes.Count())
+                            @(6 - imagenes.Count() == 1
+                                ? "imagen más."
+                                : "imágenes más.")
+                        </p>
+
+                    </div>
+
+                    <div class="card-body px-3 px-md-4 pb-4">
+
+                        <label for="nuevasImagenes"
+                               class="form-label fw-semibold">
+                            Nuevas imágenes
+                        </label>
+
+                        <input type="file"
+                               id="nuevasImagenes"
+                               name="nuevasImagenes"
+                               class="form-control"
+                               accept="image/*"
+                               multiple />
+
+                        <div class="form-text">
+                            La primera imagen agregada no será portada
+                            automáticamente. Podés establecerla como portada
+                            desde la galería.
+                        </div>
+
+                        <div id="mensajeNuevasImagenes"
+                             class="small text-danger mt-2 d-none">
+                        </div>
+
+                        <div id="previewNuevasImagenes"
+                             class="row g-2 mt-2">
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+            <!-- Nueva portada -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-body border-0
+                            px-3 px-md-4 pt-4 pb-2">
+
+                    <h2 class="h5 fw-bold mb-1">
+                        Cambiar portada
+                    </h2>
+
+                    <p class="small text-body-secondary mb-0">
+                        Si cargás una nueva imagen, reemplazará la portada actual.
+                    </p>
+
+                </div>
+
+                <div class="card-body px-3 px-md-4 pb-4">
+
+                    <div class="d-flex flex-column flex-md-row
+                                gap-3 align-items-md-center">
+
+                        <div id="previewNuevaPortada"
+                             class="rounded-3 bg-body-secondary
+                                    d-flex align-items-center
+                                    justify-content-center flex-shrink-0"
+                             style="width: 110px; height: 80px;">
+
+                            <i class="bi bi-image
+                                      text-body-secondary fs-3">
+                            </i>
+
+                        </div>
+
+                        <div class="flex-grow-1">
+
+                            <input type="file"
+                                   id="nuevaPortada"
+                                   name="nuevaPortada"
+                                   class="form-control"
+                                   accept="image/*" />
+
+                            <div class="form-text">
+                                Esta imagen se guardará como
+                                <strong>es_portada = true</strong>.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Acciones -->
+            <div class="d-flex flex-column-reverse
+                        flex-sm-row
+                        justify-content-end
+                        gap-2">
+
+                <a asp-action="Detalle"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-outline-secondary">
+                    Cancelar
+                </a>
+
+                <button type="submit"
+                        class="btn btn-primary px-4"
+                        id="btnGuardar">
+
+                    <i class="bi bi-check-lg me-1"></i>
+                    Guardar cambios
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        const nuevaPortada =
+            document.getElementById("nuevaPortada");
+
+        const previewNuevaPortada =
+            document.getElementById("previewNuevaPortada");
+
+        const nuevasImagenes =
+            document.getElementById("nuevasImagenes");
+
+        const previewNuevasImagenes =
+            document.getElementById("previewNuevasImagenes");
+
+        const mensajeNuevasImagenes =
+            document.getElementById("mensajeNuevasImagenes");
+
+        const imagenesActuales =
+            @imagenes.Count();
+
+        const maximoImagenes =
+            6;
+
+        if (nuevaPortada) {
+
+            nuevaPortada.addEventListener("change", function () {
+
+                previewNuevaPortada.innerHTML = "";
+
+                const archivo = this.files[0];
+
+                if (!archivo) {
+                    previewNuevaPortada.innerHTML =
+                        '<i class="bi bi-image text-body-secondary fs-3"></i>';
+
+                    return;
+                }
+
+                const imagen =
+                    document.createElement("img");
+
+                imagen.src =
+                    URL.createObjectURL(archivo);
+
+                imagen.className =
+                    "w-100 h-100 object-fit-cover rounded-3";
+
+                previewNuevaPortada.appendChild(imagen);
+            });
+        }
+
+        if (nuevasImagenes) {
+
+            nuevasImagenes.addEventListener("change", function () {
+
+                previewNuevasImagenes.innerHTML = "";
+                mensajeNuevasImagenes.classList.add("d-none");
+                mensajeNuevasImagenes.textContent = "";
+
+                const archivos =
+                    Array.from(this.files);
+
+                const tieneNuevaPortada =
+                    nuevaPortada &&
+                    nuevaPortada.files.length > 0
+                        ? 1
+                        : 0;
+
+                const cantidadDisponible =
+                    maximoImagenes
+                    - imagenesActuales
+                    - tieneNuevaPortada;
+
+                if (archivos.length > cantidadDisponible) {
+
+                    mensajeNuevasImagenes.textContent =
+                        "Solo podés agregar "
+                        + cantidadDisponible
+                        + " imagen"
+                        + (cantidadDisponible === 1
+                            ? ""
+                            : "es")
+                        + " más.";
+
+                    mensajeNuevasImagenes.classList.remove("d-none");
+
+                    this.value = "";
+
+                    return;
+                }
+
+                archivos.forEach(function (archivo) {
+
+                    const columna =
+                        document.createElement("div");
+
+                    columna.className =
+                        "col-6 col-sm-4 col-md-3 col-lg-2";
+
+                    const contenedor =
+                        document.createElement("div");
+
+                    contenedor.className =
+                        "ratio ratio-1x1 rounded-3 overflow-hidden bg-body-secondary";
+
+                    const imagen =
+                        document.createElement("img");
+
+                    imagen.src =
+                        URL.createObjectURL(archivo);
+
+                    imagen.className =
+                        "w-100 h-100 object-fit-cover";
+
+                    contenedor.appendChild(imagen);
+                    columna.appendChild(contenedor);
+
+                    previewNuevasImagenes.appendChild(columna);
+                });
+            });
+        }
+    </script>
+}

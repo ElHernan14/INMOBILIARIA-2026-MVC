@@ -4,14 +4,18 @@ namespace INMOBILIARIA.Models.Interfaces
 {
     public interface IRepositorioInmueble : IRepositorio<Inmueble>
     {
-        //int Alta(Inmueble inmueble);
-
-        //int Baja(int id);
-
-        //int Modificacion(Inmueble inmueble);
-
-        //Inmueble ObtenerPorId(int id);
-
         IEnumerable<Inmueble> ObtenerTodos();
+
+        IEnumerable<Inmueble> ObtenerTodos(
+            string termino,
+            bool? disponible,
+            bool? activo,
+            int limit,
+            int page);
+
+        int Contar(
+            string termino,
+            bool? disponible,
+            bool? activo);
     }
 }

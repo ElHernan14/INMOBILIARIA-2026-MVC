@@ -2,168 +2,340 @@
 
 @{
     ViewData["Title"] = "Inquilinos";
+
     var page = ViewBag.page ?? 1;
-	var TotalPaginas = ViewBag.TotalPaginas ?? 1;
+    var TotalPaginas = ViewBag.TotalPaginas ?? 1;
 
     var nombre = ViewBag.nombre ?? "";
     var apellido = ViewBag.apellido ?? "";
     var dni = ViewBag.dni ?? "";
     var email = ViewBag.email ?? "";
-
 }
 
-<h1>
-	Inquilinos
-	<div class="btn-group pull-right">
-		<a class="btn btn-primary" asp-action="Create" title="Crear"><i class="fa-solid fa-plus"></i></a>
-	</div>
-</h1>
+<div class="container py-4">
+    <div class="mx-auto" style="max-width: 1250px;">
 
-<form class="w-100 p-3 bg-light rounded border shadow-sm my-3" id="filtroInquilinoIndex">
-  <div class="row g-2 align-items-end">
-    
-    <!-- Campo: Nombre -->
-    <div class="col-md">
-      <label for="buscarNombre" class="form-label fw-bold small text-muted">Nombre</label>
-      <input type="text" class="form-control" id="buscarNombre" placeholder="Ej: Juan" value="@(nombre)">
+        <!-- Encabezado -->
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+
+            <div>
+                <h1 class="h3 fw-bold mb-1">Inquilinos</h1>
+                <p class="text-muted mb-0">
+                    Administración y búsqueda de inquilinos registrados.
+                </p>
+            </div>
+
+            <a class="btn btn-primary"
+               asp-action="Create"
+               title="Crear inquilino">
+                <i class="fa-solid fa-plus me-2"></i>
+                Nuevo inquilino
+            </a>
+
+        </div>
+
+        <!-- Filtros -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-3 p-md-4">
+
+                <form id="filtroInquilinoIndex">
+
+                    <div class="row g-3 align-items-end">
+
+                        <!-- Nombre -->
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <label for="buscarNombre"
+                                   class="form-label fw-semibold small text-muted">
+                                Nombre
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   id="buscarNombre"
+                                   placeholder="Ej: Juan"
+                                   value="@(nombre)">
+                        </div>
+
+                        <!-- Apellido -->
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <label for="buscarApellido"
+                                   class="form-label fw-semibold small text-muted">
+                                Apellido
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   id="buscarApellido"
+                                   placeholder="Ej: Pérez"
+                                   value="@(apellido)">
+                        </div>
+
+                        <!-- DNI -->
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <label for="buscarDni"
+                                   class="form-label fw-semibold small text-muted">
+                                DNI / Documento
+                            </label>
+
+                            <input type="number"
+                                   class="form-control"
+                                   id="buscarDni"
+                                   placeholder="Ej: 12345678"
+                                   value="@(dni)">
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <label for="buscarEmail"
+                                   class="form-label fw-semibold small text-muted">
+                                Email
+                            </label>
+
+                            <input type="email"
+                                   class="form-control"
+                                   id="buscarEmail"
+                                   placeholder="ejemplo@correo.com"
+                                   value="@(email)">
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="col-12 d-flex flex-column flex-sm-row justify-content-end gap-2 pt-1">
+
+                            <button type="reset"
+                                    class="btn btn-outline-secondary">
+                                Limpiar
+                            </button>
+
+                            <button type="submit"
+                                    class="btn btn-primary px-4">
+                                <i class="fa-solid fa-magnifying-glass me-2"></i>
+                                Buscar
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body p-0">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-light">
+                            <tr>
+
+                                <th class="px-3 py-3">
+                                    @Html.DisplayNameFor(model => model.Id)
+                                </th>
+
+                                <th class="py-3">
+                                    @Html.DisplayNameFor(model => model.Nombre)
+                                </th>
+
+                                <th class="py-3">
+                                    @Html.DisplayNameFor(model => model.Apellido)
+                                </th>
+
+                                <th class="py-3">
+                                    @Html.DisplayNameFor(model => model.Dni)
+                                </th>
+
+                                <th class="py-3">
+                                    @Html.DisplayNameFor(model => model.Email)
+                                </th>
+
+                                <th class="text-end px-3 py-3">
+                                    Acciones
+                                </th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+
+                                    <td class="px-3 fw-semibold">
+                                        @Html.DisplayFor(modelItem => item.Id)
+                                    </td>
+
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Nombre)
+                                    </td>
+
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Apellido)
+                                    </td>
+
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Dni)
+                                    </td>
+
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Email)
+                                    </td>
+
+                                    <td class="text-end px-3">
+
+                                        <div class="d-flex justify-content-end gap-2">
+
+                                            <a class="btn btn-sm btn-outline-primary"
+                                               asp-action="Update"
+                                               asp-route-id="@item.Id"
+                                               title="Editar">
+
+                                                <i class="fa-solid fa-pen"></i>
+                                                <span class="d-none d-md-inline ms-1">
+                                                    Editar
+                                                </span>
+
+                                            </a>
+
+                                            @if (User.IsInRole("ADMINISTRADOR"))
+                                            {
+                                                <a class="btn btn-sm btn-outline-danger"
+                                                   asp-action="Delete"
+                                                   asp-route-id="@item.Id"
+                                                   title="Eliminar">
+
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                    <span class="d-none d-md-inline ms-1">
+                                                        Eliminar
+                                                    </span>
+
+                                                </a>
+                                            }
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Paginación -->
+        <nav aria-label="Page navigation"
+             class="mt-4">
+
+            <ul class="pagination justify-content-center flex-wrap mb-0">
+
+                <!-- Anterior -->
+                @if (page > 1)
+                {
+                    <li class="page-item">
+
+                        <a class="page-link"
+                           href="~/Inquilino/Index?nombre=@(nombre)&apellido=@(apellido)&dni=@(dni)&email=@(email)&page=@(page - 1)"
+                           aria-label="Anterior">
+
+                            <i class="fa-solid fa-angles-left"></i>
+                            <span class="d-none d-sm-inline ms-1">
+                                Anterior
+                            </span>
+
+                        </a>
+
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+
+                        <span class="page-link">
+
+                            <i class="fa-solid fa-angles-left"></i>
+                            <span class="d-none d-sm-inline ms-1">
+                                Anterior
+                            </span>
+
+                        </span>
+
+                    </li>
+                }
+
+                <!-- Números -->
+                @for (int i = 1; i <= TotalPaginas; i++)
+                {
+                    <li class="page-item @(i == page ? "active" : "")">
+
+                        <a class="page-link"
+                           href="~/Inquilino/Index?nombre=@(nombre)&apellido=@(apellido)&dni=@(dni)&email=@(email)&page=@i">
+                            @i
+                        </a>
+
+                    </li>
+                }
+
+                <!-- Siguiente -->
+                @if (page < TotalPaginas)
+                {
+                    <li class="page-item">
+
+                        <a class="page-link"
+                           href="~/Inquilino/Index?nombre=@(nombre)&apellido=@(apellido)&dni=@(dni)&email=@(email)&page=@(page + 1)"
+                           aria-label="Siguiente">
+
+                            <span class="d-none d-sm-inline me-1">
+                                Siguiente
+                            </span>
+
+                            <i class="fa-solid fa-angles-right"></i>
+
+                        </a>
+
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+
+                        <span class="page-link">
+
+                            <span class="d-none d-sm-inline me-1">
+                                Siguiente
+                            </span>
+
+                            <i class="fa-solid fa-angles-right"></i>
+
+                        </span>
+
+                    </li>
+                }
+
+            </ul>
+
+        </nav>
+
     </div>
-
-    <!-- Campo: Apellido -->
-    <div class="col-md">
-      <label for="buscarApellido" class="form-label fw-bold small text-muted">Apellido</label>
-      <input type="text" class="form-control" id="buscarApellido" placeholder="Ej: Pérez" value="@(apellido)">
-    </div>
-
-    <!-- Campo: DNI -->
-    <div class="col-md">
-      <label for="buscarDni" class="form-label fw-bold small text-muted">DNI / Documento</label>
-      <input type="number" class="form-control" id="buscarDni" placeholder="Ej: 12345678" value="@(dni)">
-    </div>
-
-    <!-- Campo: Email -->
-    <div class="col-md">
-      <label for="buscarEmail" class="form-label fw-bold small text-muted">Email</label>
-      <input type="email" class="form-control" id="buscarEmail" placeholder="ejemplo@correo.com" value="@(email)">
-    </div>
-
-    <!-- Botones de Acción -->
-    <div class="col-md-auto d-flex gap-2 mt-3 mt-md-0">
-      <button type="submit" class="btn btn-primary px-3">
-        🔍 Buscar
-      </button>
-      <button type="reset" class="btn btn-outline-secondary" title="Limpiar campos">
-        Limpiar
-      </button>
-    </div>
-
-  </div>
-</form>
-<table class="table table-striped">
-	<thead>
-		<tr>
-			<th>
-				@Html.DisplayNameFor(model => model.Id)
-			</th>
-			<th>
-				@Html.DisplayNameFor(model => model.Nombre)
-			</th>
-			<th>
-				@Html.DisplayNameFor(model => model.Apellido)
-			</th>
-			<th>
-				@Html.DisplayNameFor(model => model.Dni)
-			</th>
-			<th>
-				@Html.DisplayNameFor(model => model.Email)
-			</th>
-			<th></th>
-		</tr>
-	</thead>
-	<tbody>
-		@foreach (var item in Model)
-		{
-			<tr>
-				<td>
-					@Html.DisplayFor(modelItem => item.Id)
-				</td>
-				<td>
-					@Html.DisplayFor(modelItem => item.Nombre)
-				</td>
-				<td>
-					@Html.DisplayFor(modelItem => item.Apellido)
-				</td>
-				<td>
-					@Html.DisplayFor(modelItem => item.Dni)
-				</td>
-				<td>
-					@Html.DisplayFor(modelItem => item.Email)
-				</td>
-				<td>
-					<div class="btn-group" role="group">
-						<a class="btn btn-primary" asp-action="Update" asp-route-id="@item.Id" title="Editar">
-							<i class="fa-solid fa-pen"></i>
-						</a>
-						@if (User.IsInRole("ADMINISTRADOR"))
-						{
-							<a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id" title="Eliminar">
-								<i class="fa-solid fa-trash-can"></i>
-							</a>
-						}
-					</div>
-				</td>
-			</tr>
-		}
-	</tbody>
-</table>
-
-<!-- Paginación -->
-<nav aria-label="Page navigation">
-	<ul class="pagination">
-		<!-- Botón "Anterior" -->
-		@if (page > 1)
-		{
-			<li class="page-item">
-				<a class="page-link" href="~/Inquilino/Index?nombre=@(nombre)&apellido=@(apellido)&dni=@(dni)&email=@(email)&page=@(page - 1)" aria-label="Anterior">
-					<i class="fa-solid fa-angles-left"></i>
-				</a>
-			</li>
-		}
-		else
-		{
-			<li class="page-item disabled">
-				<span class="page-link"><i class="fa-solid fa-angles-left"></i></span>
-			</li>
-		}
-
-		<!-- Números de página -->
-		@for (int i = 1; i <= TotalPaginas; i++)
-		{
-			<li class="page-item @(i == page ? "active" : "")">
-				<a class="page-link" href="~/Inquilino/Index?nombre=@(nombre)&apellido=@(apellido)&dni=@(dni)&email=@(email)&page=@i">@i</a>
-			</li>
-		}
-		<!-- Botón "Siguiente" -->
-		@if (page < TotalPaginas)
-		{
-			<li class="page-item">
-				<a class="page-link" href="~/Inquilino/Index?nombre=@(nombre)&apellido=@(apellido)&dni=@(dni)&email=@(email)&page=@(page + 1)" aria-label="Siguiente">
-					<i class="fa-solid fa-angles-right"></i>
-				</a>
-			</li>
-		}
-		else
-		{
-			<li class="page-item disabled">
-				<span class="page-link"><i class="fa-solid fa-angles-right"></i></span>
-			</li>
-		}
-	</ul>
-</nav>
+</div>
 
 @section Scripts {
+
     <script>
         document.querySelector("#filtroInquilinoIndex").addEventListener("submit", (e) => {
             e.preventDefault();
+
             // Obtener los valores de los inputs
             const nombre = $("#buscarNombre").val().trim();
             const apellido = $("#buscarApellido").val().trim();
@@ -180,13 +352,14 @@
 
             // Ruta base del controlador Razor / ASP.NET MVC
             const baseUrl = '@Url.Action("Index", "Inquilino")';
-            
-            // Construir la URL final (ejemplo: /Inquilinos/Index?nombre=juan&dni=123)
+
+            // Construir la URL final
             const queryString = params.toString();
             const nuevaUrl = queryString ? `${baseUrl}?${queryString}` : baseUrl;
 
-            // Redirigir el navegador a la nueva URL (Simula la recarga nativa)
+            // Redirigir el navegador
             window.location.href = nuevaUrl;
         });
     </script>
+
 }

@@ -1,60 +1,135 @@
 @model Propietario
 
 @{
-	ViewData["Title"] = "Editar propietario";
+    ViewData["Title"] = "Editar propietario";
 }
 
-<div class="row justify-content-center">
-	<div class="col-12 col-md-8 col-lg-6">
-		<h1 class="h2 mb-4">Editar propietario</h1>
+<div class="container py-4">
+    <div class="mx-auto" style="max-width: 850px;">
 
-		@if (TempData["SuccessMessage"] is string successMessage)
-		{
-			<div class="alert alert-success" role="alert">@successMessage</div>
-		}
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+            <div>
+                <h1 class="h3 fw-bold mb-1">Editar propietario</h1>
+                <p class="text-muted mb-0">
+                    Actualizá los datos del propietario.
+                </p>
+            </div>
 
-		<form id="updatePropietarioForm"
-			  asp-action="Update"
-			  asp-controller="Propietario"
-			  method="post">
-			@Html.AntiForgeryToken()
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+                <i class="fa-solid fa-arrow-left me-2"></i>
+                Volver
+            </a>
+        </div>
 
-			<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        @if (TempData["SuccessMessage"] is string successMessage)
+        {
+            <div class="alert alert-success shadow-sm"
+                 role="alert">
+                @successMessage
+            </div>
+        }
 
-			<div class="row g-3">
-				<div class="col-md-6">
-					<label asp-for="Nombre" class="form-label"></label>
-					<input asp-for="Nombre" class="form-control" autocomplete="given-name" />
-					<span asp-validation-for="Nombre" class="text-danger"></span>
-				</div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5">
 
-				<div class="col-md-6">
-					<label asp-for="Apellido" class="form-label"></label>
-					<input asp-for="Apellido" class="form-control" autocomplete="family-name" />
-					<span asp-validation-for="Apellido" class="text-danger"></span>
-				</div>
+                <form id="updatePropietarioForm"
+                      asp-action="Update"
+                      asp-controller="Propietario"
+                      method="post">
 
-				<div class="col-md-12">
-					<label asp-for="Dni" class="form-label">DNI</label>
-					<input asp-for="Dni" class="form-control" inputmode="numeric" />
-					<span asp-validation-for="Dni" class="text-danger"></span>
-				</div>
+                    @Html.AntiForgeryToken()
 
-				<div class="col-md-12">
-					<label asp-for="Email" class="form-label"></label>
-					<input asp-for="Email" class="form-control" type="email" autocomplete="email" />
-					<span asp-validation-for="Email" class="text-danger"></span>
-				</div>
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger"
+                         role="alert">
+                    </div>
 
-				<div class="col-12 d-flex justify-content-end gap-2 mt-4">
-					<a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
-					<button type="submit" class="btn btn-primary">Editar propietario</button>
-				</div>
-			</div>
-		</form>
-	</div>
+                    <div class="row g-3">
+
+                        <div class="col-12 col-md-6">
+                            <label asp-for="Nombre"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <input asp-for="Nombre"
+                                   class="form-control"
+                                   autocomplete="given-name" />
+
+                            <span asp-validation-for="Nombre"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label asp-for="Apellido"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <input asp-for="Apellido"
+                                   class="form-control"
+                                   autocomplete="family-name" />
+
+                            <span asp-validation-for="Apellido"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Dni"
+                                   class="form-label fw-semibold">
+                                DNI
+                            </label>
+
+                            <input asp-for="Dni"
+                                   class="form-control"
+                                   inputmode="numeric" />
+
+                            <span asp-validation-for="Dni"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Email"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <input asp-for="Email"
+                                   class="form-control"
+                                   type="email"
+                                   autocomplete="email" />
+
+                            <span asp-validation-for="Email"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex flex-column flex-sm-row justify-content-end gap-2 mt-4 pt-3 border-top">
+
+                        <a asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            Cancelar
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            <i class="fa-solid fa-check me-2"></i>
+                            Guardar cambios
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
 </div>
 
 @section Scripts {
-	<partial name="_ValidationScriptsPartial" />
+    <partial name="_ValidationScriptsPartial" />
 }

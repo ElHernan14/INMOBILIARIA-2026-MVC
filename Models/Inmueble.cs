@@ -18,8 +18,11 @@ namespace INMOBILIARIA.Models
         [StringLength(255, ErrorMessage = "La dirección supera la longitud permitida")]
         public string Direccion { get; set; } = string.Empty;
 
-        [StringLength(100, ErrorMessage = "Las coordenadas superan la longitud permitida")]
-        public string Cordenadas { get; set; } = string.Empty;
+        [Range(-90, 90, ErrorMessage = "La latitud debe estar entre -90 y 90.")]
+        public decimal? Latitud { get; set; }
+
+        [Range(-180, 180, ErrorMessage = "La longitud debe estar entre -180 y 180.")]
+        public decimal? Longitud { get; set; }
 
         [Required(ErrorMessage = "El cupo es obligatorio.")]
         [Range(1, int.MaxValue, ErrorMessage = "El cupo debe ser mayor a 0.")]

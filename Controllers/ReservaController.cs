@@ -1,4 +1,4 @@
-using System.Reflection.Metadata.Ecma335;
+using System.Security.Claims;
 using INMOBILIARIA.Models;
 using INMOBILIARIA.Models.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -9,82 +9,227 @@ namespace INMOBILIARIA.Controllers
     public class ReservaController : Controller
     {
         private readonly IRepositorioReserva repositorioReserva;
-        private readonly IConfiguration configuration;
+        private readonly IRepositorioInmueble repositorioInmueble;
+        private readonly IRepositorioInquilino repositorioInquilino;
+        private readonly IRepositorioUsuario repositorioUsuario;
 
         public ReservaController(
-            IRepositorioReserva repositorioInmueble,
-            IConfiguration configuration)
+            IRepositorioReserva repositorioReserva,
+            IRepositorioInmueble repositorioInmueble,
+            IRepositorioInquilino repositorioInquilino,
+            IRepositorioUsuario repositorioUsuario)
         {
-            this.repositorioReserva = repositorioInmueble;
-            this.configuration = configuration;
+            this.repositorioReserva = repositorioReserva;
+            this.repositorioInmueble = repositorioInmueble;
+            this.repositorioInquilino = repositorioInquilino;
+            this.repositorioUsuario = repositorioUsuario;
         }
 
         [HttpGet]
         [Authorize]
         public ActionResult Index(int page = 1, int limit = 10)
         {
-            PagedResults<Reserva> reservas = repositorioReserva.ObtenerTodas(page, limit);
+            PagedResults<Reserva> reservas =
+                repositorioReserva.ObtenerTodas(page, limit);
+
             return View(reservas);
         }
 
+        [HttpGet]
+        [Authorize]
+        public ActionResult Create()
+        {
+            CargarDatosFormulario();
+
+            Reserva reserva = new Reserva
+            {
+                FechaDesde = DateOnly.FromDateTime(DateTime.Today),
+                FechaHasta = DateOnly.FromDateTime(DateTime.Today),
+                FechaCreacion = DateTime.Now,
+                Activo = true
+            };
+
+            return View(reserva);
+        }
 
         [HttpPost]
-        // [ValidateAntiForgeryToken] // quitar cuando se requiera
         [Authorize]
-        public ActionResult Create([FromBody] Reserva reserva)
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(Reserva reserva)
         {
             try
             {
-                if (reserva == null)
-                    return BadRequest("Los datos de la reserva son nulos");
+                ValidarFechas(reserva);
+                ValidarInmueble(reserva);
+                ValidarInquilino(reserva);
 
                 if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                {
+                    CargarDatosFormulario(reserva);
+                    return View(reserva);
+                }
+
+                string? usuarioIdClaim =
+                    User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (!int.TryParse(usuarioIdClaim, out int usuarioId))
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "No se pudo identificar al usuario autenticado.");
+
+                    CargarDatosFormulario(reserva);
+                    return View(reserva);
+                }
+
+                Usuario? usuario =
+                    repositorioUsuario.ObtenerPorId(usuarioId);
+
+                if (usuario == null || !usuario.Activo)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "El usuario autenticado no es válido.");
+
+                    CargarDatosFormulario(reserva);
+                    return View(reserva);
+                }
+
+                if (ExisteSuperposicion(
+                    reserva.Inmueble!.Id,
+                    reserva.FechaDesde,
+                    reserva.FechaHasta))
+                {
+                    ModelState.AddModelError(
+                        nameof(reserva.FechaDesde),
+                        "El inmueble ya tiene una reserva activa para ese período.");
+
+                    CargarDatosFormulario(reserva);
+                    return View(reserva);
+                }
+
+                reserva.UsuarioCreador = usuario;
+                reserva.UsuarioCancelador = null;
+                reserva.Activo = true;
+                reserva.FechaCreacion = DateTime.Now;
+                reserva.FechaCancelacion = null;
 
                 repositorioReserva.Alta(reserva);
 
-                return Ok("Reserva creada");
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 Console.Error.WriteLine(
-                    "Ocurrió un error, en ReservaController - Create",
-                    ex);
+                    $"Ocurrió un error en ReservaController - Create: {ex.Message}");
 
-                return StatusCode(500, "Ocurrió un error");
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Ocurrió un error al crear la reserva.");
+
+                CargarDatosFormulario(reserva);
+                return View(reserva);
             }
         }
 
-        [HttpPost]
+        [HttpGet]
         [Authorize]
-        public ActionResult Update([FromBody] Reserva reserva)
+        public ActionResult Update(int id)
         {
             try
             {
+                Reserva? reserva =
+                    repositorioReserva.ObtenerPorId(id);
+
                 if (reserva == null)
-                    return BadRequest("Los datos de la reserva son nulos");
-
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
-
-                Reserva? i = repositorioReserva.ObtenerPorId(reserva.Id);
-
-                if (i == null)
                 {
                     return NotFound("Reserva no encontrada");
                 }
 
-                repositorioReserva.Modificacion(reserva);
+                CargarDatosFormulario(reserva);
 
-                return Ok("Reserva editada");
+                return View(reserva);
             }
             catch (Exception ex)
             {
                 Console.Error.WriteLine(
-                    "Ocurrió un error, en ReservaController - Update",
-                    ex);
+                    $"Ocurrió un error en ReservaController - Update GET: {ex.Message}");
 
-                return StatusCode(500, "Ocurrió un error");
+                return StatusCode(
+                    500,
+                    "Ocurrió un error al cargar la reserva.");
+            }
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public ActionResult Update(Reserva reserva)
+        {
+            try
+            {
+                Reserva? reservaExistente =
+                    repositorioReserva.ObtenerPorId(reserva.Id);
+
+                if (reservaExistente == null)
+                {
+                    return NotFound("Reserva no encontrada");
+                }
+
+                ValidarFechas(reserva);
+                ValidarInmueble(reserva);
+                ValidarInquilino(reserva);
+
+                if (!ModelState.IsValid)
+                {
+                    CargarDatosFormulario(reserva);
+                    return View(reserva);
+                }
+
+                if (ExisteSuperposicion(
+                    reserva.Inmueble!.Id,
+                    reserva.FechaDesde,
+                    reserva.FechaHasta,
+                    reserva.Id))
+                {
+                    ModelState.AddModelError(
+                        nameof(reserva.FechaDesde),
+                        "El inmueble ya tiene una reserva activa para ese período.");
+
+                    CargarDatosFormulario(reserva);
+                    return View(reserva);
+                }
+
+                reserva.UsuarioCreador =
+                    reservaExistente.UsuarioCreador;
+
+                reserva.UsuarioCancelador =
+                    reservaExistente.UsuarioCancelador;
+
+                reserva.FechaCreacion =
+                    reservaExistente.FechaCreacion;
+
+                reserva.FechaCancelacion =
+                    reservaExistente.FechaCancelacion;
+
+                reserva.Activo =
+                    reservaExistente.Activo;
+
+                repositorioReserva.Modificacion(reserva);
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(
+                    $"Ocurrió un error en ReservaController - Update POST: {ex.Message}");
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Ocurrió un error al actualizar la reserva.");
+
+                CargarDatosFormulario(reserva);
+                return View(reserva);
             }
         }
 
@@ -94,9 +239,10 @@ namespace INMOBILIARIA.Controllers
         {
             try
             {
-                Reserva? i = repositorioReserva.ObtenerPorId(id);
+                Reserva? reserva =
+                    repositorioReserva.ObtenerPorId(id);
 
-                if (i == null)
+                if (reserva == null)
                 {
                     return NotFound("Reserva no encontrada");
                 }
@@ -108,10 +254,11 @@ namespace INMOBILIARIA.Controllers
             catch (Exception ex)
             {
                 Console.Error.WriteLine(
-                    "Ocurrió un error, en ReservaController - Delete",
-                    ex);
+                    $"Ocurrió un error en ReservaController - Delete: {ex.Message}");
 
-                return StatusCode(500, "Ocurrió un error");
+                return StatusCode(
+                    500,
+                    "Ocurrió un error");
             }
         }
 
@@ -121,70 +268,87 @@ namespace INMOBILIARIA.Controllers
         {
             try
             {
-                IEnumerable<Reserva> reservas = repositorioReserva.ObtenerTodas();
+                IEnumerable<Reserva> reservas =
+                    repositorioReserva.ObtenerTodas();
 
                 return Ok(reservas);
             }
             catch (Exception ex)
             {
                 Console.Error.WriteLine(
-                    "Ocurrió un error, en ReservaController - ObtenerTodas",
-                    ex);
+                    $"Ocurrió un error en ReservaController - ObtenerTodas: {ex.Message}");
 
-                return StatusCode(500, "Ocurrió un error");
+                return StatusCode(
+                    500,
+                    "Ocurrió un error");
             }
         }
 
-		[HttpGet]
+        [HttpGet]
         [Authorize]
-		public ActionResult ObtenerPorFecha([FromBody] DateOnly fecha)
-		{
-			try
-			{
-				IEnumerable<Reserva> reservas = repositorioReserva.ObtenerPorFecha(fecha);
+        public ActionResult ObtenerPorFecha(DateOnly fecha)
+        {
+            try
+            {
+                IEnumerable<Reserva> reservas =
+                    repositorioReserva.ObtenerPorFecha(fecha);
 
-				return Ok(reservas);
-			}
-			catch (Exception ex)
-			{
-				Console.Error.WriteLine($"Ocurrió un error en ReservaController - ObtenerPorFecha {ex.Message}");
-				return StatusCode(500, "Ocurrió un error");
-			}
-		}
+                return Ok(reservas);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(
+                    $"Ocurrió un error en ReservaController - ObtenerPorFecha: {ex.Message}");
 
-		[HttpGet]
+                return StatusCode(
+                    500,
+                    "Ocurrió un error");
+            }
+        }
+
+        [HttpGet]
         [Authorize]
-		public ActionResult ObtenerPorInmueble(int id)
-		{
-			try
-			{
-				IEnumerable<Reserva> reservas = repositorioReserva.ObtenerPorInmueble(id);
+        public ActionResult ObtenerPorInmueble(int id)
+        {
+            try
+            {
+                IEnumerable<Reserva> reservas =
+                    repositorioReserva.ObtenerPorInmueble(id);
 
-				return Ok(reservas);
-			}
-			catch (Exception ex)
-			{
-				Console.Error.WriteLine($"Ocurrió un error en ReservaController - ObtenerPorInmueble {ex.Message}");
-				return StatusCode(500, "Ocurrió un error");
-			}
-		}
+                return Ok(reservas);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(
+                    $"Ocurrió un error en ReservaController - ObtenerPorInmueble: {ex.Message}");
 
-		[HttpGet]
+                return StatusCode(
+                    500,
+                    "Ocurrió un error");
+            }
+        }
+
+        [HttpGet]
         [Authorize]
-		public ActionResult ObtenerPorInquilino(int id)
-		{
-			try
-			{
-				IEnumerable<Reserva> reservas = repositorioReserva.ObtenerPorInquilino(id);
+        public ActionResult ObtenerPorInquilino(int id)
+        {
+            try
+            {
+                IEnumerable<Reserva> reservas =
+                    repositorioReserva.ObtenerPorInquilino(id);
 
-				return Ok(reservas);
-			}
-			catch (Exception ex)
-			{
-				Console.Error.WriteLine($"Ocurrió un error en ReservaController - ObtenerPorInquilino {ex.Message}");
-				return StatusCode(500, "Ocurrió un error");
-			}
-		}
+                return Ok(reservas);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(
+                    $"Ocurrió un error en ReservaController - ObtenerPorInquilino: {ex.Message}");
+
+                return StatusCode(
+                    500,
+                    "Ocurrió un error");
+            }
+        }
 
         [HttpGet]
         [Authorize]
@@ -192,17 +356,150 @@ namespace INMOBILIARIA.Controllers
         {
             try
             {
-                Reserva? reserva = repositorioReserva.ObtenerPorId(id);
+                Reserva? reserva =
+                    repositorioReserva.ObtenerPorId(id);
 
                 return reserva is null
                     ? NotFound("Reserva no encontrada")
                     : View(reserva);
             }
             catch (Exception ex)
-			{
-				Console.Error.WriteLine($"Ocurrió un error en ReservaController - Detalles {ex.Message}");
-				return StatusCode(500, "Ocurrió un error");
-			}
+            {
+                Console.Error.WriteLine(
+                    $"Ocurrió un error en ReservaController - Detalles: {ex.Message}");
+
+                return StatusCode(
+                    500,
+                    "Ocurrió un error");
+            }
+        }
+
+        private void CargarDatosFormulario(Reserva? reserva = null)
+        {
+            IEnumerable<Inmueble> inmuebles =
+                repositorioInmueble.ObtenerTodos();
+
+            IEnumerable<Inquilino> inquilinos =
+                repositorioInquilino.ObtenerTodos();
+
+            ViewBag.Inmuebles = inmuebles;
+            ViewBag.Inquilinos = inquilinos;
+        }
+
+        private void ValidarFechas(Reserva reserva)
+        {
+            if (reserva.FechaHasta < reserva.FechaDesde)
+            {
+                ModelState.AddModelError(
+                    nameof(reserva.FechaHasta),
+                    "La fecha hasta no puede ser anterior a la fecha desde.");
+            }
+        }
+
+        private void ValidarInmueble(Reserva reserva)
+        {
+            if (reserva.Inmueble == null || reserva.Inmueble.Id <= 0)
+            {
+                ModelState.AddModelError(
+                    nameof(reserva.Inmueble),
+                    "Debe seleccionar un inmueble.");
+
+                return;
+            }
+
+            Inmueble? inmueble =
+                repositorioInmueble.ObtenerPorId(
+                    reserva.Inmueble.Id);
+
+            if (inmueble == null)
+            {
+                ModelState.AddModelError(
+                    nameof(reserva.Inmueble),
+                    "El inmueble seleccionado no existe.");
+
+                return;
+            }
+
+            if (!inmueble.Activo)
+            {
+                ModelState.AddModelError(
+                    nameof(reserva.Inmueble),
+                    "El inmueble seleccionado no está activo.");
+
+                return;
+            }
+
+            reserva.Inmueble = inmueble;
+        }
+
+        private void ValidarInquilino(Reserva reserva)
+        {
+            if (reserva.Inquilino == null || reserva.Inquilino.Id <= 0)
+            {
+                ModelState.AddModelError(
+                    nameof(reserva.Inquilino),
+                    "Debe seleccionar un inquilino.");
+
+                return;
+            }
+
+            Inquilino? inquilino =
+                repositorioInquilino.ObtenerPorId(
+                    reserva.Inquilino.Id);
+
+            if (inquilino == null)
+            {
+                ModelState.AddModelError(
+                    nameof(reserva.Inquilino),
+                    "El inquilino seleccionado no existe.");
+
+                return;
+            }
+
+            if (!inquilino.Activo)
+            {
+                ModelState.AddModelError(
+                    nameof(reserva.Inquilino),
+                    "El inquilino seleccionado no está activo.");
+
+                return;
+            }
+
+            reserva.Inquilino = inquilino;
+        }
+
+        private bool ExisteSuperposicion(
+            int inmuebleId,
+            DateOnly fechaDesde,
+            DateOnly fechaHasta,
+            int reservaIdExcluir = 0)
+        {
+            IEnumerable<Reserva> reservas =
+                repositorioReserva.ObtenerPorInmueble(inmuebleId);
+
+            foreach (Reserva reservaExistente in reservas)
+            {
+                if (!reservaExistente.Activo)
+                {
+                    continue;
+                }
+
+                if (reservaExistente.Id == reservaIdExcluir)
+                {
+                    continue;
+                }
+
+                bool seSuperpone =
+                    fechaDesde <= reservaExistente.FechaHasta &&
+                    fechaHasta >= reservaExistente.FechaDesde;
+
+                if (seSuperpone)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

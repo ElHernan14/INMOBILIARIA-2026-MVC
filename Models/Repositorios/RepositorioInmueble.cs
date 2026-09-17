@@ -1,272 +1,523 @@
+using INMOBILIARIA.Models;
 using INMOBILIARIA.Models.Interfaces;
 using MySqlConnector;
-using System.Data;
 
 namespace INMOBILIARIA.Models.Repositorios
 {
     public class RepositorioInmueble : RepositorioBase, IRepositorioInmueble
     {
+
         public RepositorioInmueble(IConfiguration configuration) : base(configuration)
         {
+            
         }
 
         public int Alta(Inmueble inmueble)
         {
-            try
-            {
-                int res = -1;
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
 
-                using (MySqlConnection connection = new MySqlConnection(connectionString))
-                {
-                    string sql = @"INSERT INTO inmuebles 
-                        (propietario_id, tipo_inmueble_id, direccion, cordenadas, cupo, precio_dia, porcentaje_reserva, disponible, activo)
-                        VALUES 
-                        (@propietario_id, @tipo_inmueble_id, @direccion, @cordenadas, @cupo, @precio_dia, @porcentaje_reserva, @disponible, @activo);
-                        SELECT LAST_INSERT_ID();";
+            string sql = @"
+                INSERT INTO inmuebles
+                (
+                    propietario_id,
+                    tipo_inmueble_id,
+                    direccion,
+                    latitud,
+                    longitud,
+                    cupo,
+                    precio_dia,
+                    porcentaje_reserva,
+                    disponible,
+                    activo
+                )
+                VALUES
+                (
+                    @propietario_id,
+                    @tipo_inmueble_id,
+                    @direccion,
+                    @latitud,
+                    @longitud,
+                    @cupo,
+                    @precio_dia,
+                    @porcentaje_reserva,
+                    @disponible,
+                    @activo
+                );
 
-                    using (MySqlCommand command = new MySqlCommand(sql, connection))
-                    {
-                        command.CommandType = CommandType.Text;
+                SELECT LAST_INSERT_ID();";
 
-                        command.Parameters.AddWithValue("@propietario_id", inmueble.Propietario!.Id);
-                        command.Parameters.AddWithValue("@tipo_inmueble_id", inmueble.TipoInmueble!.Id);
-                        command.Parameters.AddWithValue("@direccion", inmueble.Direccion);
-                        command.Parameters.AddWithValue("@cordenadas", inmueble.Cordenadas);
-                        command.Parameters.AddWithValue("@cupo", inmueble.Cupo);
-                        command.Parameters.AddWithValue("@precio_dia", inmueble.PrecioDia);
-                        command.Parameters.AddWithValue("@porcentaje_reserva", inmueble.PorcentajeReserva);
-                        command.Parameters.AddWithValue("@disponible", inmueble.Disponible);
-                        command.Parameters.AddWithValue("@activo", inmueble.Activo);
+            using var command = new MySqlCommand(sql, connection);
 
-                        connection.Open();
+            command.Parameters.AddWithValue(
+                "@propietario_id",
+                inmueble.Propietario?.Id ?? 0);
 
-                        res = Convert.ToInt32(command.ExecuteScalar());
+            command.Parameters.AddWithValue(
+                "@tipo_inmueble_id",
+                inmueble.TipoInmueble?.Id ?? 0);
 
-                        inmueble.Id = res;
+            command.Parameters.AddWithValue(
+                "@direccion",
+                inmueble.Direccion);
 
-                        connection.Close();
-                    }
-                }
+            command.Parameters.AddWithValue(
+                "@latitud",
+                inmueble.Latitud.HasValue
+                    ? inmueble.Latitud.Value
+                    : DBNull.Value);
 
-                return res;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error RepositorioInmueble - Alta: {ex.Message}");
-                throw;
-            }
+            command.Parameters.AddWithValue(
+                "@longitud",
+                inmueble.Longitud.HasValue
+                    ? inmueble.Longitud.Value
+                    : DBNull.Value);
+
+            command.Parameters.AddWithValue(
+                "@cupo",
+                inmueble.Cupo);
+
+            command.Parameters.AddWithValue(
+                "@precio_dia",
+                inmueble.PrecioDia);
+
+            command.Parameters.AddWithValue(
+                "@porcentaje_reserva",
+                inmueble.PorcentajeReserva);
+
+            command.Parameters.AddWithValue(
+                "@disponible",
+                inmueble.Disponible);
+
+            command.Parameters.AddWithValue(
+                "@activo",
+                inmueble.Activo);
+
+            return Convert.ToInt32(command.ExecuteScalar());
         }
 
         public int Baja(int id)
         {
-            try
-            {
-                int res = -1;
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
 
-                using (MySqlConnection connection = new MySqlConnection(connectionString))
-                {
-                    string sql = "UPDATE inmuebles SET activo=0 WHERE id = @id";
+            string sql = @"
+                UPDATE inmuebles
+                SET activo = 0
+                WHERE id = @id;";
 
-                    using (MySqlCommand command = new MySqlCommand(sql, connection))
-                    {
-                        command.CommandType = CommandType.Text;
-                        command.Parameters.AddWithValue("@id", id);
+            using var command = new MySqlCommand(sql, connection);
 
-                        connection.Open();
+            command.Parameters.AddWithValue(
+                "@id",
+                id);
 
-                        res = command.ExecuteNonQuery();
-
-                        connection.Close();
-                    }
-                }
-
-                return res;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error RepositorioInmueble - Baja: {ex.Message}");
-                throw;
-            }
+            return command.ExecuteNonQuery();
         }
 
         public int Modificacion(Inmueble inmueble)
         {
-            try
-            {
-                int res = -1;
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
 
-                using (MySqlConnection connection = new MySqlConnection(connectionString))
-                {
-                    string sql = @"UPDATE inmuebles
-                        SET propietario_id=@propietario_id,
-                            tipo_inmueble_id=@tipo_inmueble_id,
-                            direccion=@direccion,
-                            cordenadas=@cordenadas,
-                            cupo=@cupo,
-                            precio_dia=@precio_dia,
-                            porcentaje_reserva=@porcentaje_reserva,
-                            disponible=@disponible,
-                            activo=@activo
-                        WHERE id=@id";
+            string sql = @"
+                UPDATE inmuebles
+                SET
+                    propietario_id = @propietario_id,
+                    tipo_inmueble_id = @tipo_inmueble_id,
+                    direccion = @direccion,
+                    latitud = @latitud,
+                    longitud = @longitud,
+                    cupo = @cupo,
+                    precio_dia = @precio_dia,
+                    porcentaje_reserva = @porcentaje_reserva,
+                    disponible = @disponible,
+                    activo = @activo
+                WHERE id = @id;";
 
-                    using (MySqlCommand command = new MySqlCommand(sql, connection))
-                    {
-                        command.CommandType = CommandType.Text;
+            using var command = new MySqlCommand(sql, connection);
 
-                        command.Parameters.AddWithValue("@propietario_id", inmueble.Propietario!.Id);
-                        command.Parameters.AddWithValue("@tipo_inmueble_id", inmueble.TipoInmueble!.Id);
-                        command.Parameters.AddWithValue("@direccion", inmueble.Direccion);
-                        command.Parameters.AddWithValue("@cordenadas", inmueble.Cordenadas);
-                        command.Parameters.AddWithValue("@cupo", inmueble.Cupo);
-                        command.Parameters.AddWithValue("@precio_dia", inmueble.PrecioDia);
-                        command.Parameters.AddWithValue("@porcentaje_reserva", inmueble.PorcentajeReserva);
-                        command.Parameters.AddWithValue("@disponible", inmueble.Disponible);
-                        command.Parameters.AddWithValue("@activo", inmueble.Activo);
-                        command.Parameters.AddWithValue("@id", inmueble.Id);
+            command.Parameters.AddWithValue(
+                "@id",
+                inmueble.Id);
 
-                        connection.Open();
+            command.Parameters.AddWithValue(
+                "@propietario_id",
+                inmueble.Propietario?.Id ?? 0);
 
-                        res = command.ExecuteNonQuery();
+            command.Parameters.AddWithValue(
+                "@tipo_inmueble_id",
+                inmueble.TipoInmueble?.Id ?? 0);
 
-                        connection.Close();
-                    }
-                }
+            command.Parameters.AddWithValue(
+                "@direccion",
+                inmueble.Direccion);
 
-                return res;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error RepositorioInmueble - Modificacion: {ex.Message}");
-                throw;
-            }
+            command.Parameters.AddWithValue(
+                "@latitud",
+                inmueble.Latitud.HasValue
+                    ? inmueble.Latitud.Value
+                    : DBNull.Value);
+
+            command.Parameters.AddWithValue(
+                "@longitud",
+                inmueble.Longitud.HasValue
+                    ? inmueble.Longitud.Value
+                    : DBNull.Value);
+
+            command.Parameters.AddWithValue(
+                "@cupo",
+                inmueble.Cupo);
+
+            command.Parameters.AddWithValue(
+                "@precio_dia",
+                inmueble.PrecioDia);
+
+            command.Parameters.AddWithValue(
+                "@porcentaje_reserva",
+                inmueble.PorcentajeReserva);
+
+            command.Parameters.AddWithValue(
+                "@disponible",
+                inmueble.Disponible);
+
+            command.Parameters.AddWithValue(
+                "@activo",
+                inmueble.Activo);
+
+            return command.ExecuteNonQuery();
         }
 
         public Inmueble? ObtenerPorId(int id)
         {
-            try
-            {
-                Inmueble? inmueble = null;
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
 
-                using (MySqlConnection connection = new MySqlConnection(connectionString))
-                {
-                    string sql = @"SELECT 
-                            i.id,
-                            i.propietario_id,
-                            i.tipo_inmueble_id,
-                            i.direccion,
-                            i.cordenadas,
-                            i.cupo,
-                            i.precio_dia,
-                            i.porcentaje_reserva,
-                            i.disponible,
-                            i.activo,
+            string sql = @"
+                SELECT
+                    i.id,
+                    i.propietario_id,
+                    i.tipo_inmueble_id,
+                    i.direccion,
+                    i.latitud,
+                    i.longitud,
+                    i.cupo,
+                    i.precio_dia,
+                    i.porcentaje_reserva,
+                    i.disponible,
+                    i.activo,
 
-                            p.id AS propietario_id,
-                            p.nombre AS propietario_nombre,
-                            p.apellido AS propietario_apellido,
-                            p.dni AS propietario_dni,
-                            p.email AS propietario_email,
-                            p.activo AS propietario_activo,
+                    p.id AS propietario_id,
+                    p.nombre AS propietario_nombre,
+                    p.apellido AS propietario_apellido,
+                    p.dni AS propietario_dni,
+                    p.email AS propietario_email,
+                    p.activo AS propietario_activo,
 
-                            t.id AS tipo_id,
-                            t.nombre AS tipo_nombre,
-                            t.descripcion AS tipo_descripcion
+                    t.id AS tipo_id,
+                    t.nombre AS tipo_nombre,
+                    t.descripcion AS tipo_descripcion,
+                    t.activo AS tipo_activo
 
-                        FROM inmuebles i
-                        INNER JOIN propietarios p ON i.propietario_id = p.id
-                        INNER JOIN tipos_inmueble t ON i.tipo_inmueble_id = t.id
-                        WHERE i.id = @id";
+                FROM inmuebles i
 
-                    using (MySqlCommand command = new MySqlCommand(sql, connection))
-                    {
-                        command.Parameters.Add("@id", MySqlDbType.Int32).Value = id;
-                        command.CommandType = CommandType.Text;
+                INNER JOIN propietarios p
+                    ON i.propietario_id = p.id
 
-                        connection.Open();
+                INNER JOIN tipos_inmueble t
+                    ON i.tipo_inmueble_id = t.id
 
-                        var reader = command.ExecuteReader();
+                WHERE i.id = @id;";
 
-                        if (reader.Read())
-                        {
-                            inmueble = MapearInmueble(reader);
-                        }
+            using var command = new MySqlCommand(sql, connection);
 
-                        connection.Close();
-                    }
-                }
+            command.Parameters.AddWithValue(
+                "@id",
+                id);
 
-                return inmueble;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error RepositorioInmueble - ObtenerPorId: {ex.Message}");
-                throw;
-            }
+            using var reader = command.ExecuteReader();
+
+            if (!reader.Read())
+                return null;
+
+            return MapearInmueble(reader);
         }
 
         public IEnumerable<Inmueble> ObtenerTodos()
         {
-            try
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
+
+            string sql = @"
+                SELECT
+                    i.id,
+                    i.propietario_id,
+                    i.tipo_inmueble_id,
+                    i.direccion,
+                    i.latitud,
+                    i.longitud,
+                    i.cupo,
+                    i.precio_dia,
+                    i.porcentaje_reserva,
+                    i.disponible,
+                    i.activo,
+
+                    p.id AS propietario_id,
+                    p.nombre AS propietario_nombre,
+                    p.apellido AS propietario_apellido,
+                    p.dni AS propietario_dni,
+                    p.email AS propietario_email,
+                    p.activo AS propietario_activo,
+
+                    t.id AS tipo_id,
+                    t.nombre AS tipo_nombre,
+                    t.descripcion AS tipo_descripcion,
+                    t.activo AS tipo_activo
+
+                FROM inmuebles i
+
+                INNER JOIN propietarios p
+                    ON i.propietario_id = p.id
+
+                INNER JOIN tipos_inmueble t
+                    ON i.tipo_inmueble_id = t.id
+
+                ORDER BY i.id DESC;";
+
+            using var command = new MySqlCommand(sql, connection);
+
+            using var reader = command.ExecuteReader();
+
+            List<Inmueble> inmuebles = new();
+
+            while (reader.Read())
             {
-                List<Inmueble> inmuebles = new List<Inmueble>();
-
-                using (MySqlConnection connection = new MySqlConnection(connectionString))
-                {
-                    string sql = @"SELECT 
-                            i.id,
-                            i.propietario_id,
-                            i.tipo_inmueble_id,
-                            i.direccion,
-                            i.cordenadas,
-                            i.cupo,
-                            i.precio_dia,
-                            i.porcentaje_reserva,
-                            i.disponible,
-                            i.activo,
-
-                            p.id AS propietario_id,
-                            p.nombre AS propietario_nombre,
-                            p.apellido AS propietario_apellido,
-                            p.dni AS propietario_dni,
-                            p.email AS propietario_email,
-                            p.activo AS propietario_activo,
-
-                            t.id AS tipo_id,
-                            t.nombre AS tipo_nombre,
-                            t.descripcion AS tipo_descripcion
-
-                        FROM inmuebles i
-                        INNER JOIN propietarios p ON i.propietario_id = p.id
-                        INNER JOIN tipos_inmueble t ON i.tipo_inmueble_id = t.id
-                        ORDER BY i.id";
-
-                    using (MySqlCommand command = new MySqlCommand(sql, connection))
-                    {
-                        command.CommandType = CommandType.Text;
-
-                        connection.Open();
-
-                        var reader = command.ExecuteReader();
-
-                        while (reader.Read())
-                        {
-                            inmuebles.Add(MapearInmueble(reader));
-                        }
-
-                        connection.Close();
-                    }
-                }
-
-                return inmuebles;
+                inmuebles.Add(
+                    MapearInmueble(reader));
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error RepositorioInmueble - ObtenerTodos: {ex.Message}");
-                throw;
-            }
+
+            return inmuebles;
         }
 
-        private Inmueble MapearInmueble(MySqlDataReader reader)
+       public IEnumerable<Inmueble> ObtenerTodos(
+            string termino,
+            bool? disponible,
+            bool? activo,
+            int limit = 10,
+            int page = 1)
+        {
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
+
+            int offset = (page - 1) * limit;
+
+            List<string> filtrosSQL = new();
+
+            if (!string.IsNullOrWhiteSpace(termino))
+            {
+                filtrosSQL.Add(@"
+                    (
+                        i.direccion LIKE @termino
+                        OR CONCAT(
+                            p.nombre,
+                            ' ',
+                            p.apellido
+                        ) LIKE @termino
+                        OR t.nombre LIKE @termino
+                    )");
+            }
+
+            if (disponible.HasValue)
+            {
+                filtrosSQL.Add(
+                    "i.disponible = @disponible");
+            }
+
+            if (activo.HasValue)
+            {
+                filtrosSQL.Add(
+                    "i.activo = @activo");
+            }
+
+            string whereSQL = filtrosSQL.Count > 0
+                ? "WHERE " + string.Join(
+                    " AND ",
+                    filtrosSQL)
+                : string.Empty;
+
+            string sql = $@"
+                SELECT
+                    i.id,
+                    i.propietario_id,
+                    i.tipo_inmueble_id,
+                    i.direccion,
+                    i.latitud,
+                    i.longitud,
+                    i.cupo,
+                    i.precio_dia,
+                    i.porcentaje_reserva,
+                    i.disponible,
+                    i.activo,
+
+                    p.id AS propietario_id,
+                    p.nombre AS propietario_nombre,
+                    p.apellido AS propietario_apellido,
+                    p.dni AS propietario_dni,
+                    p.email AS propietario_email,
+                    p.activo AS propietario_activo,
+
+                    t.id AS tipo_id,
+                    t.nombre AS tipo_nombre,
+                    t.descripcion AS tipo_descripcion,
+                    t.activo AS tipo_activo
+
+                FROM inmuebles i
+
+                INNER JOIN propietarios p
+                    ON i.propietario_id = p.id
+
+                INNER JOIN tipos_inmueble t
+                    ON i.tipo_inmueble_id = t.id
+
+                {whereSQL}
+
+                ORDER BY i.id DESC
+
+                LIMIT @limit
+                OFFSET @offset;";
+
+            using var command = new MySqlCommand(
+                sql,
+                connection);
+
+            if (!string.IsNullOrWhiteSpace(termino))
+            {
+                command.Parameters.AddWithValue(
+                    "@termino",
+                    $"%{termino.Trim()}%");
+            }
+
+            if (disponible.HasValue)
+            {
+                command.Parameters.AddWithValue(
+                    "@disponible",
+                    disponible.Value);
+            }
+
+            if (activo.HasValue)
+            {
+                command.Parameters.AddWithValue(
+                    "@activo",
+                    activo.Value);
+            }
+
+            command.Parameters.AddWithValue(
+                "@limit",
+                limit);
+
+            command.Parameters.AddWithValue(
+                "@offset",
+                offset);
+
+            using var reader = command.ExecuteReader();
+
+            List<Inmueble> inmuebles = new();
+
+            while (reader.Read())
+            {
+                inmuebles.Add(
+                    MapearInmueble(reader));
+            }
+
+            return inmuebles;
+        }
+
+        public int Contar(
+            string termino,
+            bool? disponible,
+            bool? activo)
+        {
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
+
+            List<string> filtrosSQL = new();
+
+            if (!string.IsNullOrWhiteSpace(termino))
+            {
+                filtrosSQL.Add(@"
+                    (
+                        i.direccion LIKE @termino
+                        OR CONCAT(
+                            p.nombre,
+                            ' ',
+                            p.apellido
+                        ) LIKE @termino
+                        OR t.nombre LIKE @termino
+                    )");
+            }
+
+            if (disponible.HasValue)
+            {
+                filtrosSQL.Add(
+                    "i.disponible = @disponible");
+            }
+
+            if (activo.HasValue)
+            {
+                filtrosSQL.Add(
+                    "i.activo = @activo");
+            }
+
+            string whereSQL = filtrosSQL.Count > 0
+                ? "WHERE " + string.Join(
+                    " AND ",
+                    filtrosSQL)
+                : string.Empty;
+
+            string sql = $@"
+                SELECT COUNT(*)
+
+                FROM inmuebles i
+
+                INNER JOIN propietarios p
+                    ON i.propietario_id = p.id
+
+                INNER JOIN tipos_inmueble t
+                    ON i.tipo_inmueble_id = t.id
+
+                {whereSQL};";
+
+            using var command = new MySqlCommand(
+                sql,
+                connection);
+
+            if (!string.IsNullOrWhiteSpace(termino))
+            {
+                command.Parameters.AddWithValue(
+                    "@termino",
+                    $"%{termino.Trim()}%");
+            }
+
+            if (disponible.HasValue)
+            {
+                command.Parameters.AddWithValue(
+                    "@disponible",
+                    disponible.Value);
+            }
+
+            if (activo.HasValue)
+            {
+                command.Parameters.AddWithValue(
+                    "@activo",
+                    activo.Value);
+            }
+
+            return Convert.ToInt32(
+                command.ExecuteScalar());
+        }
+
+        private Inmueble MapearInmueble(
+            MySqlDataReader reader)
         {
             return new Inmueble
             {
@@ -286,18 +537,34 @@ namespace INMOBILIARIA.Models.Repositorios
                 {
                     Id = reader.GetInt32("tipo_id"),
                     Nombre = reader.GetString("tipo_nombre"),
-                    Descripcion = reader.GetString("tipo_descripcion")
+                    Descripcion = reader.GetString("tipo_descripcion"),
+                    Activo = reader.GetBoolean("tipo_activo")
                 },
 
                 Direccion = reader.GetString("direccion"),
-                Cordenadas = reader.IsDBNull(reader.GetOrdinal("cordenadas"))
-                    ? string.Empty
-                    : reader.GetString("cordenadas"),
+
+                Latitud = reader.IsDBNull(
+                    reader.GetOrdinal("latitud"))
+                    ? null
+                    : reader.GetDecimal("latitud"),
+
+                Longitud = reader.IsDBNull(
+                    reader.GetOrdinal("longitud"))
+                    ? null
+                    : reader.GetDecimal("longitud"),
+
                 Cupo = reader.GetInt32("cupo"),
+
                 PrecioDia = reader.GetDecimal("precio_dia"),
-                PorcentajeReserva = reader.GetDecimal("porcentaje_reserva"),
-                Disponible = reader.GetBoolean("disponible"),
-                Activo = reader.GetBoolean("activo")
+
+                PorcentajeReserva =
+                    reader.GetDecimal("porcentaje_reserva"),
+
+                Disponible =
+                    reader.GetBoolean("disponible"),
+
+                Activo =
+                    reader.GetBoolean("activo")
             };
         }
     }
