@@ -41,7 +41,8 @@ CREATE TABLE inmuebles (
 	propietario_id INT NOT NULL,
 	tipo_inmueble_id INT NOT NULL,
 	direccion VARCHAR(255) NOT NULL,
-	cordenadas VARCHAR(100),
+	latitud DECIMAL(10, 8),
+    longitud DECIMAL(11, 8),
 	cupo INT NOT NULL DEFAULT 1,
 	precio_dia DECIMAL(10,2) NOT NULL DEFAULT 0,
 	porcentaje_reserva DECIMAL(5,2) NOT NULL DEFAULT 0,
@@ -95,6 +96,3 @@ CREATE TABLE pagos (
 	FOREIGN KEY (usuario_creador_id) REFERENCES usuarios(id),
 	FOREIGN KEY (usuario_cancelador_id) REFERENCES usuarios(id)
 );
-
--- ALTER TABLE usuarios
--- ADD COLUMN dni VARCHAR(10) NOT NULL AFTER apellido;
