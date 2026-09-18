@@ -276,7 +276,7 @@ namespace INMOBILIARIA.Models.Repositorios
 						var reader = command.ExecuteReader();
 						while (reader.Read())
 						{
-							reservas.Add(MapearReserva(reader));
+							reservas.Add(MapearReservaSimple(reader));
 						}
 						connection.Close();
 					}
@@ -286,6 +286,53 @@ namespace INMOBILIARIA.Models.Repositorios
 			catch (Exception ex)
 			{
 				Console.WriteLine($"Error RepositorioReserva - ObtenerPorFecha: {ex.Message}");
+				throw;
+			}
+		}
+
+		public IEnumerable<Reserva> ObtenerPorInmuebleFuturas(int id)
+		{
+			List<Reserva> reservas = new List<Reserva>();
+			
+			try
+			{
+				using (MySqlConnection connection = new MySqlConnection(connectionString))
+				{
+					string sql = @"SELECT 
+						id,
+						inmueble_id,
+						inquilino_id,
+						usuario_creador_id,
+						usuario_cancelador_id,
+						fecha_desde,
+						fecha_hasta,
+						cancelada,
+						fecha_creacion,
+						fecha_cancelacion
+					FROM reservas
+					WHERE inmueble_id = @id_ingresado
+						AND fecha_hasta >= CURDATE()
+						AND cancelada=FALSE
+					ORDER BY fecha_desde ASC";
+
+					using (MySqlCommand command = new MySqlCommand(sql, connection))
+					{
+						command.Parameters.Add("@id_ingresado", MySqlDbType.Int32).Value = id;
+						command.CommandType = CommandType.Text;
+						connection.Open();
+						var reader = command.ExecuteReader();
+						while (reader.Read())
+						{
+							reservas.Add(MapearReserva(reader));
+						}
+						connection.Close();
+					}
+				}
+				return reservas;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error RepositorioReserva - ObtenerPorInmueble: {ex.Message}");
 				throw;
 			}
 		}
@@ -378,6 +425,21 @@ namespace INMOBILIARIA.Models.Repositorios
 				Console.WriteLine($"Error RepositorioReserva - ObtenerPorInmueble: {ex.Message}");
 				throw;
 			}
+		}
+
+		private Reserva MapearReservaSimple(MySqlDataReader reader)
+		{
+
+			return new Reserva
+			{
+
+				Id = reader.GetInt32("id"),
+				FechaDesde = DateOnly.FromDateTime(reader.GetDateTime("fecha_desde")),
+				FechaHasta = DateOnly.FromDateTime(reader.GetDateTime("fecha_hasta")),
+				Activo = !reader.GetBoolean("cancelada"),
+				FechaCreacion = reader.GetDateTime("fecha_creacion"),
+				FechaCancelacion = reader["fecha_cancelacion"] is DateTime date ? date : null
+			};
 		}
 
 		private Reserva MapearReserva(MySqlDataReader reader)

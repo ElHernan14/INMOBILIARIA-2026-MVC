@@ -141,6 +141,35 @@ namespace INMOBILIARIA.Controllers
             }
         }
 
+        [HttpGet]
+        public IActionResult BuscarInmueble(string termino = "", int page = 1)
+        {
+            try
+            {
+                if (page < 1) page = 1;
+
+                int limit = 10;
+
+                IEnumerable<Inmueble> inmuebles = repositorioInmueble.ObtenerTodos(termino, null, true, limit, page);
+                int totalResultados = repositorioInmueble.Contar(termino, null, true);
+
+                var resultado = new PagedResults<Inmueble>
+                {
+                    Resultados = inmuebles.ToList(),
+                    CurrentPage = page,
+                    PageSize = limit,
+                    TotalResults = totalResultados
+                };
+
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine("Ocurrió un error en InmuebleController - BuscarInmueble: " + ex);
+                return StatusCode(500, new { mensaje = "No se pudo cargar el listado de inmuebles." });
+            }
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Crear(

@@ -9,6 +9,7 @@ namespace INMOBILIARIA.Models.Interfaces
         public abstract IEnumerable<Reserva> ObtenerTodas();
         public abstract PagedResults<Reserva> ObtenerTodas(int page = 1, int limit = 10);
         public abstract IEnumerable<Reserva> ObtenerPorInmueble(int id);
+        public abstract IEnumerable<Reserva> ObtenerPorInmuebleFuturas(int id);
         public abstract IEnumerable<Reserva> ObtenerPorInquilino(int id);
         public abstract IEnumerable<Reserva> ObtenerPorFecha(DateOnly fecha);
     }

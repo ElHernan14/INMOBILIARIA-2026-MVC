@@ -48,8 +48,35 @@ namespace INMOBILIARIA.Controllers
                 Console.Error.WriteLine("Ocurrió un error, en InquilinoController - index - get", ex);
 				return View();
             }
+        }
 
-            
+        [HttpGet]
+        public IActionResult BuscarInquilino(string? nombre = null, string? apellido = null, string? dni = null, string? email = null, int page = 1)
+        {
+            try
+            {
+                if (page < 1) page = 1;
+
+                int limit = 10;
+
+                List<Inquilino> inquilinos = repositorioInquilino.ObtenerTodos(true, nombre, apellido, dni, email, limit, page);
+                int totalResultados = repositorioInquilino.ContarTodos(true, nombre, apellido, dni, email);
+
+                var resultado = new PagedResults<Inquilino>
+                {
+                    Resultados = inquilinos,
+                    CurrentPage = page,
+                    PageSize = limit,
+                    TotalResults = totalResultados
+                };
+
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine("Ocurrió un error en InmuebleController - BuscarInmueble: " + ex);
+                return StatusCode(500, new { mensaje = "No se pudo cargar el listado de inmuebles." });
+            }
         }
 
 		[Authorize]

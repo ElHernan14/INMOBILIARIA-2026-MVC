@@ -9,7 +9,10 @@ namespace INMOBILIARIA.Models
 
         public Inmueble? Inmueble { get; set; }
 
+		public int InmuebleId { get; set; }
+
         public Inquilino? Inquilino { get; set; }
+		public int InquilinoId { get; set; }
 
         public Usuario? UsuarioCreador { get; set; }
 

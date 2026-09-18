@@ -2,166 +2,569 @@
 
 @{
     ViewData["Title"] = "Nueva reserva";
-
-    IEnumerable<INMOBILIARIA.Models.Inmueble> inmuebles =
-        ViewBag.Inmuebles as IEnumerable<INMOBILIARIA.Models.Inmueble>
-        ?? Enumerable.Empty<INMOBILIARIA.Models.Inmueble>();
-
-    IEnumerable<INMOBILIARIA.Models.Inquilino> inquilinos =
-        ViewBag.Inquilinos as IEnumerable<INMOBILIARIA.Models.Inquilino>
-        ?? Enumerable.Empty<INMOBILIARIA.Models.Inquilino>();
 }
 
 <div class="container py-4">
-    <div class="mx-auto" style="max-width: 850px;">
+    <div class="mx-auto" style="max-width: 1250px;">
+        <h1 class="h3 fw-bold mb-4">Nueva reserva</h1>
 
-        <div class="mb-4">
-            <div class="d-flex align-items-center gap-2 mb-2">
-                <a asp-action="Index"
-                   class="btn btn-sm btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i>
-                </a>
-
-                <span class="text-muted small">
-                    Reservas
-                </span>
-            </div>
-
-            <h1 class="h3 fw-bold mb-1">
-                Nueva reserva
-            </h1>
-
-            <p class="text-muted mb-0">
-                Registrá una nueva reserva para un inmueble.
-            </p>
+        <!-- Indicador de pasos -->
+        <div class="d-flex justify-content-between mb-4">
+            <span id="badge-step-1" class="badge bg-primary fs-6 p-2">1. Inmueble</span>
+            <span id="badge-step-2" class="badge bg-secondary fs-6 p-2">2. Fechas</span>
+            <span id="badge-step-3" class="badge bg-secondary fs-6 p-2">3. Inquilino</span>
         </div>
 
         <div class="card border-0 shadow-sm">
-            <div class="card-body p-4 p-md-5">
-
-                <form asp-action="Create"
-                      method="post">
-
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post" id="wizardForm">
                     @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="InmuebleId" id="InmuebleId" />
+                    <input type="hidden" asp-for="InquilinoId" id="InquilinoId" />
 
-                    <div asp-validation-summary="ModelOnly"
-                         class="alert alert-danger"
-                         role="alert">
+                    <!-- PASO 1: Selección de Inmueble -->
+                    <div id="step-1" class="wizard-step">
+
+
+                        <h5 class="fw-bold mb-3">Paso 1: Seleccioná el inmueble</h5>
+                        <div class="mb-3">
+
+
+                            <!-- Filtros -->
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-body p-3 p-md-4">
+                                    <div class="row g-3 align-items-end">
+                                        <!-- Búsqueda -->
+                                        <div class="col-12 col-lg-5">
+                                            <label for="termino" class="form-label fw-semibold">
+                                                Buscar
+                                            </label>
+
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-body"> <i class="bi bi-search"></i> </span>
+                                                <input type="text" id="termino" name="termino" class="form-control" placeholder="Dirección, propietario o tipo..." />
+                                            </div>
+                                        </div>
+
+                                        <!-- Acciones -->
+                                        <div class="col-12 col-lg-2 d-flex gap-2">
+                                            <button type="button" id="buscarInmuebleBtn" class="btn btn-primary flex-grow-1" onclick="buscarInmuebles(1)">
+                                                <i class="bi bi-funnel me-1"></i>
+                                                Filtrar
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- Listado -->
+                            <div class="card border-0 shadow-sm overflow-hidden">
+
+                                <div class="card-header bg-body border-0 px-3 px-md-4 py-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h2 class="h6 fw-bold mb-1">
+                                            Listado de inmuebles
+                                        </h2>
+                                    </div>
+
+                                </div>
+
+                                <div class="table-responsive">
+
+                                    <table class="table table-hover align-middle mb-0">
+
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>
+                                                    Inmueble
+                                                </th>
+
+                                                <th>
+                                                    Propietario
+                                                </th>
+
+                                                <th>
+                                                    Precio / día
+                                                </th>
+
+                                                <th class="text-center">
+                                                    Cupo
+                                                </th>
+
+                                                <th>
+                                                    Estado
+                                                </th>
+
+                                                <th class="text-end pe-3 pe-md-4">
+                                                    Acciones
+                                                </th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="tbodyInmuebles">
+
+                                            <tr>
+
+                                                <td colspan="6">
+                                                    BUSCAR PRIMERO
+                                                </td>
+
+                                            </tr>
+
+                                        </tbody>
+
+                                    </table>
+
+                                </div>
+
+                                <div class="card-footer bg-body border-0 px-3 px-md-4 py-3">
+                                    <nav aria-label="Paginación de inmuebles">
+                                        <!-- ASEGÚRATE DE QUE TENGA EL ID EXACTO AQUÍ -->
+                                        <ul class="pagination pagination-sm justify-content-center mb-0" id="paginadorInmuebles">
+                                        </ul>
+                                    </nav>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-primary" onclick="nextStep(2)">Siguiente <i class="bi bi-arrow-right"></i></button>
+                        </div>
                     </div>
 
-                    <div class="row g-4">
+                    <!-- PASO 2: Selección de Fechas -->
+                    <div id="step-2" class="wizard-step d-none">
+                        <h5 class="fw-bold mb-3">Paso 2: Elegí las fechas de la reserva</h5>
 
-                        <div class="col-12">
-                            <label asp-for="Inmueble"
-                                   class="form-label fw-semibold">
-                                Inmueble
-                            </label>
+                        <!-- Inputs ocultos que mapean a tu modelo Reserva -->
+                        <input type="hidden" asp-for="FechaDesde" id="fechaDesde" />
+                        <input type="hidden" asp-for="FechaHasta" id="fechaHasta" />
 
-                            <select asp-for="Inmueble.Id"
-                                    class="form-select">
-                                <option value="">
-                                    Seleccioná un inmueble
-                                </option>
-
-                                @foreach (var inmueble in inmuebles)
-                                {
-                                    <option value="@inmueble.Id">
-                                        @inmueble.Direccion
-                                    </option>
-                                }
-                            </select>
-
-                            <span asp-validation-for="Inmueble"
-                                  class="text-danger small">
-                            </span>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Selecciona el rango de fechas</label>
+                            <!-- Calendario interactivo inline -->
+                            <input type="text" id="calendarioReservas" class="form-control bg-white" placeholder="Haz clic para seleccionar inicio y fin..." readonly />
                         </div>
 
-                        <div class="col-12">
-                            <label asp-for="Inquilino"
-                                   class="form-label fw-semibold">
-                                Inquilino
-                            </label>
-
-                            <select asp-for="Inquilino.Id"
-                                    class="form-select">
-                                <option value="">
-                                    Seleccioná un inquilino
-                                </option>
-
-                                @foreach (var inquilino in inquilinos)
-                                {
-                                    <option value="@inquilino.Id">
-                                        @inquilino.Apellido, @inquilino.Nombre
-                                        — DNI @inquilino.Dni
-                                    </option>
-                                }
-                            </select>
-
-                            <span asp-validation-for="Inquilino"
-                                  class="text-danger small">
-                            </span>
+                        <div class="mt-4">
+                            <button type="button" class="btn btn-outline-secondary" onclick="nextStep(1)">
+                                <i class="bi bi-arrow-left"></i> Anterior
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep(3)">
+                                Siguiente <i class="bi bi-arrow-right"></i>
+                            </button>
                         </div>
-
-                        <div class="col-12 col-md-6">
-                            <label asp-for="FechaDesde"
-                                   class="form-label fw-semibold">
-                                Fecha desde
-                            </label>
-
-                            <input asp-for="FechaDesde"
-                                   type="date"
-                                   class="form-control" />
-
-                            <span asp-validation-for="FechaDesde"
-                                  class="text-danger small">
-                            </span>
-                        </div>
-
-                        <div class="col-12 col-md-6">
-                            <label asp-for="FechaHasta"
-                                   class="form-label fw-semibold">
-                                Fecha hasta
-                            </label>
-
-                            <input asp-for="FechaHasta"
-                                   type="date"
-                                   class="form-control" />
-
-                            <span asp-validation-for="FechaHasta"
-                                  class="text-danger small">
-                            </span>
-                        </div>
-
                     </div>
 
-                    <hr class="my-4">
+                    <!-- PASO 3: Selección de Inquilino -->
+                    <div id="step-3" class="wizard-step d-none">
+                        <h5 class="fw-bold mb-3">Paso 3: Seleccioná el inquilino</h5>
 
-                    <div class="d-flex flex-column flex-sm-row
-                                justify-content-end gap-2">
+                        <!-- Input oculto para el InquilinoId -->
+                        <input type="hidden" asp-for="InquilinoId" id="InquilinoId" />
 
-                        <a asp-action="Index"
-                           class="btn btn-outline-secondary">
-                            Cancelar
-                        </a>
+                        <div class="mb-3">
+                            <!-- Filtros Individuales -->
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-body p-3 p-md-4">
+                                    <div class="row g-3">
+                                        <div class="col-12 col-md-6 col-lg-3">
+                                            <label for="filtroNombre" class="form-label fw-semibold">Nombre</label>
+                                            <input type="text" id="filtroNombre" class="form-control" placeholder="Ej: Juan" />
+                                        </div>
+                                        <div class="col-12 col-md-6 col-lg-3">
+                                            <label for="filtroApellido" class="form-label fw-semibold">Apellido</label>
+                                            <input type="text" id="filtroApellido" class="form-control" placeholder="Ej: Pérez" />
+                                        </div>
+                                        <div class="col-12 col-md-6 col-lg-3">
+                                            <label for="filtroDni" class="form-label fw-semibold">DNI</label>
+                                            <input type="text" id="filtroDni" class="form-control" placeholder="Ej: 35123456" />
+                                        </div>
+                                        <div class="col-12 col-md-6 col-lg-3">
+                                            <label for="filtroEmail" class="form-label fw-semibold">Email</label>
+                                            <input type="text" id="filtroEmail" class="form-control" placeholder="Ej: juan@mail.com" />
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-end gap-2 mt-3">
+                                        <button type="button" class="btn btn-outline-secondary" onclick="limpiarFiltrosInquilino()">
+                                            <i class="bi bi-x-circle me-1"></i> Limpiar
+                                        </button>
+                                        <button type="button" id="buscarInquilinoBtn" class="btn btn-primary" onclick="buscarInquilinos(1)">
+                                            <i class="bi bi-search me-1"></i> Buscar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
 
-                        <button type="submit"
-                                class="btn btn-primary px-4">
-                            <i class="bi bi-calendar-check me-1"></i>
-                            Crear reserva
-                        </button>
+                            <!-- Listado -->
+                            <div class="card border-0 shadow-sm overflow-hidden">
+                                <div class="card-header bg-body border-0 px-3 px-md-4 py-3">
+                                    <h2 class="h6 fw-bold mb-1">Listado de inquilinos</h2>
+                                </div>
 
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Nombre Completo</th>
+                                                <th>DNI</th>
+                                                <th>Teléfono</th>
+                                                <th>Email</th>
+                                                <th class="text-end pe-3 pe-md-4">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodyInquilinos">
+                                            <tr>
+                                                <td colspan="5" class="text-center py-3">Utilizá los filtros para buscar inquilinos.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="card-footer bg-body border-0 px-3 px-md-4 py-3">
+                                    <nav aria-label="Paginación de inquilinos">
+                                        <ul class="pagination pagination-sm justify-content-center mb-0" id="paginadorInquilinos"></ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-outline-secondary" onclick="nextStep(2)">
+                                <i class="bi bi-arrow-left"></i> Anterior
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-calendar-check me-1"></i> Crear reserva
+                            </button>
+                        </div>
                     </div>
 
                 </form>
-
             </div>
         </div>
-
     </div>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <script>
+        let flatpickrInstance = null;
+        let currentStep = 1;
+
+        // 1. Navegación entre pasos
+        function nextStep(step) {
+            // Validar antes de pasar al paso 2
+            if (step === 2) {
+                const inmuebleId = document.getElementById('InmuebleId').value;
+                if (!inmuebleId) {
+                    alert('Por favor, selecciona un inmueble antes de continuar.');
+                    return;
+                }
+            }
+
+            // Validar antes de pasar al paso 3
+            if (step === 3) {
+                const fechaDesde = document.getElementById('fechaDesde').value;
+                const fechaHasta = document.getElementById('fechaHasta').value;
+                if (!fechaDesde || !fechaHasta) {
+                    alert('Por favor, selecciona las fechas de inicio y fin.');
+                    return;
+                }
+                if (new Date(fechaDesde) >= new Date(fechaHasta)) {
+                    alert('La fecha de fin debe ser posterior a la fecha de inicio.');
+                    return;
+                }
+            }
+
+            document.querySelectorAll('.wizard-step').forEach(el => el.classList.add('d-none'));
+            document.getElementById(`step-${step}`).classList.remove('d-none');
+
+            // Actualizar Badges
+            for (let i = 1; i <= 3; i++) {
+                const badge = document.getElementById(`badge-step-${i}`);
+                if (i === step) {
+                    badge.className = "badge bg-primary fs-6 p-2 w-100 me-2 text-center";
+                } else if (i < step) {
+                    badge.className = "badge bg-success fs-6 p-2 w-100 me-2 text-center";
+                } else {
+                    badge.className = "badge bg-secondary fs-6 p-2 w-100 me-2 text-center";
+                }
+            }
+            currentStep = step;
+        }
+        function buscarInmuebles(pagina = 1) {
+            const termino = document.getElementById('termino').value;
+            const tbody = document.getElementById('tbodyInmuebles');
+
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-3"><div class="spinner-border text-primary" role="status"></div></td></tr>`;
+
+            fetch(`/Inmueble/BuscarInmueble?termino=${encodeURIComponent(termino)}&page=${pagina}`)
+                .then(res => {
+                    if (!res.ok) throw new Error("Error en la solicitud HTTP");
+                    return res.json();
+                })
+                .then(data => {
+                    tbody.innerHTML = '';
+                    
+                    const items = data.resultados || [];
+                    
+                    if (items.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-3">No se encontraron inmuebles.</td></tr>`;
+                        return;
+                    }
+
+                    items.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.id = `inmueble-row-${item.id}`;
+                        
+                        // Mapeo exacto según tu JSON
+                        const id = item.id;
+                        const direccion = item.direccion || '-';
+                        const prop = item.propietario;
+                        const propietarioNombre = prop ? `${prop.apellido}, ${prop.nombre}` : '-';
+                        const precio = item.precioDia ? item.precioDia.toFixed(2) : '0.00';
+                        const cupo = item.cupo ?? '-';
+                        const disponible = item.disponible;
+
+                        tr.innerHTML = `
+                            <td>${direccion}</td>
+                            <td>${propietarioNombre}</td>
+                            <td>$${precio}</td>
+                            <td class="text-center">${cupo}</td>
+                            <td>
+                                <span class="badge ${disponible ? 'bg-success' : 'bg-danger'}">
+                                    ${disponible ? 'Disponible' : 'No disponible'}
+                                </span>
+                            </td>
+                            <td class="text-end pe-3 pe-md-4">
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="seleccionarInmueble(${id}, this)">
+                                    Seleccionar
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    // Paginador con las propiedades del JSON
+                    renderPaginador(data.currentPage, data.totalPages);
+                })
+                .catch(err => {
+                    console.error("Error al procesar la tabla:", err);
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-3">Error al cargar datos. Revisa la consola.</td></tr>`;
+                });
+        }
+
+        // 4. Seleccionar un inmueble de la tabla
+        function seleccionarInmueble(id, btn) {
+            document.getElementById('InmuebleId').value = id;
+
+            obtenerFechasReservadas(id);
+
+            // Desmarcar otros botones
+            document.querySelectorAll('#tbodyInmuebles button').forEach(b => {
+                b.className = 'btn btn-sm btn-outline-primary';
+                b.textContent = 'Seleccionar';
+            });
+
+            // Marcar actual
+            btn.className = 'btn btn-sm btn-success';
+            btn.textContent = 'Seleccionado';
+        }
+
+        // 5. Renderizar botones de paginación
+        function renderPaginador(actual, total) {
+            const paginador = document.getElementById('paginadorInmuebles');
+            paginador.innerHTML = '';
+
+            if (total <= 1) return;
+
+            // Botón Anterior
+            paginador.innerHTML += `
+                <li class="page-item ${actual === 1 ? 'disabled' : ''}">
+                    <button type="button" class="page-link" onclick="buscarInmuebles(${actual - 1})"><i class="bi bi-chevron-left"></i></button>
+                </li>`;
+
+            // Páginas
+            for (let i = 1; i <= total; i++) {
+                paginador.innerHTML += `
+                    <li class="page-item ${i === actual ? 'active' : ''}">
+                        <button type="button" class="page-link" onclick="buscarInmuebles(${i})">${i}</button>
+                    </li>`;
+            }
+
+            // Botón Siguiente
+            paginador.innerHTML += `
+                <li class="page-item ${actual === total ? 'disabled' : ''}">
+                    <button type="button" class="page-link" onclick="buscarInmuebles(${actual + 1})"><i class="bi bi-chevron-right"></i></button>
+                </li>`;
+        }
+
+        // Inicializar el calendario en modo Rango
+        function inicializarCalendario(fechasOcupadas = []) {
+            if (flatpickrInstance) {
+                flatpickrInstance.destroy(); // Destruir instancia previa si cambia de inmueble
+            }
+
+            flatpickrInstance = flatpickr("#calendarioReservas", {
+                mode: "range",
+                inline: true, // Muestra el calendario desplegado directamente sin abrir popover
+                locale: "es",
+                minDate: "today",
+                dateFormat: "Y-m-d",
+                disable: fechasOcupadas, // Array de fechas/rangos bloqueados {from: 'YYYY-MM-DD', to: 'YYYY-MM-DD'}
+                onChange: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length === 2) {
+                        // Formatear fechas a YYYY-MM-DD para guardarlas en los inputs hidden de Razor
+                        const desde = instance.formatDate(selectedDates[0], "Y-m-d");
+                        const hasta = instance.formatDate(selectedDates[1], "Y-m-d");
+
+                        document.getElementById('fechaDesde').value = desde;
+                        document.getElementById('fechaHasta').value = hasta;
+                    } else {
+                        document.getElementById('fechaDesde').value = '';
+                        document.getElementById('fechaHasta').value = '';
+                    }
+                }
+            });
+        }
+
+        // Cargar reservas ocupadas mediante AJAX al seleccionar un inmueble
+        function obtenerFechasReservadas(inmuebleId) {
+            fetch(`/Reserva/ObtenerPorInmuebleFuturas?id=${inmuebleId}`)
+                .then(res => res.json())
+                .then(reservas => {
+                    // Mapear reservas activas al formato que consume Flatpickr
+                    const deshabilitadas = reservas.map(r => ({
+                        from: r.fechaDesde,
+                        to: r.fechaHasta
+                    }));
+
+                    inicializarCalendario(deshabilitadas);
+                })
+                .catch(() => inicializarCalendario([]));
+        }
+
+        function buscarInquilinos(pagina = 1) {
+            const nombre = document.getElementById('filtroNombre').value.trim();
+            const apellido = document.getElementById('filtroApellido').value.trim();
+            const dni = document.getElementById('filtroDni').value.trim();
+            const email = document.getElementById('filtroEmail').value.trim();
+
+            const tbody = document.getElementById('tbodyInquilinos');
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-3"><div class="spinner-border text-primary" role="status"></div></td></tr>`;
+
+            // Mapea exactamente con los parámetros de C#: string? nombre, string? apellido, string? dni, string? email, int page
+            const queryParams = new URLSearchParams({
+                nombre: nombre,
+                apellido: apellido,
+                dni: dni,
+                email: email,
+                page: pagina
+            });
+
+            fetch(`/Inquilino/BuscarInquilino?${queryParams.toString()}`)
+                .then(res => {
+                    if (!res.ok) throw new Error("Error en la respuesta del servidor");
+                    return res.json();
+                })
+                .then(data => {
+                    tbody.innerHTML = '';
+
+                    // Soporta respuesta tanto en camelCase como en PascalCase
+                    const items = data.resultados || data.Resultados || [];
+                    const currentPage = data.currentPage || data.CurrentPage || 1;
+                    const totalResults = data.totalResults || data.TotalResults || 0;
+                    const pageSize = data.pageSize || data.PageSize || 10;
+
+                    const totalPages = Math.ceil(totalResults / pageSize);
+
+                    if (items.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-3">No se encontraron inquilinos con los criterios ingresados.</td></tr>`;
+                        renderPaginadorInquilinos(1, 0);
+                        return;
+                    }
+
+                    items.forEach(item => {
+                        const id = item.id || item.Id;
+                        const nom = item.nombre || item.Nombre || '';
+                        const ape = item.apellido || item.Apellido || '';
+                        const dniNum = item.dni || item.Dni || '-';
+                        const mail = item.email || item.Email || '-';
+                        const tel = item.telefono || item.Telefono || '-';
+
+                        const tr = document.createElement('tr');
+                        tr.id = `inquilino-row-${id}`;
+
+                        tr.innerHTML = `
+                            <td>${ape}, ${nom}</td>
+                            <td>${dniNum}</td>
+                            <td>${tel}</td>
+                            <td>${mail}</td>
+                            <td class="text-end pe-3 pe-md-4">
+                                <button type="button" class="btn btn-sm btn-outline-primary btn-select-inquilino" onclick="seleccionarInquilino(${id}, this)">
+                                    Seleccionar
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    renderPaginadorInquilinos(currentPage, totalPages);
+                })
+                .catch(err => {
+                    console.error("Error al buscar inquilinos:", err);
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-3">Ocurrió un error al cargar los datos.</td></tr>`;
+                });
+        }
+
+        // Limpia los 4 campos y recarga la primera página
+        function limpiarFiltrosInquilino() {
+            document.getElementById('filtroNombre').value = '';
+            document.getElementById('filtroApellido').value = '';
+            document.getElementById('filtroDni').value = '';
+            document.getElementById('filtroEmail').value = '';
+            buscarInquilinos(1);
+        }
+
+        // Seleccionar un inquilino de la lista
+        function seleccionarInquilino(id, btn) {
+            document.getElementById('InquilinoId').value = id;
+
+            // Desmarcar selecciones anteriores
+            document.querySelectorAll('#tbodyInquilinos .btn-select-inquilino').forEach(b => {
+                b.className = 'btn btn-sm btn-outline-primary btn-select-inquilino';
+                b.textContent = 'Seleccionar';
+            });
+
+            // Marcar el actual como seleccionado
+            btn.className = 'btn btn-sm btn-success btn-select-inquilino';
+            btn.textContent = 'Seleccionado';
+        }
+
+        // Paginador para la tabla de inquilinos
+        function renderPaginadorInquilinos(actual, total) {
+            const paginador = document.getElementById('paginadorInquilinos');
+            paginador.innerHTML = '';
+
+            if (total <= 1) return;
+
+            paginador.innerHTML += `
+                <li class="page-item ${actual === 1 ? 'disabled' : ''}">
+                    <button type="button" class="page-link" onclick="buscarInquilinos(${actual - 1})"><i class="bi bi-chevron-left"></i></button>
+                </li>`;
+
+            for (let i = 1; i <= total; i++) {
+                paginador.innerHTML += `
+                    <li class="page-item ${i === actual ? 'active' : ''}">
+                        <button type="button" class="page-link" onclick="buscarInquilinos(${i})">${i}</button>
+                    </li>`;
+            }
+
+            paginador.innerHTML += `
+                <li class="page-item ${actual === total ? 'disabled' : ''}">
+                    <button type="button" class="page-link" onclick="buscarInquilinos(${actual + 1})"><i class="bi bi-chevron-right"></i></button>
+                </li>`;
+        }
+    </script>
 }
