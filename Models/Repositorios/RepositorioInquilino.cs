@@ -196,7 +196,7 @@ namespace INMOBILIARIA.Models.Repositorios
 						{
 							Inquilino p = new Inquilino
 							{
-								Id = reader.GetInt32(nameof(Propietario.Id)),
+								Id = reader.GetInt32(nameof(Inquilino.Id)),
 								Nombre = reader.GetString("Nombre"),
 								Apellido = reader.GetString("Apellido"),
 								Dni = reader.GetString("Dni"),

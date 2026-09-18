@@ -379,8 +379,14 @@ namespace INMOBILIARIA.Controllers
             IEnumerable<Inmueble> inmuebles =
                 repositorioInmueble.ObtenerTodos();
 
-            IEnumerable<Inquilino> inquilinos =
+            List<Inquilino> inquilinos =
                 repositorioInquilino.ObtenerTodos();
+
+            if (reserva?.Inquilino != null &&
+                !inquilinos.Any(i => i.Id == reserva.Inquilino.Id))
+            {
+                inquilinos.Add(reserva.Inquilino);
+            }
 
             ViewBag.Inmuebles = inmuebles;
             ViewBag.Inquilinos = inquilinos;

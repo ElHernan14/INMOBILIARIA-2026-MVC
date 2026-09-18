@@ -343,15 +343,15 @@
                 formatearFecha(valor) {
                     if (!valor) return '—';
 
-                    const fecha = new Date(valor);
+                    const partes = String(valor).split('-');
 
-                    if (isNaN(fecha)) return valor;
+                    if (partes.length !== 3) {
+                        return valor;
+                    }
 
-                    return fecha.toLocaleDateString('es-AR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
-                    });
+                    const [anio, mes, dia] = partes;
+
+                    return `${dia}/${mes}/${anio}`;
                 },
 
                 detailsUrl(id) {

@@ -30,8 +30,10 @@ namespace INMOBILIARIA.Models.Repositorios
 						command.Parameters.AddWithValue("@inquilino", p.Inquilino?.Id);
 						command.Parameters.AddWithValue("@usuario_creador", p.UsuarioCreador?.Id);
 						command.Parameters.AddWithValue("@usuario_cancelador", p.UsuarioCancelador?.Id);
-						command.Parameters.AddWithValue("@fecha_desde", p.FechaDesde);
-						command.Parameters.AddWithValue("@fecha_hasta", p.FechaHasta);
+						command.Parameters.Add("@fecha_desde", MySqlDbType.Date).Value =
+							p.FechaDesde.ToDateTime(TimeOnly.MinValue);
+						command.Parameters.Add("@fecha_hasta", MySqlDbType.Date).Value =
+							p.FechaHasta.ToDateTime(TimeOnly.MinValue);
 						command.Parameters.AddWithValue("@cancelada", !p.Activo);
 						command.Parameters.AddWithValue("@fecha_creacion", p.FechaCreacion);
 						command.Parameters.AddWithValue("@fecha_cancelacion", p.FechaCancelacion);
@@ -93,8 +95,10 @@ namespace INMOBILIARIA.Models.Repositorios
 						command.Parameters.AddWithValue("@inquilino", p.Inquilino?.Id);
 						command.Parameters.AddWithValue("@usuario_creador", p.UsuarioCreador?.Id);
 						command.Parameters.AddWithValue("@usuario_cancelador", p.UsuarioCancelador?.Id);
-						command.Parameters.AddWithValue("@fecha_desde", p.FechaDesde);
-						command.Parameters.AddWithValue("@fecha_hasta", p.FechaHasta);
+						command.Parameters.Add("@fecha_desde", MySqlDbType.Date).Value =
+							p.FechaDesde.ToDateTime(TimeOnly.MinValue);
+						command.Parameters.Add("@fecha_hasta", MySqlDbType.Date).Value =
+							p.FechaHasta.ToDateTime(TimeOnly.MinValue);
 						command.Parameters.AddWithValue("@cancelada", !p.Activo);
 						command.Parameters.AddWithValue("@fecha_creacion", p.FechaCreacion);
 						command.Parameters.AddWithValue("@fecha_cancelacion", p.FechaCancelacion);
@@ -400,8 +404,12 @@ namespace INMOBILIARIA.Models.Repositorios
 						? null
 						: Usuarios.ObtenerPorId(
 							reader.GetInt32("usuario_cancelador_id")),
-				FechaDesde = reader.GetDateOnly("fecha_desde"),
-				FechaHasta = reader.GetDateOnly("fecha_hasta"),
+				FechaDesde = DateOnly.FromDateTime(
+					reader.GetDateTime("fecha_desde")
+				),
+				FechaHasta = DateOnly.FromDateTime(
+					reader.GetDateTime("fecha_hasta")
+				),
 				Activo = !reader.GetBoolean("cancelada"),
 				FechaCreacion = reader.GetDateTime("fecha_creacion"),
 				FechaCancelacion = reader["fecha_cancelacion"] is DateTime date

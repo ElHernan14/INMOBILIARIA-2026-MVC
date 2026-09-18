@@ -1,66 +1,85 @@
 @model INMOBILIARIA.Models.Reserva
 
 @{
-    ViewData["Title"] = "Detalle de la Reserva";
+ViewData["Title"] = "Detalle de la Reserva";
 }
 
 <div class="container py-4">
     <div class="mx-auto" style="max-width: 1100px;">
 
-        <!-- Encabezado -->
-        <div class="d-flex flex-column flex-md-row
-                    justify-content-between
-                    align-items-md-center
-                    gap-3 mb-4">
+    <!-- Encabezado -->
+    <div class="d-flex flex-column flex-md-row
+                justify-content-between
+                align-items-md-center
+                gap-3 mb-4">
 
-            <div>
-                <div class="d-flex align-items-center gap-2 mb-2">
-                    <span class="bg-primary bg-opacity-10
-                                 text-primary rounded-3 p-2">
-                        <i class="bi bi-calendar-check fs-5"></i>
-                    </span>
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="bg-primary bg-opacity-10 text-primary rounded-3 p-2">
+                    <i class="bi bi-calendar-check fs-5"></i>
+                </span>
 
-                    <span class="text-muted small fw-semibold">
-                        Reserva #COD-00@Model.Id
-                    </span>
-                </div>
-
-                <h1 class="h2 fw-bold mb-1">
-                    Detalle de la reserva
-                </h1>
-
-                <p class="text-muted mb-0">
-                    Información del período, inmueble e inquilino.
-                </p>
+                <span class="text-muted small fw-semibold">
+                    Reserva #COD-00 @Model.Id
+                </span>
             </div>
 
-            <div>
-                @if (Model.Activo)
-                {
-                    <span class="badge rounded-pill text-bg-success px-3 py-2">
-                        <i class="bi bi-check-circle me-1"></i>
-                        Activo
-                    </span>
-                }
-                else
-                {
-                    <span class="badge rounded-pill text-bg-secondary px-3 py-2">
-                        <i class="bi bi-dash-circle me-1"></i>
-                        Inactivo
-                    </span>
-                }
+            <h1 class="h2 fw-bold mb-1">
+                Detalle de la reserva
+            </h1>
+
+            <p class="text-muted mb-0">
+                Información del período, inmueble e inquilino.
+            </p>
+        </div>
+
+        <div>
+            @if (Model.Activo)
+            {
+                <span class="badge rounded-pill text-bg-success px-3 py-2">
+                    <i class="bi bi-check-circle me-1"></i>
+                    Activo
+                </span>
+            }
+            else
+            {
+                <span class="badge rounded-pill text-bg-secondary px-3 py-2">
+                    <i class="bi bi-dash-circle me-1"></i>
+                    Inactivo
+                </span>
+            }
+        </div>
+    </div>
+
+    <!-- Período -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+            <div class="d-flex align-items-center">
+                <div class="bg-primary bg-opacity-10
+                            text-primary rounded-3 p-2 me-3">
+                    <i class="bi bi-calendar-range"></i>
+                </div>
+
+                <div>
+                    <h2 class="h6 fw-bold mb-0">
+                        Período de reserva
+                    </h2>
+
+                    <small class="text-muted">
+                        Fechas correspondientes a la reserva
+                    </small>
+                </div>
             </div>
         </div>
 
-        <!-- Período -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body p-4">
-                <div class="row g-4">
+        <div class="card-body p-4">
+            <div class="row g-4">
 
-                    <div class="col-12 col-md-6">
-                        <div class="d-flex align-items-center">
+                <div class="col-12 col-md-6">
+                    <div class="border rounded-3 p-3 h-100">
+                        <div class="d-flex align-items-center gap-3">
                             <div class="bg-primary bg-opacity-10
-                                        text-primary rounded-3 p-2 me-3">
+                                        text-primary rounded-3 p-2">
                                 <i class="bi bi-calendar-event fs-5"></i>
                             </div>
 
@@ -69,17 +88,19 @@
                                     Fecha desde
                                 </small>
 
-                                <span class="fw-semibold">
+                                <span class="fw-semibold fs-5">
                                     @Model.FechaDesde.ToString("dd/MM/yyyy")
                                 </span>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="col-12 col-md-6">
-                        <div class="d-flex align-items-center">
+                <div class="col-12 col-md-6">
+                    <div class="border rounded-3 p-3 h-100">
+                        <div class="d-flex align-items-center gap-3">
                             <div class="bg-primary bg-opacity-10
-                                        text-primary rounded-3 p-2 me-3">
+                                        text-primary rounded-3 p-2">
                                 <i class="bi bi-calendar-event fs-5"></i>
                             </div>
 
@@ -88,207 +109,287 @@
                                     Fecha hasta
                                 </small>
 
-                                <span class="fw-semibold">
+                                <span class="fw-semibold fs-5">
                                     @Model.FechaHasta.ToString("dd/MM/yyyy")
                                 </span>
                             </div>
                         </div>
                     </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Información relacionada -->
+    <div class="row g-4">
+
+        <!-- Inmueble -->
+        <div class="col-12 col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header bg-white border-bottom py-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10
+                                    rounded-3 p-2 me-3">
+                            <i class="bi bi-house-door text-primary"></i>
+                        </div>
+
+                        <div>
+                            <h2 class="h6 fw-bold mb-0">
+                                Inmueble
+                            </h2>
+
+                            <small class="text-muted">
+                                Información de la propiedad
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">
+                            Tipo
+                        </small>
+
+                        <span class="fw-semibold">
+                            @Model.Inmueble.TipoInmueble.Nombre
+                        </span>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">
+                            Dirección
+                        </small>
+
+                        <span class="fw-semibold text-break">
+                            @Model.Inmueble.Direccion
+                        </span>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">
+                            Ubicación
+                        </small>
+
+                        <span class="fw-semibold text-break">
+                            @Model.Inmueble.Latitud -
+                            @Model.Inmueble.Longitud
+                        </span>
+                    </div>
+
+                    <div class="border-top pt-3">
+                        <small class="text-muted d-block mb-1">
+                            Propietario
+                        </small>
+
+                        <div class="fw-semibold">
+                            @Model.Inmueble.Propietario.Nombre
+                            @Model.Inmueble.Propietario.Apellido
+                        </div>
+
+                        <small class="text-muted">
+                            #COD-00 @Model.Inmueble.Propietario.Id
+                        </small>
+                    </div>
 
                 </div>
             </div>
         </div>
 
-        <!-- Información relacionada -->
-        <div class="row g-4">
+        <!-- Inquilino -->
+        <div class="col-12 col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
 
-            <!-- Inmueble -->
-            <div class="col-12 col-lg-6">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10
+                                    rounded-3 p-2 me-3">
+                            <i class="bi bi-person text-primary"></i>
+                        </div>
 
-                    <div class="card-header bg-white border-bottom py-3">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-primary bg-opacity-10
-                                        rounded-3 p-2 me-3">
-                                <i class="bi bi-house-door text-primary"></i>
-                            </div>
+                        <div>
+                            <h2 class="h6 fw-bold mb-0">
+                                Inquilino
+                            </h2>
 
-                            <div>
-                                <h2 class="h6 fw-bold mb-0">
-                                    Inmueble
-                                </h2>
-
-                                <small class="text-muted">
-                                    Información de la propiedad
-                                </small>
-                            </div>
+                            <small class="text-muted">
+                                Información del inquilino
+                            </small>
                         </div>
                     </div>
+                </div>
 
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <tbody>
+                <div class="card-body p-4">
 
-                                    <tr>
-                                        <th class="ps-4">
-                                            Tipo
-                                        </th>
-                                        <td>
-                                            @Model.Inmueble.TipoInmueble
-                                        </td>
-                                    </tr>
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">
+                            Nombre completo
+                        </small>
 
-                                    <tr>
-                                        <th class="ps-4">
-                                            Dirección
-                                        </th>
-                                        <td class="text-break">
-                                            @Model.Inmueble.Direccion
-                                        </td>
-                                    </tr>
+                        <span class="fw-semibold">
+                            @Model.Inquilino.Nombre
+                            @Model.Inquilino.Apellido
+                        </span>
+                    </div>
 
-                                    <tr>
-                                        <th class="ps-4">
-                                            Latitud y longitud
-                                        </th>
-                                        <td>
-                                            @Model.Inmueble.Latitud,
-                                            @Model.Inmueble.Longitud
-                                        </td>
-                                    </tr>
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">
+                            DNI
+                        </small>
 
-                                    <tr>
-                                        <th class="ps-4">
-                                            Propietario
-                                        </th>
-                                        <td>
-                                            @Model.Inmueble.Propietario.Nombre
-                                            @Model.Inmueble.Propietario.Apellido
-                                        </td>
-                                    </tr>
+                        <span class="fw-semibold">
+                            @Model.Inquilino.Dni
+                        </span>
+                    </div>
 
-                                    <tr>
-                                        <th class="ps-4">
-                                            Código de propietario
-                                        </th>
-                                        <td>
-                                            #COD-00@Model.Inmueble.Propietario.Id
-                                        </td>
-                                    </tr>
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">
+                            Email
+                        </small>
 
-                                </tbody>
-                            </table>
-                        </div>
+                        <span class="fw-semibold text-break">
+                            @Model.Inquilino.Email
+                        </span>
+                    </div>
+
+                    <div class="border-top pt-3">
+                        <small class="text-muted d-block mb-1">
+                            Código de inquilino
+                        </small>
+
+                        <span class="fw-semibold">
+                            #COD-00 @Model.Inquilino.Id
+                        </span>
                     </div>
 
                 </div>
             </div>
-
-            <!-- Inquilino -->
-            <div class="col-12 col-lg-6">
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-header bg-white border-bottom py-3">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-primary bg-opacity-10
-                                        rounded-3 p-2 me-3">
-                                <i class="bi bi-person text-primary"></i>
-                            </div>
-
-                            <div>
-                                <h2 class="h6 fw-bold mb-0">
-                                    Inquilino
-                                </h2>
-
-                                <small class="text-muted">
-                                    Información del inquilino
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <tbody>
-
-                                    <tr>
-                                        <th class="ps-4">
-                                            Nombre
-                                        </th>
-                                        <td>
-                                            @Model.Inquilino.Nombre
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <th class="ps-4">
-                                            Apellido
-                                        </th>
-                                        <td>
-                                            @Model.Inquilino.Apellido
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <th class="ps-4">
-                                            DNI
-                                        </th>
-                                        <td>
-                                            @Model.Inquilino.Dni
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <th class="ps-4">
-                                            Email
-                                        </th>
-                                        <td class="text-break">
-                                            @Model.Inquilino.Email
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <th class="ps-4">
-                                            Código de inquilino
-                                        </th>
-                                        <td>
-                                            #COD-00@Model.Inquilino.Id
-                                        </td>
-                                    </tr>
-
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Acciones -->
-        <div class="d-flex flex-column flex-sm-row
-                    justify-content-end
-                    gap-2 mt-4">
-
-            <a asp-controller="Reserva"
-               asp-action="Index"
-               class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i>
-                Volver al listado
-            </a>
-
-            <a asp-controller="Reserva"
-               asp-action="Update"
-               asp-route-id="@Model.Id"
-               class="btn btn-primary">
-                <i class="bi bi-pencil-square me-1"></i>
-                Editar reserva
-            </a>
-
         </div>
 
     </div>
+
+    <!-- Información administrativa -->
+    <div class="card border-0 shadow-sm mt-4">
+
+        <div class="card-header bg-white border-bottom py-3">
+            <div class="d-flex align-items-center">
+                <div class="bg-primary bg-opacity-10
+                            rounded-3 p-2 me-3">
+                    <i class="bi bi-info-circle text-primary"></i>
+                </div>
+
+                <div>
+                    <h2 class="h6 fw-bold mb-0">
+                        Información administrativa
+                    </h2>
+
+                    <small class="text-muted">
+                        Datos de gestión y seguimiento de la reserva
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="row g-4">
+
+                <div class="col-12 col-md-6">
+                    <small class="text-muted d-block mb-1">
+                        Fecha de creación
+                    </small>
+
+                    <span class="fw-semibold">
+                        @Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+                    </span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <small class="text-muted d-block mb-1">
+                        Usuario creador
+                    </small>
+
+                    @if (Model.UsuarioCreador != null)
+                    {
+                        <span class="fw-semibold text-break">
+                            @Model.UsuarioCreador.Email
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">
+                            —
+                        </span>
+                    }
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <small class="text-muted d-block mb-1">
+                        Fecha de cancelación
+                    </small>
+
+                    @if (Model.FechaCancelacion.HasValue)
+                    {
+                        <span class="fw-semibold">
+                            @Model.FechaCancelacion.Value.ToString("dd/MM/yyyy HH:mm")
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">
+                            —
+                        </span>
+                    }
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <small class="text-muted d-block mb-1">
+                        Usuario cancelador
+                    </small>
+
+                    @if (Model.UsuarioCancelador != null)
+                    {
+                        <span class="fw-semibold text-break">
+                            @Model.UsuarioCancelador.Email
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">
+                            —
+                        </span>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones -->
+    <div class="d-flex flex-column flex-sm-row
+                justify-content-end
+                gap-2 mt-4">
+
+        <a asp-controller="Reserva"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>
+            Volver al listado
+        </a>
+
+        <a asp-controller="Reserva"
+           asp-action="Update"
+           asp-route-id="@Model.Id"
+           class="btn btn-primary">
+            <i class="bi bi-pencil-square me-1"></i>
+            Editar reserva
+        </a>
+
+    </div>
+
+</div>
+
+
 </div>
