@@ -97,3 +97,25 @@ En `appsettings.json`:
 2. Luego este archivo se usa para importar como colección en POSTMAN.
 
 ---
+
+## Acceso administrador
+
+El registro público de la aplicación crea usuarios con el rol correspondiente al flujo de registro.
+
+Para acceder a las funcionalidades administrativas durante las pruebas y corrección del proyecto, se incluye el script:
+
+```text
+scripts/crear-admin.sql
+```
+
+Luego de crear la base de datos y ejecutar el script correspondiente a la estructura de las tablas, ejecutar `crear-admin.sql`.
+
+Esto creará un usuario administrador de prueba con acceso a las funcionalidades restringidas de la aplicación, incluyendo la gestión de usuarios y las operaciones de baja.
+
+### Credenciales de prueba
+
+- **Email:** `admin@inmobiliaria.com`
+- **Contraseña:** `Admin123`
+- **Rol:** `ADMINISTRADOR`
+
+> El usuario administrador incluido está destinado exclusivamente a las pruebas y corrección de la aplicación.
