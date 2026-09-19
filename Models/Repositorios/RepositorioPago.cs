@@ -213,7 +213,6 @@ namespace INMOBILIARIA.Models.Repositorios
 
                         i.id AS inmueble_id,
                         i.direccion AS inmueble_direccion,
-                        i.precio_dia AS inmueble_precio_dia,
 
                         t.id AS tipo_id,
                         t.nombre AS tipo_nombre,
@@ -332,7 +331,6 @@ namespace INMOBILIARIA.Models.Repositorios
 
                         i.id AS inmueble_id,
                         i.direccion AS inmueble_direccion,
-                        i.precio_dia AS inmueble_precio_dia,
 
                         t.id AS tipo_id,
                         t.nombre AS tipo_nombre,
@@ -734,8 +732,6 @@ namespace INMOBILIARIA.Models.Repositorios
                         Direccion =
                             reader.GetString("inmueble_direccion"),
 
-                        PrecioDia =
-                            reader.GetDecimal("inmueble_precio_dia"),
 
                         TipoInmueble = new TipoInmueble
                         {

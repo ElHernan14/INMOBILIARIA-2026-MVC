@@ -50,36 +50,8 @@ namespace INMOBILIARIA.Controllers
             try
             {
                 ValidarFechas(reserva);
-
-                //validar inmueble
-                if (reserva.InmuebleId <= 0)
-                {
-                    ModelState.AddModelError(nameof(reserva.Inmueble),"Debe seleccionar un inmueble.");
-                }
-
-                Inmueble? inmueble = repositorioInmueble.ObtenerPorId( reserva.InmuebleId);
-
-                if (inmueble == null)
-                {
-                    ModelState.AddModelError(nameof(reserva.InmuebleId), "El inmueble seleccionado no existe.");
-                }
-
-                reserva.Inmueble = inmueble;
-
-                //validar inquilino
-                if (reserva.InquilinoId <= 0)
-                {
-                    ModelState.AddModelError(nameof(reserva.Inquilino), "Debe seleccionar un inquilino.");
-                }
-
-                Inquilino? inquilino = repositorioInquilino.ObtenerPorId(reserva.InquilinoId);
-
-                if (inquilino == null)
-                {
-                    ModelState.AddModelError(nameof(reserva.InquilinoId), "El inquilino seleccionado no existe.");
-                }
-
-                reserva.Inquilino = inquilino;
+                ValidarInmueble(reserva);
+                ValidarInquilino(reserva);
 
                 //validar error de modelo
                 if (!ModelState.IsValid)
@@ -93,7 +65,6 @@ namespace INMOBILIARIA.Controllers
                 {
                     ModelState.AddModelError(string.Empty, "No se pudo identificar al usuario autenticado.");
 
-                    CargarDatosFormulario(reserva);
                     return View(reserva);
                 }
 
@@ -112,6 +83,12 @@ namespace INMOBILIARIA.Controllers
                     return View(reserva);
                 }
 
+                if(reserva.PrecioDia <= 0)
+                {
+                    ModelState.AddModelError(string.Empty, "El precio por día debe ser mayor que cero.");
+                    return View(reserva);
+                }
+
                 reserva.UsuarioCreador = usuario;
                 reserva.UsuarioCancelador = null;
                 reserva.Activo = true;
@@ -124,14 +101,8 @@ namespace INMOBILIARIA.Controllers
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(
-                    $"Ocurrió un error en ReservaController - Create: {ex.Message}");
-
-                ModelState.AddModelError(
-                    string.Empty,
-                    "Ocurrió un error al crear la reserva.");
-
-                CargarDatosFormulario(reserva);
+                Console.Error.WriteLine($"Ocurrió un error en ReservaController - Create: {ex.Message}");
+                ModelState.AddModelError(string.Empty, "Ocurrió un error al crear la reserva.");
                 return View(reserva);
             }
         }
@@ -142,8 +113,7 @@ namespace INMOBILIARIA.Controllers
         {
             try
             {
-                Reserva? reserva =
-                    repositorioReserva.ObtenerPorId(id);
+                Reserva? reserva = repositorioReserva.ObtenerPorId(id);
 
                 if (reserva == null)
                 {
@@ -156,12 +126,9 @@ namespace INMOBILIARIA.Controllers
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(
-                    $"Ocurrió un error en ReservaController - Update GET: {ex.Message}");
+                Console.Error.WriteLine($"Ocurrió un error en ReservaController - Update GET: {ex.Message}");
 
-                return StatusCode(
-                    500,
-                    "Ocurrió un error al cargar la reserva.");
+                return StatusCode(500, "Ocurrió un error al cargar la reserva.");
             }
         }
 
@@ -430,34 +397,23 @@ namespace INMOBILIARIA.Controllers
 
         private void ValidarInmueble(Reserva reserva)
         {
-            if (reserva.Inmueble == null || reserva.Inmueble.Id <= 0)
+            if (reserva.InmuebleId == null || reserva.InmuebleId <= 0)
             {
-                ModelState.AddModelError(
-                    nameof(reserva.Inmueble),
-                    "Debe seleccionar un inmueble.");
-
+                ModelState.AddModelError(nameof(reserva.Inmueble), "Debe seleccionar un inmueble.");
                 return;
             }
 
-            Inmueble? inmueble =
-                repositorioInmueble.ObtenerPorId(
-                    reserva.Inmueble.Id);
+            Inmueble? inmueble = repositorioInmueble.ObtenerPorId(reserva.InmuebleId);
 
             if (inmueble == null)
             {
-                ModelState.AddModelError(
-                    nameof(reserva.Inmueble),
-                    "El inmueble seleccionado no existe.");
-
+                ModelState.AddModelError(nameof(reserva.Inmueble), "El inmueble seleccionado no existe.");
                 return;
             }
 
             if (!inmueble.Activo)
             {
-                ModelState.AddModelError(
-                    nameof(reserva.Inmueble),
-                    "El inmueble seleccionado no está activo.");
-
+                ModelState.AddModelError(nameof(reserva.Inmueble), "El inmueble seleccionado no está activo.");
                 return;
             }
 
@@ -466,34 +422,23 @@ namespace INMOBILIARIA.Controllers
 
         private void ValidarInquilino(Reserva reserva)
         {
-            if (reserva.Inquilino == null || reserva.Inquilino.Id <= 0)
+            if (reserva.InquilinoId == null || reserva.InquilinoId <= 0)
             {
-                ModelState.AddModelError(
-                    nameof(reserva.Inquilino),
-                    "Debe seleccionar un inquilino.");
-
+                ModelState.AddModelError(nameof(reserva.Inquilino), "Debe seleccionar un inquilino.");
                 return;
             }
 
-            Inquilino? inquilino =
-                repositorioInquilino.ObtenerPorId(
-                    reserva.Inquilino.Id);
+            Inquilino? inquilino = repositorioInquilino.ObtenerPorId(reserva.InquilinoId);
 
             if (inquilino == null)
             {
-                ModelState.AddModelError(
-                    nameof(reserva.Inquilino),
-                    "El inquilino seleccionado no existe.");
-
+                ModelState.AddModelError(nameof(reserva.Inquilino), "El inquilino seleccionado no existe.");
                 return;
             }
 
             if (!inquilino.Activo)
             {
-                ModelState.AddModelError(
-                    nameof(reserva.Inquilino),
-                    "El inquilino seleccionado no está activo.");
-
+                ModelState.AddModelError(nameof(reserva.Inquilino), "El inquilino seleccionado no está activo.");
                 return;
             }
 

@@ -24,6 +24,10 @@ namespace INMOBILIARIA.Models
         [Required]
 		public DateOnly FechaHasta { get; set; }
 
+		[Required(ErrorMessage = "El precio por día es obligatorio.")]
+        [Range(0, double.MaxValue, ErrorMessage = "El precio por día no puede ser negativo.")]
+        public decimal PrecioDia { get; set; } = 0;
+
         [Required]
 		public bool Activo { get; set; } = true;
 
@@ -31,5 +35,20 @@ namespace INMOBILIARIA.Models
 		public DateTime FechaCreacion { get; set; } = DateTime.Now;
 
 		public DateTime? FechaCancelacion { get; set; } //mirar esto
+
+		public decimal precioReserva()
+		{
+			if (Inmueble == null)
+			{
+				return 0m; 
+			}
+
+			int dias = FechaHasta.DayNumber - FechaDesde.DayNumber;
+			if (dias <= 0) dias = 0;
+
+			decimal totalAlquiler = dias * PrecioDia;
+
+			return (totalAlquiler * Inmueble.PorcentajeReserva) / 100m;
+		}
 	}
 }

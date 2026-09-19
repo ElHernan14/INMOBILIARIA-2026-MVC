@@ -22,6 +22,7 @@
             <span :class="badgeClass(1)">1. Inmueble</span>
             <span :class="badgeClass(2)">2. Fechas</span>
             <span :class="badgeClass(3)">3. Inquilino</span>
+            <span :class="badgeClass(4)">4. Reserva</span>
         </div>
 
         <!-- Mensajes de Error de Vue / Servidor -->
@@ -77,7 +78,7 @@
                                         <tr>
                                             <th>Inmueble</th>
                                             <th>Propietario</th>
-                                            <th>Precio / día</th>
+                                            <th>% Reserva</th>
                                             <th class="text-center">Cupo</th>
                                             <th>Estado</th>
                                             <th class="text-end pe-3 pe-md-4">Acción</th>
@@ -95,7 +96,7 @@
                                         <tr v-for="item in inmuebles" :key="item.id" :class="{'table-active': form.inmuebleId === item.id}">
                                             <td>{{ item.direccion || '-' }}</td>
                                             <td>{{ item.propietario ? `${item.propietario.nombre} ${item.propietario.apellido}` : '-' }}</td>
-                                            <td>${{ item.precio }}</td>
+                                            <td>%{{ item.porcentajeReserva }}</td>
                                             <td class="text-center">{{ item.cupo }}</td>
                                             <td><span class="badge bg-success">Disponible</span></td>
                                             <td class="text-end pe-3 pe-md-4">
@@ -215,12 +216,80 @@
                             <button type="button" class="btn btn-outline-secondary" @@click="nextStep(2)">
                                 <i class="bi bi-arrow-left"></i> Anterior
                             </button>
-                            <button type="submit" class="btn btn-success">
-                                <i class="bi bi-calendar-check me-1"></i> Crear reserva
+                            <button type="button" class="btn btn-primary" @@click="nextStep(4)">
+                                Siguiente <i class="bi bi-arrow-right"></i>
                             </button>
                         </div>
                     </div>
+                    <!-- PASO 4: Reserva y Montos -->
+                    <div v-show="currentStep === 4">
+                        <div class="row g-4">
+                            <!-- Resumen General -->
+                            <div class="col-12 col-lg-7">
+                                <div class="card border-0 bg-light p-4 h-100 shadow-sm">
+                                    <h5 class="fw-bold mb-3">Resumen de la Operación</h5>
+                                    <hr>
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <p class="mb-1 text-muted">Inmueble:</p>
+                                            <h6 class="fw-bold">{{ inmuebleSeleccionado ? inmuebleSeleccionado.direccion : '-' }}</h6>
+                                            <small class="text-muted" v-if="inmuebleSeleccionado">
+                                                % de Reserva requerido: <span class="badge bg-info text-dark">{{ inmuebleSeleccionado.porcentajeReserva }}%</span>
+                                            </small>
+                                        </div>
+                                        <div class="col-12">
+                                            <p class="mb-1 text-muted">Inquilino:</p>
+                                            <h6 class="fw-bold">{{ inquilinoSeleccionado ? `${inquilinoSeleccionado.nombre} ${inquilinoSeleccionado.apellido} (DNI: ${inquilinoSeleccionado.dni})` : '-' }}</h6>
+                                        </div>
+                                        <div class="col-12">
+                                            <p class="mb-1 text-muted">Período:</p>
+                                            <h6 class="fw-bold text-primary">
+                                                {{ form.fechaDesde }} al {{ form.fechaHasta }} 
+                                                <span class="badge bg-secondary ms-2">({{ cantidadDias }} días)</span>
+                                            </h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
+                            <!-- Ingreso de Monto y Cálculo -->
+                            <div class="col-12 col-lg-5">
+                                <div class="card border-0 shadow-sm p-4 h-100">
+                                    <h5 class="fw-bold mb-3">Cálculo de Reserva</h5>
+                                    <hr>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Monto de Alquiler por Día ($)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" asp-for="PrecioDia" step="0.01" min="0" v-model.number="form.precioDia" class="form-control" placeholder="Ej: 50000" />
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-white p-3 rounded border mb-3">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-muted">Total Alquiler:</span>
+                                            <span class="fw-semibold">${{ montoTotalAlquiler.toFixed(2) }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between text-success fw-bold fs-5 border-top pt-2">
+                                            <span>A Pagar (Reserva):</span>
+                                            <span>${{ montoReservaCalculado.toFixed(2) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de navegación -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-outline-secondary" @@click="nextStep(3)">
+                                <i class="bi bi-arrow-left"></i> Anterior
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-calendar-check me-1"></i> Confirmar y Crear reserva
+                            </button>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>
@@ -241,12 +310,14 @@
                         inmuebleId: null,
                         inquilinoId: null,
                         fechaDesde: null,
-                        fechaHasta: null
+                        fechaHasta: null,
+                        precioDia: 0
                     },
 
                     // Inmuebles
                     loadingInmuebles: false,
                     inmuebles: [],
+                    inmuebleSeleccionado: null,
                     filtrosInmueble: {
                         termino: ''
                     },
@@ -257,6 +328,7 @@
                     // Inquilinos
                     loadingInquilinos: false,
                     inquilinos: [],
+                    inquilinoSeleccionado: null,
                     filtrosInquilino: {
                         nombre: '',
                         apellido: '',
@@ -274,8 +346,31 @@
                         case 1: return 'Seleccioná el inmueble';
                         case 2: return 'Elegí las fechas de la reserva';
                         case 3: return 'Seleccioná el inquilino';
+                        case 4: return 'Detalle y Monto de la Reserva';
                         default: return '';
                     }
+                },
+
+                // Calcula la cantidad de días entre FechaDesde y FechaHasta
+                cantidadDias() {
+                    if (!this.form.fechaDesde || !this.form.fechaHasta) return 0;
+                    const inicio = new Date(this.form.fechaDesde);
+                    const fin = new Date(this.form.fechaHasta);
+                    const diferenciaTiempo = fin - inicio;
+                    const dias = diferenciaTiempo / (1000 * 3600 * 24);
+                    return dias > 0 ? dias : 0;
+                },
+
+                // Monto total del alquiler (Días * Precio por día)
+                montoTotalAlquiler() {
+                    return this.cantidadDias * (parseFloat(this.form.precioDia) || 0);
+                },
+
+                // Monto de la reserva aplicando el porcentaje del inmueble
+                montoReservaCalculado() {
+                    if (!this.inmuebleSeleccionado || !this.inmuebleSeleccionado.porcentajeReserva) return 0;
+                    const porcentaje = parseFloat(this.inmuebleSeleccionado.porcentajeReserva) || 0;
+                    return (this.montoTotalAlquiler * porcentaje) / 100;
                 }
             },
 
@@ -310,6 +405,11 @@
                         }
                     }
 
+                     if (step === 4 && !this.form.inquilinoId) {
+                        this.errorMsg = 'Por favor, selecciona un inquilino antes de continuar.';
+                        return;
+                    }
+
                     this.currentStep = step;
                 },
 
@@ -331,6 +431,7 @@
 
                 async seleccionarInmueble(inmueble) {
                     this.form.inmuebleId = inmueble.id;
+                    this.inmuebleSeleccionado = inmueble
                     // Limpiar las fechas previa selección si cambia de inmueble
                     this.form.fechaDesde = null;
                     this.form.fechaHasta = null;
@@ -395,6 +496,7 @@
 
                 seleccionarInquilino(inquilino) {
                     this.form.inquilinoId = inquilino.id;
+                    this.inquilinoSeleccionado = inquilino
                 },
 
                 initFlatpickr() {
@@ -423,7 +525,7 @@
                         event.preventDefault();
                         this.errorMsg = 'Faltan datos obligatorios para registrar la reserva.';
                     }
-                }
+                },
             }
         }).mount("#reserva-create-app");
     </script>

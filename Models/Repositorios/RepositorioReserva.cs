@@ -16,11 +16,13 @@ namespace INMOBILIARIA.Models.Repositorios
 		{
 			try
 			{
+				RepositorioPago repoPago = new RepositorioPago(configuration);
+
 				int res = -1;
 				using (MySqlConnection connection = new MySqlConnection(connectionString))
 				{
-					string sql = @"INSERT INTO reservas (inmueble_id, inquilino_id, usuario_creador_id, usuario_cancelador_id, fecha_desde, fecha_hasta, cancelada, fecha_creacion, fecha_cancelacion)
-					VALUES (@inmueble, @inquilino, @usuario_creador, @usuario_cancelador, @fecha_desde, @fecha_hasta, @cancelada, @fecha_creacion, @fecha_cancelacion);
+					string sql = @"INSERT INTO reservas (inmueble_id, inquilino_id, usuario_creador_id, usuario_cancelador_id, fecha_desde, fecha_hasta, precio_dia, cancelada, fecha_creacion, fecha_cancelacion)
+					VALUES (@inmueble, @inquilino, @usuario_creador, @usuario_cancelador, @fecha_desde, @fecha_hasta, @precio_dia, @cancelada, @fecha_creacion, @fecha_cancelacion);
 					SELECT LAST_INSERT_ID();";
 
 					using (MySqlCommand command = new MySqlCommand(sql, connection))
@@ -34,6 +36,7 @@ namespace INMOBILIARIA.Models.Repositorios
 							p.FechaDesde.ToDateTime(TimeOnly.MinValue);
 						command.Parameters.Add("@fecha_hasta", MySqlDbType.Date).Value =
 							p.FechaHasta.ToDateTime(TimeOnly.MinValue);
+						command.Parameters.AddWithValue("precio_dia", p.PrecioDia);
 						command.Parameters.AddWithValue("@cancelada", !p.Activo);
 						command.Parameters.AddWithValue("@fecha_creacion", p.FechaCreacion);
 						command.Parameters.AddWithValue("@fecha_cancelacion", p.FechaCancelacion);
@@ -43,6 +46,20 @@ namespace INMOBILIARIA.Models.Repositorios
 						connection.Close();
 					}
 				}
+
+				p.Id = res;
+
+				repoPago.Alta(new Pago
+				{
+					Reserva = p,
+					UsuarioCreador = p.UsuarioCreador,
+					Concepto = "Reserva",
+					Fecha = DateOnly.FromDateTime(DateTime.Now),
+					Importe = p.precioReserva(),
+					Anulado = false,
+					FechaCreacion = p.FechaCreacion
+				});
+
 				return res;
 			}
 			catch (Exception ex)

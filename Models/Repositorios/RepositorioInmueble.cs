@@ -26,7 +26,6 @@ namespace INMOBILIARIA.Models.Repositorios
                     latitud,
                     longitud,
                     cupo,
-                    precio_dia,
                     porcentaje_reserva,
                     disponible,
                     activo
@@ -39,7 +38,6 @@ namespace INMOBILIARIA.Models.Repositorios
                     @latitud,
                     @longitud,
                     @cupo,
-                    @precio_dia,
                     @porcentaje_reserva,
                     @disponible,
                     @activo
@@ -76,10 +74,6 @@ namespace INMOBILIARIA.Models.Repositorios
             command.Parameters.AddWithValue(
                 "@cupo",
                 inmueble.Cupo);
-
-            command.Parameters.AddWithValue(
-                "@precio_dia",
-                inmueble.PrecioDia);
 
             command.Parameters.AddWithValue(
                 "@porcentaje_reserva",
@@ -129,7 +123,6 @@ namespace INMOBILIARIA.Models.Repositorios
                     latitud = @latitud,
                     longitud = @longitud,
                     cupo = @cupo,
-                    precio_dia = @precio_dia,
                     porcentaje_reserva = @porcentaje_reserva,
                     disponible = @disponible,
                     activo = @activo
@@ -170,10 +163,6 @@ namespace INMOBILIARIA.Models.Repositorios
                 inmueble.Cupo);
 
             command.Parameters.AddWithValue(
-                "@precio_dia",
-                inmueble.PrecioDia);
-
-            command.Parameters.AddWithValue(
                 "@porcentaje_reserva",
                 inmueble.PorcentajeReserva);
 
@@ -202,7 +191,6 @@ namespace INMOBILIARIA.Models.Repositorios
                     i.latitud,
                     i.longitud,
                     i.cupo,
-                    i.precio_dia,
                     i.porcentaje_reserva,
                     i.disponible,
                     i.activo,
@@ -257,7 +245,6 @@ namespace INMOBILIARIA.Models.Repositorios
                     i.latitud,
                     i.longitud,
                     i.cupo,
-                    i.precio_dia,
                     i.porcentaje_reserva,
                     i.disponible,
                     i.activo,
@@ -354,7 +341,6 @@ namespace INMOBILIARIA.Models.Repositorios
                     i.latitud,
                     i.longitud,
                     i.cupo,
-                    i.precio_dia,
                     i.porcentaje_reserva,
                     i.disponible,
                     i.activo,
@@ -554,8 +540,6 @@ namespace INMOBILIARIA.Models.Repositorios
                     : reader.GetDecimal("longitud"),
 
                 Cupo = reader.GetInt32("cupo"),
-
-                PrecioDia = reader.GetDecimal("precio_dia"),
 
                 PorcentajeReserva =
                     reader.GetDecimal("porcentaje_reserva"),

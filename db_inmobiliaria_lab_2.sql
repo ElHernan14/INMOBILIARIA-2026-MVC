@@ -44,7 +44,6 @@ CREATE TABLE inmuebles (
 	latitud DECIMAL(10,7),
     longitud DECIMAL(10,7),
 	cupo INT NOT NULL DEFAULT 1,
-	precio_dia DECIMAL(10,2) NOT NULL DEFAULT 0,
 	porcentaje_reserva DECIMAL(5,2) NOT NULL DEFAULT 0,
 	disponible BOOLEAN NOT NULL DEFAULT TRUE,
 	activo BOOLEAN NOT NULL DEFAULT TRUE,
@@ -70,6 +69,7 @@ CREATE TABLE reservas (
 	usuario_cancelador_id INT NULL,
 	fecha_desde DATE NOT NULL,
 	fecha_hasta DATE NOT NULL,
+	precio_dia DECIMAL(10,2) NOT NULL DEFAULT 0,
 	cancelada BOOLEAN NOT NULL DEFAULT FALSE,
 	fecha_creacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	fecha_cancelacion DATETIME NULL,
@@ -96,6 +96,3 @@ CREATE TABLE pagos (
 	FOREIGN KEY (usuario_creador_id) REFERENCES usuarios(id),
 	FOREIGN KEY (usuario_cancelador_id) REFERENCES usuarios(id)
 );
-
--- ALTER TABLE usuarios
--- ADD COLUMN dni VARCHAR(10) NOT NULL AFTER apellido;

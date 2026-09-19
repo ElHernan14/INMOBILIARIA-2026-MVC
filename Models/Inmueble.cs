@@ -28,10 +28,6 @@ namespace INMOBILIARIA.Models
         [Range(1, int.MaxValue, ErrorMessage = "El cupo debe ser mayor a 0.")]
         public int Cupo { get; set; } = 1;
 
-        [Required(ErrorMessage = "El precio por día es obligatorio.")]
-        [Range(0, double.MaxValue, ErrorMessage = "El precio por día no puede ser negativo.")]
-        public decimal PrecioDia { get; set; } = 0;
-
         [Required(ErrorMessage = "El porcentaje de reserva es obligatorio.")]
         [Range(0, 100, ErrorMessage = "El porcentaje de reserva debe estar entre 0 y 100.")]
         public decimal PorcentajeReserva { get; set; } = 0;

@@ -148,7 +148,7 @@ namespace INMOBILIARIA.Controllers
             {
                 if (page < 1) page = 1;
 
-                int limit = 10;
+                int limit = 5;
 
                 IEnumerable<Inmueble> inmuebles = repositorioInmueble.ObtenerTodos(termino, null, true, limit, page);
                 int totalResultados = repositorioInmueble.Contar(termino, null, true);
