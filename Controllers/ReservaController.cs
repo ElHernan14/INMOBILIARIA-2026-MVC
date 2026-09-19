@@ -39,16 +39,7 @@ namespace INMOBILIARIA.Controllers
         [Authorize]
         public ActionResult Create()
         {
-
-            Reserva reserva = new Reserva
-            {
-                FechaDesde = DateOnly.FromDateTime(DateTime.Today),
-                FechaHasta = DateOnly.FromDateTime(DateTime.Today),
-                FechaCreacion = DateTime.Now,
-                Activo = true
-            };
-
-            return View(reserva);
+            return View();
         }
 
         [HttpPost]
