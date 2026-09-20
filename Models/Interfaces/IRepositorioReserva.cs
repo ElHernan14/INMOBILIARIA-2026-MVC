@@ -12,5 +12,6 @@ namespace INMOBILIARIA.Models.Interfaces
         public abstract IEnumerable<Reserva> ObtenerPorInmuebleFuturas(int id);
         public abstract IEnumerable<Reserva> ObtenerPorInquilino(int id);
         public abstract IEnumerable<Reserva> ObtenerPorFecha(DateOnly fecha);
+        int Cancelar(Reserva reserva);
     }
 }

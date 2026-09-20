@@ -46,6 +46,20 @@
         </div>
     }
 
+    @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm"
+                 role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                @TempData["Error"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+            </div>
+        }
+
     <!-- Listado -->
     <div class="card border-0 shadow-sm overflow-hidden">
         <!-- Cabecera -->
@@ -164,7 +178,7 @@
 
                             <span v-else
                                   class="badge rounded-pill text-bg-secondary">
-                                Inactivo
+                                Cancelado
                             </span>
                         </td>
 
@@ -188,18 +202,14 @@
                                     </span>
                                 </a>
 
-                                @if (User.IsInRole("ADMINISTRADOR"))
-                                {
-                                    <a href="#"
-                                       @@click="eliminar(Reserva.Id)"
-                                       class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash-fill"></i>
-                                        <span class="d-none d-lg-inline ms-1">
-                                            Eliminar
-                                        </span>
-                                    </a>
-                                }
-
+                                <a :href="cancelarUrl(Reserva.Id)"
+                                    v-if="Reserva.Activo && !esFechaVencida(Reserva.FechaHasta)"
+                                    class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash-fill"></i>
+                                    <span class="d-none d-lg-inline ms-1">
+                                        Cancelar
+                                    </span>
+                                </a>
                             </div>
                         </td>
                     </tr>
@@ -362,6 +372,10 @@
                     return `/Reserva/Renovar/${id}`;
                 },
 
+                cancelarUrl(id) {
+                    return `/Reserva/Cancelar/${id}`;
+                },
+
                 async eliminar(id) {
                     let success =
                         document.getElementById("successAlert");
@@ -399,6 +413,18 @@
 
                         error.hidden = false;
                     }
+                },
+
+                esFechaVencida(fechaHasta) {
+                    if (!fechaHasta) return false;
+                    const hoy = new Date();
+
+                    hoy.setHours(0, 0, 0, 0);
+                    
+                    const fin = new Date(fechaHasta);
+                    fin.setHours(0, 0, 0, 0);
+
+                    return hoy > fin; // Retorna true si hoy es posterior a la fecha de fin
                 },
 
                 getPage(index) {

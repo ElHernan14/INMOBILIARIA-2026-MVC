@@ -95,6 +95,49 @@ namespace INMOBILIARIA.Models.Repositorios
 			}
 		}
 
+		public int Cancelar(Reserva p) 
+		{
+			try
+			{
+				RepositorioPago repoPago = new RepositorioPago(configuration);
+
+				int res = -1;
+				using (MySqlConnection connection = new MySqlConnection(connectionString))
+				{
+					string sql = "UPDATE reservas SET cancelada=TRUE, fecha_cancelacion=@fecha_cancelacion, usuario_cancelador_id=@usuario_cancelador WHERE Id = @id";
+					using (MySqlCommand command = new MySqlCommand(sql, connection))
+					{
+						command.CommandType = CommandType.Text;
+						command.Parameters.AddWithValue("@id", p.Id);
+						command.Parameters.AddWithValue("@fecha_cancelacion", p.FechaCancelacion);
+						command.Parameters.AddWithValue("@usuario_cancelador", p.UsuarioCancelador?.Id);
+						connection.Open();
+						res = command.ExecuteNonQuery();
+						connection.Close();
+					}
+				}
+
+				repoPago.Alta(new Pago
+				{
+					Reserva = p,
+					UsuarioCreador = p.UsuarioCancelador,
+					Concepto = "Cancelación",
+					Fecha = DateOnly.FromDateTime(DateTime.Now),
+					Importe = p.CalcularMontoCancelacion(),
+					Anulado = false,
+					FechaCreacion = DateTime.Now
+				});
+
+
+				return res;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error RepositorioReserva - Cancelar: {ex.Message}");
+				throw;
+			}
+		}
+
 		public int Modificacion(Reserva p) 
 		{
 			try
@@ -141,7 +184,7 @@ namespace INMOBILIARIA.Models.Repositorios
 				Reserva? p = null;
 				using (MySqlConnection connection = new MySqlConnection(connectionString))
 				{
-					string sql = @"SELECT id, inmueble_id, inquilino_id, usuario_creador_id, usuario_cancelador_id, fecha_desde, fecha_hasta, cancelada, fecha_creacion, fecha_cancelacion 
+					string sql = @"SELECT id, inmueble_id, inquilino_id, usuario_creador_id, usuario_cancelador_id, fecha_desde, fecha_hasta, precio_dia, cancelada, fecha_creacion, fecha_cancelacion 
 					FROM reservas
 					WHERE id=@id";
 					using (MySqlCommand command = new MySqlCommand(sql, connection))
@@ -182,6 +225,7 @@ namespace INMOBILIARIA.Models.Repositorios
 							usuario_cancelador_id,
 							fecha_desde,
 							fecha_hasta,
+							precio_dia,
 							cancelada,
 							fecha_creacion,
 							fecha_cancelacion
@@ -230,6 +274,7 @@ namespace INMOBILIARIA.Models.Repositorios
 							usuario_cancelador_id,
 							fecha_desde,
 							fecha_hasta,
+							precio_dia,
 							cancelada,
 							fecha_creacion,
 							fecha_cancelacion
@@ -279,6 +324,7 @@ namespace INMOBILIARIA.Models.Repositorios
 						usuario_cancelador_id,
 						fecha_desde,
 						fecha_hasta,
+						precio_dia,
 						cancelada,
 						fecha_creacion,
 						fecha_cancelacion
@@ -323,6 +369,7 @@ namespace INMOBILIARIA.Models.Repositorios
 						usuario_cancelador_id,
 						fecha_desde,
 						fecha_hasta,
+						precio_dia,
 						cancelada,
 						fecha_creacion,
 						fecha_cancelacion
@@ -370,6 +417,7 @@ namespace INMOBILIARIA.Models.Repositorios
 						usuario_cancelador_id,
 						fecha_desde,
 						fecha_hasta,
+						precio_dia,
 						cancelada,
 						fecha_creacion,
 						fecha_cancelacion
@@ -415,6 +463,7 @@ namespace INMOBILIARIA.Models.Repositorios
 						usuario_cancelador_id,
 						fecha_desde,
 						fecha_hasta,
+						precio_dia,
 						cancelada,
 						fecha_creacion,
 						fecha_cancelacion
@@ -453,6 +502,7 @@ namespace INMOBILIARIA.Models.Repositorios
 				Id = reader.GetInt32("id"),
 				FechaDesde = DateOnly.FromDateTime(reader.GetDateTime("fecha_desde")),
 				FechaHasta = DateOnly.FromDateTime(reader.GetDateTime("fecha_hasta")),
+				PrecioDia = reader.GetDecimal("precio_dia"),
 				Activo = !reader.GetBoolean("cancelada"),
 				FechaCreacion = reader.GetDateTime("fecha_creacion"),
 				FechaCancelacion = reader["fecha_cancelacion"] is DateTime date ? date : null
@@ -488,6 +538,7 @@ namespace INMOBILIARIA.Models.Repositorios
 				FechaDesde = DateOnly.FromDateTime(
 					reader.GetDateTime("fecha_desde")
 				),
+				PrecioDia = reader.GetDecimal("precio_dia"),
 				FechaHasta = DateOnly.FromDateTime(
 					reader.GetDateTime("fecha_hasta")
 				),

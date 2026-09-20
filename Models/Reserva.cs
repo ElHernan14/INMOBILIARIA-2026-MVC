@@ -50,5 +50,34 @@ namespace INMOBILIARIA.Models
 
 			return (totalAlquiler * Inmueble.PorcentajeReserva) / 100m;
 		}
+
+		public decimal CalcularMontoCancelacion()
+		{
+			DateOnly fechaCancelacion = FechaCancelacion.HasValue ? DateOnly.FromDateTime(FechaCancelacion.Value) : DateOnly.FromDateTime(DateTime.Today);
+
+			int diasTotales = FechaHasta.DayNumber - FechaDesde.DayNumber;
+			if (diasTotales <= 0) diasTotales = 1; 
+
+			int diasTranscurridos = fechaCancelacion.DayNumber - FechaDesde.DayNumber;
+			
+			if (diasTranscurridos < 0) diasTranscurridos = 0;
+			if (diasTranscurridos > diasTotales) diasTranscurridos = diasTotales;
+
+			decimal porcentajeCumplido = ((decimal)diasTranscurridos / diasTotales) * 100m;
+			
+			// Días que restaban por transcurrir
+			int diasRestantes = diasTotales - diasTranscurridos;
+			if (diasRestantes < 0) diasRestantes = 0;
+			decimal montoRestante = diasRestantes * PrecioDia;
+
+			if (porcentajeCumplido < 50m)
+			{
+				return montoRestante * 0.50m; // 50% del restante
+			}
+			else
+			{
+				return montoRestante * 0.25m; // 25% del restante
+			}
+		}
 	}
 }

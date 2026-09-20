@@ -1,0 +1,197 @@
+@model INMOBILIARIA.Models.Reserva
+
+@{
+    ViewData["Title"] = "Terminar / Cancelar Reserva";
+}
+
+<div class="container py-4" id="reserva-terminar-app" v-cloak>
+    <div class="mx-auto" style="max-width: 900px;">
+        <!-- Encabezado -->
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div>
+                <h1 class="h3 fw-bold mb-1">Terminación Anticipada de Reserva</h1>
+                <p class="text-body-secondary mb-0">Cálculo de multa por cancelación calculado con la fecha actual del sistema.</p>
+            </div>
+        </div>
+
+        <!-- Mensajes de Error -->
+        <div v-if="errorMsg" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            {{ errorMsg }}
+            <button type="button" class="btn-close" @@click="errorMsg = ''"></button>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <!-- Apuntamos a la acción de tu controlador que procesa la terminación -->
+                <form asp-action="Cancelar" method="post" @@submit="validarFormulario">
+                    @Html.AntiForgeryToken()
+                    
+                    <!-- Campos ocultos necesarios -->
+                    <input type="hidden" name="Id" value="@Model.Id" />
+                    <!-- Enviamos la fecha de hoy automáticamente como la fecha de cancelación/terminación -->
+                    <input type="hidden" asp-for="FechaCancelacion" name="FechaCancelacion" />
+
+                    <!-- Información General -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-12 col-md-6">
+                            <div class="p-3 bg-light rounded border h-100">
+                                <h6 class="fw-bold text-primary mb-2"><i class="bi bi-building me-1"></i> Inmueble</h6>
+                                <p class="mb-1"><strong>Dirección:</strong> @Model.Inmueble?.Direccion</p>
+                                <p class="mb-1"><strong>Tipo:</strong> @Model.Inmueble?.TipoInmueble?.Nombre</p>
+                                <p class="mb-0"><strong>% de Reserva:</strong> @Model.Inmueble?.PorcentajeReserva%</p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="p-3 bg-light rounded border h-100">
+                                <h6 class="fw-bold text-primary mb-2"><i class="bi bi-person me-1"></i> Inquilino y Reserva</h6>
+                                <p class="mb-1"><strong>Inquilino:</strong> @Model.Inquilino?.Nombre @Model.Inquilino?.Apellido</p>
+                                <p class="mb-0"><strong>Precio por Día:</strong> $@Model.PrecioDia</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Datos del Período Original -->
+                    <div class="alert alert-secondary mb-4">
+                        <div class="row text-center">
+                            <div class="col-4 border-end">
+                                <span class="d-block text-muted small">Fecha Inicio</span>
+                                <strong class="fs-6">@Model.FechaDesde.ToString("yyyy-MM-dd")</strong>
+                            </div>
+                            <div class="col-4 border-end">
+                                <span class="d-block text-muted small">Fecha Fin Original</span>
+                                <strong class="fs-6">@Model.FechaHasta.ToString("yyyy-MM-dd")</strong>
+                            </div>
+                            <div class="col-4">
+                                <span class="d-block text-muted small">Fecha de Hoy (Efectiva)</span>
+                                <strong class="fs-6 text-danger">@DateTime.Today.ToString("yyyy-MM-dd")</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel de Cálculos y Multa Automática -->
+                    <div class="card border bg-light p-3 mb-4">
+                        <h5 class="fw-bold mb-3 text-dark">Liquidación y Multa a la Fecha</h5>
+                        <div class="row g-3">
+                            <div class="col-6 col-md-3">
+                                <span class="text-muted small d-block">Días Totales Originales</span>
+                                <strong class="fs-5">@(Model.FechaHasta.DayNumber - Model.FechaDesde.DayNumber) días</strong>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="text-muted small d-block">Días Transcurridos</span>
+                                <strong class="fs-5 text-primary">{{ diasTranscurridos }} días</strong>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="text-muted small d-block">% del Tiempo Cumplido</span>
+                                <strong class="fs-5" :class="porcentajeCumplido < 50 ? 'text-warning' : 'text-info'">
+                                    {{ porcentajeCumplido.toFixed(1) }}%
+                                </strong>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="text-muted small d-block">Regla Aplicada</span>
+                                <span class="badge" :class="porcentajeCumplido < 50 ? 'bg-danger' : 'bg-primary'">
+                                    {{ porcentajeCumplido < 50 ? 'Menos de la mitad (50% restante)' : 'Más de la mitad (25%)' }}
+                                </span>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-muted">Monto total original del alquiler: </span>
+                                <strong class="text-dark">${{ montoTotalOriginal.toFixed(2) }}</strong>
+                            </div>
+                            <div class="text-end">
+                                <span class="text-muted fs-6 d-block">Multa a Pagar por Terminación:</span>
+                                <h3 class="fw-bold text-danger mb-0">${{ montoMulta.toFixed(2) }}</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-check-circle me-1"></i> Confirmar Terminación
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    errorMsg: '',
+                    fechaDesdeOriginal: '@Model.FechaDesde.ToString("yyyy-MM-dd")',
+                    fechaHastaOriginal: '@Model.FechaHasta.ToString("yyyy-MM-dd")',
+                    fechaHoy: '@Model.FechaCancelacion?.ToString("yyyy-MM-dd")', 
+                    precioDia: parseFloat('@Model.PrecioDia'.replace(',', '.')) || 0,
+                };
+            },
+
+            computed: {
+                diasTotalesOriginales() {
+                    const inicio = new Date(this.fechaDesdeOriginal);
+                    const fin = new Date(this.fechaHastaOriginal);
+                    const diff = (fin - inicio) / (1000 * 3600 * 24);
+                    return diff > 0 ? diff : 1;
+                },
+
+                montoTotalOriginal() {
+                    return this.diasTotalesOriginales * this.precioDia;
+                },
+
+                diasTranscurridos() {
+                    const inicio = new Date(this.fechaDesdeOriginal);
+                    const hoy = new Date(this.fechaHoy);
+                    
+                    // Si hoy es anterior al inicio de la reserva, los transcurridos son 0
+                    if (hoy < inicio) return 0;
+
+                    const diff = (hoy - inicio) / (1000 * 3600 * 24);
+                    // No permitir que supere los días totales originales para el cálculo
+                    return diff > this.diasTotalesOriginales ? this.diasTotalesOriginales : diff;
+                },
+
+                porcentajeCumplido() {
+                    if (this.diasTotalesOriginales === 0) return 0;
+                    const porcentaje = (this.diasTranscurridos / this.diasTotalesOriginales) * 100;
+                    return porcentaje > 100 ? 100 : (porcentaje < 0 ? 0 : porcentaje);
+                },
+
+                montoRestanteAlquiler() {
+                    const diasRestantes = this.diasTotalesOriginales - this.diasTranscurridos;
+                    return diasRestantes > 0 ? diasRestantes * this.precioDia : 0;
+                },
+
+                montoMulta() {
+                    // Regla de negocio: 
+                    // "Si se cumplió menos de la mitad del tiempo original de alquiler, deberá pagar el 50% restante de alquiler. Caso contrario, sólo 25%."
+                    if (this.porcentajeCumplido < 50) {
+                        return this.montoRestanteAlquiler * 0.50; // 50% del restante
+                    } else {
+                        return this.montoRestanteAlquiler * 0.25; // 25% del restante
+                    }
+                }
+            },
+
+            methods: {
+                validarFormulario(event) {
+                    // Validaciones básicas antes de enviar si es necesario
+                    if (!this.fechaHoy) {
+                        event.preventDefault();
+                        this.errorMsg = 'No se pudo determinar la fecha actual.';
+                    }
+                }
+            }
+        }).mount("#reserva-terminar-app");
+    </script>
+}

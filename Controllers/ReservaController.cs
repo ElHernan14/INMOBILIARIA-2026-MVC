@@ -392,6 +392,81 @@ namespace INMOBILIARIA.Controllers
             return View(reserva);
         }
 
+        [HttpGet]
+        [Authorize]
+        public ActionResult Cancelar(int id)
+        {
+            try
+            {
+                Reserva? reserva = repositorioReserva.ObtenerPorId(id);
+
+                if (reserva == null)
+                {
+                    TempData["Error"] = "La reserva no existe.";
+
+                    return RedirectToAction(nameof(Index));
+                }
+
+                reserva.FechaCancelacion = DateTime.Now;
+
+                return View(reserva);
+                
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine("Ocurrió un error, en ReservaController - Cancelar - get", ex);
+				return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public ActionResult Cancelar(int id, DateTime fechaCancelacion)
+        {
+            try
+            {
+                Reserva? reservaOriginal = repositorioReserva.ObtenerPorId(id);
+                if (reservaOriginal == null)
+                {
+				    TempData["Error"] = "Error intente mas tarde.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                string? usuarioIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (!int.TryParse(usuarioIdClaim, out int usuarioId))
+                {
+				    TempData["Error"] = "No se pudo identificar al usuario autenticado.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                Usuario? usuario = repositorioUsuario.ObtenerPorId(usuarioId);
+
+                if (usuario == null || !usuario.Activo)
+                {
+
+                    TempData["Error"] = "El usuario autenticado no es válido.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                reservaOriginal.UsuarioCancelador = usuario;
+
+                repositorioReserva.Cancelar(reservaOriginal);
+
+				TempData["SuccessMessage"] = "Reserva cancelada correctamente.";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Ocurrió un error en ReservaController - Create: {ex.Message}");
+                TempData["Error"] = "Ocurrió un error al cancelar la reserva.";
+                return RedirectToAction(nameof(Index));
+
+            }
+        }
+
 
         private void CargarDatosFormulario(Reserva? reserva = null)
         {
