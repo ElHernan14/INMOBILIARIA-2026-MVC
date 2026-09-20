@@ -476,7 +476,9 @@ namespace INMOBILIARIA.Models.Repositorios
 				 */
 				Id = reader.GetInt32("id"),
 				Inmueble = Inmuebles.ObtenerPorId(reader.GetInt32("inmueble_id")), 				//a chequear
+				InmuebleId = reader.GetInt32("inmueble_id"),
 				Inquilino = Inquilinos.ObtenerPorId(reader.GetInt32("inquilino_id")), 			//a chequear
+				InquilinoId = reader.GetInt32("inquilino_id"),
 				UsuarioCreador = Usuarios.ObtenerPorId(reader.GetInt32("usuario_creador_id")), 	//a chequear
 				UsuarioCancelador =
 					reader.IsDBNull(reader.GetOrdinal("usuario_cancelador_id"))

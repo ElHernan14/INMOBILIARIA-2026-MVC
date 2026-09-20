@@ -172,11 +172,11 @@
                         <td class="text-end pe-3 pe-md-4">
                             <div class="d-flex flex-wrap justify-content-end gap-2">
 
-                                <a :href="editUrl(Reserva.Id)"
+                                <a :href="renovarUrl(Reserva.Id)"
                                    class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-pencil-square"></i>
                                     <span class="d-none d-lg-inline ms-1">
-                                        Editar
+                                        Renovar
                                     </span>
                                 </a>
 
@@ -358,8 +358,8 @@
                     return `/Reserva/Detalles/${id}`;
                 },
 
-                editUrl(id) {
-                    return `/Reserva/Update/${id}`;
+                renovarUrl(id) {
+                    return `/Reserva/Renovar/${id}`;
                 },
 
                 async eliminar(id) {

@@ -367,6 +367,32 @@ namespace INMOBILIARIA.Controllers
             }
         }
 
+        [HttpGet]
+        [Authorize]
+        public ActionResult Renovar(int id)
+        {
+            Reserva? reserva = repositorioReserva.ObtenerPorId(id);
+
+            if (reserva == null)
+            {
+                TempData["Error"] = "La reserva no existe.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            IEnumerable<Reserva> reservasFuturas = repositorioReserva.ObtenerPorInmuebleFuturas(reserva.InmuebleId);
+
+            var resultado = reservasFuturas.Select(r => new {
+                fechaDesde = r.FechaDesde.ToString("yyyy-MM-dd"),
+                fechaHasta = r.FechaHasta.ToString("yyyy-MM-dd")
+            });
+
+            ViewBag.reservasFuturas = System.Text.Json.JsonSerializer.Serialize(resultado);
+
+            return View(reserva);
+        }
+
+
         private void CargarDatosFormulario(Reserva? reserva = null)
         {
             IEnumerable<Inmueble> inmuebles =

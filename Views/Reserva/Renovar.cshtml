@@ -1,0 +1,279 @@
+@model INMOBILIARIA.Models.Reserva
+
+@{
+    ViewData["Title"] = "Renovar Reserva";
+}
+
+<div class="container py-4" id="reserva-renovar-app" v-cloak>
+    <div class="mx-auto" style="max-width: 1050px;">
+        <!-- Encabezado -->
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div>
+                <h1 class="h3 fw-bold mb-1">Renovar Reserva</h1>
+                <p class="text-body-secondary mb-0">Establecé un nuevo período y precio para la renovación.</p>
+            </div>
+        </div>
+
+        <!-- Indicador de pasos Reactivo (3 Pasos) -->
+        <div class="d-flex justify-content-between mb-4">
+            <span :class="badgeClass(1)">1. Datos Fijos (Inmueble e Inquilino)</span>
+            <span :class="badgeClass(2)">2. Nuevas Fechas</span>
+            <span :class="badgeClass(3)">3. Resumen y Monto</span>
+        </div>
+
+        <!-- Mensajes de Error -->
+        <div v-if="errorMsg" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            {{ errorMsg }}
+            <button type="button" class="btn-close" @@click="errorMsg = ''"></button>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3">Paso {{ currentStep }}: {{ tituloPaso }}</h5>
+
+                <!-- Apuntamos a la acción que guarda la renovación o creación -->
+                <form asp-action="Create" method="post" id="wizardForm" @@submit="validarFormularioFinal">
+                    @Html.AntiForgeryToken()
+                    
+                    <!-- Campos ocultos sincronizados con Vue -->
+                    <input type="hidden" asp-for="InmuebleId" :value="form.inmuebleId" />
+                    <input type="hidden" asp-for="InquilinoId" :value="form.inquilinoId" />
+                    <input type="hidden" asp-for="FechaDesde" :value="form.fechaDesde" />
+                    <input type="hidden" asp-for="FechaHasta" :value="form.fechaHasta" />
+
+                    <!-- PASO 1: Inmueble e Inquilino Fijos -->
+                    <div v-show="currentStep === 1">
+                        <div class="row g-4">
+                            <!-- Tarjeta Inmueble -->
+                            <div class="col-12 col-md-6">
+                                <div class="card border bg-light h-100 p-3">
+                                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-building me-1"></i> Inmueble a Reservar</h6>
+                                    <p class="mb-1"><strong>Dirección:</strong> @Model.Inmueble?.Direccion</p>
+                                    <p class="mb-1"><strong>Tipo:</strong> @Model.Inmueble?.TipoInmueble?.Nombre</p>
+                                    <p class="mb-0"><strong>% Reserva:</strong> @Model.Inmueble?.PorcentajeReserva%</p>
+                                </div>
+                            </div>
+                            <!-- Tarjeta Inquilino -->
+                            <div class="col-12 col-md-6">
+                                <div class="card border bg-light h-100 p-3">
+                                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-person me-1"></i> Inquilino</h6>
+                                    <p class="mb-1"><strong>Nombre:</strong> @Model.Inquilino?.Nombre @Model.Inquilino?.Apellido</p>
+                                    <p class="mb-1"><strong>DNI:</strong> @Model.Inquilino?.Dni</p>
+                                    <p class="mb-0"><strong>Email:</strong> @Model.Inquilino?.Email</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="button" class="btn btn-primary" @@click="nextStep(2)">
+                                Siguiente (Fechas) <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PASO 2: Selección de Nuevas Fechas -->
+                    <div v-show="currentStep === 2">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Selecciona el nuevo rango de fechas</label>
+                            <input type="text" ref="calendarioInput" class="form-control bg-white" placeholder="Haz clic para seleccionar inicio y fin..." readonly />
+                            <small class="text-muted mt-1 d-block">
+                                <i class="bi bi-info-circle"></i> Las fechas deshabilitadas corresponden a otras reservas futuras para este inmueble.
+                            </small>
+                        </div>
+
+                        <div class="mt-4 d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" @@click="nextStep(1)">
+                                <i class="bi bi-arrow-left"></i> Anterior
+                            </button>
+                            <button type="button" class="btn btn-primary" @@click="nextStep(3)">
+                                Siguiente (Montos) <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PASO 3: Resumen y Montos -->
+                    <div v-show="currentStep === 3">
+                        <div class="row g-4">
+                            <div class="col-12 col-lg-7">
+                                <div class="card border-0 bg-light p-4 h-100 shadow-sm">
+                                    <h5 class="fw-bold mb-3">Resumen de la Renovación</h5>
+                                    <hr>
+                                    <p class="mb-1 text-muted">Inmueble:</p>
+                                    <h6 class="fw-bold">@Model.Inmueble?.Direccion</h6>
+                                    
+                                    <p class="mb-1 text-muted mt-2">Inquilino:</p>
+                                    <h6 class="fw-bold">@Model.Inquilino?.Nombre @Model.Inquilino?.Apellido (DNI: @Model.Inquilino?.Dni)</h6>
+
+                                    <p class="mb-1 text-muted mt-2">Nuevo Período:</p>
+                                    <h6 class="fw-bold text-primary">
+                                        {{ form.fechaDesde }} al {{ form.fechaHasta }} 
+                                        <span class="badge bg-secondary ms-2">({{ cantidadDias }} días)</span>
+                                    </h6>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-5">
+                                <div class="card border-0 shadow-sm p-4 h-100">
+                                    <h5 class="fw-bold mb-3">Cálculo de Reserva</h5>
+                                    <hr>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Monto de Alquiler por Día ($)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" asp-for="PrecioDia" step="0.01" min="0" v-model.number="form.precioDia" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-white p-3 rounded border mb-3">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-muted">Total Alquiler:</span>
+                                            <span class="fw-semibold">${{ montoTotalAlquiler.toFixed(2) }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between text-success fw-bold fs-5 border-top pt-2">
+                                            <span>A Pagar (Reserva @Model.Inmueble?.PorcentajeReserva%):</span>
+                                            <span>${{ montoReservaCalculado.toFixed(2) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-outline-secondary" @@click="nextStep(2)">
+                                <i class="bi bi-arrow-left"></i> Anterior
+                            </button>
+                            <button type="submit" class="btn.btn-success btn btn-success">
+                                <i class="bi bi-calendar-check me-1"></i> Confirmar Renovación
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    currentStep: 1,
+                    errorMsg: '',
+                    porcentajeReserva: @Json.Serialize(Model.Inmueble?.PorcentajeReserva ?? 0),
+                    
+                    form: {
+                        inmuebleId: @Model.InmuebleId,
+                        inquilinoId: @Model.InquilinoId,
+                        fechaDesde: null,
+                        fechaHasta: null,
+                        precioDia: @Json.Serialize(Model.PrecioDia) // Precarga el precio anterior si lo deseas
+                    },
+
+                    reservasFuturas: JSON.parse('@Html.Raw(ViewBag.reservasFuturas)'.replace(/&quot;/g, '"')) || [],
+                    flatpickrInstance: null
+                };
+            },
+
+            computed: {
+                tituloPaso() {
+                    switch (this.currentStep) {
+                        case 1: return 'Verificación de Inmueble e Inquilino';
+                        case 2: return 'Selección del nuevo período';
+                        case 3: return 'Confirmación y Montos';
+                        default: return '';
+                    }
+                },
+
+                cantidadDias() {
+                    if (!this.form.fechaDesde || !this.form.fechaHasta) return 0;
+                    const inicio = new Date(this.form.fechaDesde);
+                    const fin = new Date(this.form.fechaHasta);
+                    const diferenciaTiempo = fin - inicio;
+                    const dias = diferenciaTiempo / (1000 * 3600 * 24);
+                    return dias > 0 ? dias : 0;
+                },
+
+                montoTotalAlquiler() {
+                    return this.cantidadDias * (parseFloat(this.form.precioDia) || 0);
+                },
+
+                montoReservaCalculado() {
+                    const porcentaje = parseFloat(this.porcentajeReserva) || 0;
+                    return (this.montoTotalAlquiler * porcentaje) / 100;
+                }
+            },
+
+            mounted() {
+                this.initFlatpickr();
+            },
+
+            methods: {
+                badgeClass(step) {
+                    const baseClass = "badge fs-6 p-2 w-100 me-2 text-center ";
+                    if (this.currentStep === step) return baseClass + "bg-primary";
+                    if (this.currentStep > step) return baseClass + "bg-success";
+                    return baseClass + "bg-secondary";
+                },
+
+                nextStep(step) {
+                    this.errorMsg = '';
+
+                    if (step === 3) {
+                        if (!this.form.fechaDesde || !this.form.fechaHasta) {
+                            this.errorMsg = 'Por favor, selecciona las nuevas fechas de inicio y fin.';
+                            return;
+                        }
+                        if (new Date(this.form.fechaDesde) >= new Date(this.form.fechaHasta)) {
+                            this.errorMsg = 'La fecha de fin debe ser posterior a la fecha de inicio.';
+                            return;
+                        }
+                    }
+
+                    this.currentStep = step;
+                },
+
+                initFlatpickr() {
+                    if (this.$refs.calendarioInput) {
+                        console.log(this.reservasFuturas)
+                        // Mapear reservas futuras al formato que espera Flatpickr ({ from, to })
+                        const rangosBloqueados = this.reservasFuturas.map(r => ({
+                            from: r.fechaDesde,
+                            to: r.fechaHasta
+                        }));
+
+                        this.flatpickrInstance = flatpickr(this.$refs.calendarioInput, {
+                            locale: "es",
+                            mode: "range",
+                            dateFormat: "Y-m-d",
+                            minDate: "today",
+                            disable: rangosBloqueados,
+                            onChange: (selectedDates, dateStr, instance) => {
+                                if (selectedDates.length === 2) {
+                                    this.form.fechaDesde = instance.formatDate(selectedDates[0], "Y-m-d");
+                                    this.form.fechaHasta = instance.formatDate(selectedDates[1], "Y-m-d");
+                                } else {
+                                    this.form.fechaDesde = null;
+                                    this.form.fechaHasta = null;
+                                }
+                            }
+                        });
+                    }
+                },
+
+                validarFormularioFinal(event) {
+                    if (!this.form.inmuebleId || !this.form.inquilinoId || !this.form.fechaDesde || !this.form.fechaHasta) {
+                        event.preventDefault();
+                        this.errorMsg = 'Faltan datos obligatorios para registrar la renovación.';
+                    }
+                }
+            }
+        }).mount("#reserva-renovar-app");
+    </script>
+}
