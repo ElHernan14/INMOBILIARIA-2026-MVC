@@ -146,19 +146,6 @@ namespace INMOBILIARIA.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewBag.Reservas =
-                repositorioPago.ObtenerReservasDisponibles()
-                    .ToList();
-
-            // Garantizamos que la reserva actual aparezca
-            // aunque ya no esté disponible para nuevas operaciones.
-            if (pago.Reserva != null &&
-                !((List<Reserva>)ViewBag.Reservas).Any(r =>
-                    r.Id == pago.Reserva.Id))
-            {
-                ViewBag.Reservas.Add(pago.Reserva);
-            }
-
             return View(pago);
         }
 
@@ -166,66 +153,33 @@ namespace INMOBILIARIA.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Editar(Pago pago)
         {
-            if (pago.Reserva == null || pago.Reserva.Id <= 0)
-            {
-                ModelState.AddModelError(
-                    nameof(pago.Reserva),
-                    "Debe seleccionar una reserva.");
-            }
-
-            if (pago.Importe <= 0)
-            {
-                ModelState.AddModelError(
-                    nameof(pago.Importe),
-                    "El importe debe ser mayor a 0.");
-            }
-
-            if (pago.Fecha > DateOnly.FromDateTime(DateTime.Today))
-            {
-                ModelState.AddModelError(
-                    nameof(pago.Fecha),
-                    "La fecha del pago no puede ser futura.");
-            }
-
+     
             Pago? original = repositorioPago.ObtenerPorId(pago.Id);
 
             if (original == null)
-                return NotFound();
+            {
+                TempData["Error"] = "Error intente mas tarde.";
+                return RedirectToAction(nameof(Index));
+                
+            }
 
             if (original.Anulado)
             {
-                TempData["Error"] =
-                    "No se puede modificar un pago anulado.";
-
+                TempData["Error"] = "No se puede modificar un pago anulado.";
                 return RedirectToAction(nameof(Index));
             }
 
-            if (!ModelState.IsValid)
+            if (string.IsNullOrWhiteSpace(pago.Concepto))
             {
-                ViewBag.Reservas =
-                    repositorioPago.ObtenerReservasDisponibles()
-                        .ToList();
-
-                if (original.Reserva != null &&
-                    !((IEnumerable<Reserva>)ViewBag.Reservas).Any((Reserva r) =>
-                        r.Id == original.Reserva.Id))
-                {
-                    ViewBag.Reservas.Add(original.Reserva);
-                }
-
-                return View(pago);
+                ModelState.AddModelError(nameof(pago.Concepto), "El Concepto es requerido.");
+                return View(original);
             }
 
-            pago.UsuarioCreador = original.UsuarioCreador;
-            pago.FechaCreacion = original.FechaCreacion;
-            pago.Anulado = original.Anulado;
-            pago.FechaCancelacion = original.FechaCancelacion;
-            pago.UsuarioCancelador = original.UsuarioCancelador;
+            original.Concepto = pago.Concepto;
 
             repositorioPago.Modificacion(pago);
 
-            TempData["Mensaje"] =
-                "Pago modificado correctamente.";
+            TempData["Mensaje"] = "Pago modificado correctamente.";
 
             return RedirectToAction(nameof(Index));
         }

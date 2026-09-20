@@ -160,19 +160,13 @@ namespace INMOBILIARIA.Models.Repositorios
                 string sql = @"
                     UPDATE pagos
                     SET
-                        reserva_id = @reserva_id,
-                        concepto = @concepto,
-                        fecha = @fecha,
-                        importe = @importe
+                        concepto = @concepto
                     WHERE id = @id
                       AND anulado = FALSE";
 
                 using MySqlCommand command = new MySqlCommand(sql, connection);
 
-                command.Parameters.AddWithValue("@reserva_id", pago.Reserva!.Id);
                 command.Parameters.AddWithValue("@concepto", pago.Concepto);
-                command.Parameters.AddWithValue("@fecha", pago.Fecha);
-                command.Parameters.AddWithValue("@importe", pago.Importe);
                 command.Parameters.AddWithValue("@id", pago.Id);
 
                 command.CommandType = CommandType.Text;
