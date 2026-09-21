@@ -98,24 +98,32 @@ En `appsettings.json`:
 
 ---
 
-## Acceso administrador
+## Usuarios de prueba
 
-El registro público de la aplicación crea usuarios con el rol correspondiente al flujo de registro.
+La aplicación incluye dos usuarios de prueba para facilitar la corrección y el acceso a las funcionalidades correspondientes a cada rol.
 
-Para acceder a las funcionalidades administrativas durante las pruebas y corrección del proyecto, se incluye el script:
+El script para crear estos usuarios se encuentra en:
 
 ```text
-scripts/crear-admin.sql
+scripts/crear-usuarios-prueba.sql
 ```
 
-Luego de crear la base de datos y ejecutar el script correspondiente a la estructura de las tablas, ejecutar `crear-admin.sql`.
+Ejecutar este script después de crear la base de datos y las tablas.
 
-Esto creará un usuario administrador de prueba con acceso a las funcionalidades restringidas de la aplicación, incluyendo la gestión de usuarios y las operaciones de baja.
-
-### Credenciales de prueba
+### Administrador
 
 - **Email:** `admin@inmobiliaria.com`
-- **Contraseña:** `Admin123`
+- **Contraseña:** `Admin123!`
 - **Rol:** `ADMINISTRADOR`
 
-> El usuario administrador incluido está destinado exclusivamente a las pruebas y corrección de la aplicación.
+Este usuario permite acceder a las funcionalidades administrativas de la aplicación, incluyendo la gestión de usuarios y las operaciones restringidas.
+
+### Empleado
+
+- **Email:** `empleado@inmobiliaria.com`
+- **Contraseña:** `Empleado123!`
+- **Rol:** `EMPLEADO`
+
+Este usuario permite comprobar el comportamiento de la aplicación para un usuario con permisos no administrativos.
+
+> Ambos usuarios son cuentas de prueba destinadas exclusivamente a la corrección de la aplicación.
