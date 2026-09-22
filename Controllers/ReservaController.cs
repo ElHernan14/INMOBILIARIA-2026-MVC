@@ -307,9 +307,25 @@ namespace INMOBILIARIA.Controllers
             {
                 IEnumerable<Reserva> reservas = repositorioReserva.ObtenerPorInmuebleFuturas(id);
 
-                var resultado = reservas.Select(r => new {
-                    fechaDesde = r.FechaDesde.ToString("yyyy-MM-dd"),
-                    fechaHasta = r.FechaHasta.ToString("yyyy-MM-dd")
+                // traer todas las reservas no importa si estan canceladas
+                //si es cancelada tengo qe validar que la fecha de cancelacion este dentro del inicio y fin
+                //si esta dentro piso fecha fin con fecha cancelacion
+                //si no no agregar a la lista reserva
+
+                var resultado = reservas.Select(r =>
+                {
+                    if(!r.Activo)
+                    {
+                       return new {
+                            fechaDesde = r.FechaDesde.ToString("yyyy-MM-dd"),
+                            fechaHasta = DateOnly.FromDateTime(r.FechaCancelacion ?? DateTime.Now).ToString("yyyy-MM-dd")
+                        };
+                    }
+
+                    return new {
+                        fechaDesde = r.FechaDesde.ToString("yyyy-MM-dd"),
+                        fechaHasta = r.FechaHasta.ToString("yyyy-MM-dd")
+                    };
                 });
 
                 return Json(resultado);

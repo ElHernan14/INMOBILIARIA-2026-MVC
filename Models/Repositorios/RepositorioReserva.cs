@@ -376,7 +376,7 @@ namespace INMOBILIARIA.Models.Repositorios
 					FROM reservas
 					WHERE inmueble_id = @id_ingresado
 						AND fecha_hasta >= CURDATE()
-						AND cancelada=FALSE
+						AND (fecha_cancelacion is NULL OR fecha_cancelacion BETWEEN fecha_desde AND fecha_hasta)
 					ORDER BY fecha_desde ASC";
 
 					using (MySqlCommand command = new MySqlCommand(sql, connection))
