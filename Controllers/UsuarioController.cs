@@ -177,112 +177,112 @@ public class UsuarioController : Controller
     }
 
 
-    // GET: /Usuario/Register
-    [AllowAnonymous]
-    [HttpGet]
-    public IActionResult Register()
-    {
-        return View(new Usuario
-        {
-            Rol = RolUsuario.EMPLEADO,
-            Activo = true
-        });
-    }
+    // // GET: /Usuario/Register
+    // [AllowAnonymous]
+    // [HttpGet]
+    // public IActionResult Register()
+    // {
+    //     return View(new Usuario
+    //     {
+    //         Rol = RolUsuario.EMPLEADO,
+    //         Activo = true
+    //     });
+    // }
 
 
-    // POST: /Usuario/Register
-    [AllowAnonymous]
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult Register(
-        Usuario usuario,
-        IFormFile? avatarFile)
-    {
-        if (!ModelState.IsValid)
-        {
-            return View(usuario);
-        }
+    // // POST: /Usuario/Register
+    // [AllowAnonymous]
+    // [HttpPost]
+    // [ValidateAntiForgeryToken]
+    // public IActionResult Register(
+    //     Usuario usuario,
+    //     IFormFile? avatarFile)
+    // {
+    //     if (!ModelState.IsValid)
+    //     {
+    //         return View(usuario);
+    //     }
 
-        try
-        {
-            usuario.Nombre = usuario.Nombre.Trim();
-            usuario.Apellido = usuario.Apellido.Trim();
-            usuario.Dni = usuario.Dni.Trim();
-            usuario.Email = usuario.Email.Trim();
+    //     try
+    //     {
+    //         usuario.Nombre = usuario.Nombre.Trim();
+    //         usuario.Apellido = usuario.Apellido.Trim();
+    //         usuario.Dni = usuario.Dni.Trim();
+    //         usuario.Email = usuario.Email.Trim();
 
-            usuario.Rol = RolUsuario.EMPLEADO;
-            usuario.Activo = true;
+    //         usuario.Rol = RolUsuario.EMPLEADO;
+    //         usuario.Activo = true;
 
-            if (string.IsNullOrWhiteSpace(usuario.Password))
-            {
-                ModelState.AddModelError(
-                    nameof(usuario.Password),
-                    "La contraseña es obligatoria.");
+    //         if (string.IsNullOrWhiteSpace(usuario.Password))
+    //         {
+    //             ModelState.AddModelError(
+    //                 nameof(usuario.Password),
+    //                 "La contraseña es obligatoria.");
 
-                return View(usuario);
-            }
+    //             return View(usuario);
+    //         }
 
-            if (avatarFile is null)
-            {
-                ModelState.AddModelError(
-                    "avatarFile",
-                    "La foto de perfil es obligatoria.");
+    //         if (avatarFile is null)
+    //         {
+    //             ModelState.AddModelError(
+    //                 "avatarFile",
+    //                 "La foto de perfil es obligatoria.");
 
-                return View(usuario);
-            }
+    //             return View(usuario);
+    //         }
 
-            var usuarioExistente =
-                repositorioUsuario.ObtenerPorEmail(
-                    usuario.Email);
+    //         var usuarioExistente =
+    //             repositorioUsuario.ObtenerPorEmail(
+    //                 usuario.Email);
 
-            if (usuarioExistente is not null)
-            {
-                ModelState.AddModelError(
-                    nameof(usuario.Email),
-                    "Ya existe un usuario registrado con ese email.");
+    //         if (usuarioExistente is not null)
+    //         {
+    //             ModelState.AddModelError(
+    //                 nameof(usuario.Email),
+    //                 "Ya existe un usuario registrado con ese email.");
 
-                return View(usuario);
-            }
+    //             return View(usuario);
+    //         }
 
-            usuario.Password =
-                GenerarHash(usuario.Password);
+    //         usuario.Password =
+    //             GenerarHash(usuario.Password);
 
-            int id =
-                repositorioUsuario.Alta(usuario);
+    //         int id =
+    //             repositorioUsuario.Alta(usuario);
 
-            string? rutaAvatar =
-                GuardarAvatar(avatarFile, id);
+    //         string? rutaAvatar =
+    //             GuardarAvatar(avatarFile, id);
 
-            if (rutaAvatar is null)
-            {
-                repositorioUsuario.Baja(id);
+    //         if (rutaAvatar is null)
+    //         {
+    //             repositorioUsuario.Baja(id);
 
-                return View(usuario);
-            }
+    //             return View(usuario);
+    //         }
 
-            usuario.Id = id;
-            usuario.Avatar = rutaAvatar;
+    //         usuario.Id = id;
+    //         usuario.Avatar = rutaAvatar;
 
-            repositorioUsuario.Modificacion(usuario);
+    //         repositorioUsuario.Modificacion(usuario);
 
-            TempData["Success"] =
-                "La cuenta fue creada correctamente. Ya podés iniciar sesión.";
+    //         TempData["Success"] =
+    //             "La cuenta fue creada correctamente. Ya podés iniciar sesión.";
 
-            return RedirectToAction(nameof(Login));
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(
-                ex,
-                "Error al registrar el usuario.");
+    //         return RedirectToAction(nameof(Login));
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         logger.LogError(
+    //             ex,
+    //             "Error al registrar el usuario.");
 
-            ModelState.AddModelError(
-                string.Empty,
-                "No se pudo completar el registro.");
+    //         ModelState.AddModelError(
+    //             string.Empty,
+    //             "No se pudo completar el registro.");
 
-            return View(usuario);
-        }
-    }
+    //         return View(usuario);
+    //     }
+    // }
 
 
     // GET: /Usuario/Create
